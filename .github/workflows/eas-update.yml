@@ -1,0 +1,90 @@
+name: 📱 EAS Update (OTA)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'app/**'
+      - 'assets/**'
+      - '!**/__tests__/**'
+      - '!**/*.test.ts'
+      - '!**/*.test.tsx'
+      - '!**/*.spec.ts'
+      - '!**/*.spec.tsx'
+
+concurrency:
+  group: eas-update-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  publish:
+    name: 📱 Publish OTA Update
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node and Install
+        uses: ./.github/actions/setup-node-pnpm-install
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔐 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📱 Publish Update
+        id: publish
+        run: |
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          eas update --branch production --message "$COMMIT_MESSAGE" --non-interactive --json > update-output.json
+          
+          UPDATE_ID=$(cat update-output.json | jq -r '.[0].id // empty')
+          UPDATE_GROUP=$(cat update-output.json | jq -r '.[0].group // empty')
+          
+          if [ -n "$UPDATE_ID" ]; then
+            echo "update-id=$UPDATE_ID" >> $GITHUB_OUTPUT
+            echo "update-group=$UPDATE_GROUP" >> $GITHUB_OUTPUT
+            echo "✅ Update published: $UPDATE_ID"
+          else
+            echo "❌ Failed to publish update"
+            exit 1
+          fi
+
+      - name: 📊 Update Summary
+        if: always()
+        run: |
+          echo "### 📱 OTA Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** production" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ steps.publish.outputs.update-id }}" ]; then
+            echo "✅ **Update Published Successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Update ID:** \`${{ steps.publish.outputs.update-id }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Update Group:** \`${{ steps.publish.outputs.update-group }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Users with the production channel will receive this update automatically." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Update Failed to Publish**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 💾 Upload Update Output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eas-update-output
+          path: update-output.json
+          retention-days: 30

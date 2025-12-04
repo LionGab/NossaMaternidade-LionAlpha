@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Other projects (not part of mobile app)
+Lilia-App/
+backend/
+
+# Build outputs
+dist/
+build/
+web-build/
+.expo/
+
+# Native folders (managed by EAS)
+android/
+ios/
+
+# Config files
+*.config.js
+babel.config.js
+metro.config.js
+tailwind.config.js
+jest.setup.js
+
+# Type declarations
+*.d.ts
+nativewind-env.d.ts
+expo-env.d.ts
+
+# Generated files
+.expo-shared/
+
+# Scripts (Node.js)
+scripts/
+
+# Test coverage
+coverage/
+
+# Test files (will have separate tsconfig)
+__tests__/
+
+# Supabase (managed separately)
+supabase/
+
+# Assets
+assets/

@@ -1,0 +1,686 @@
+---
+description: "React Native Component Rules – Nossa Maternidade"
+globs: ["src/**/*.tsx"]
+alwaysApply: false
+---
+
+Use componentes de primitives em `src/components/primitives` para átomos (Box, Text, Button, etc.).
+Componentes em `src/components` (primitives/molecules/organisms/templates) devem ser majoritariamente apresentacionais.
+Toda lógica de negócio e comunicação com backend deve ficar em `src/services` (e hooks em `src/hooks`).
+
+---
+
+## 🎯 REGRAS ESSENCIAIS (Essential Rules)
+
+| Categoria | Regra |
+|-----------|-------|
+| **Tech Stack** | Use NativeWind (Tailwind para React Native). Nunca styled-components ou StyleSheet.create. |
+| **Architecture** | Services em `src/services`, UI em `src/components`. Hooks em `src/hooks`. |
+| **Anti-Lazy** | Output FULL file. Sem placeholders. Sem `//...existing code`. Sempre código completo. |
+| **Testing** | Toda função precisa de unit test em `__tests__/`. Coverage mínimo: 40% MVP, 60% Phase 2, 80% final. |
+| **Design Tokens** | Use APENAS `@/theme/tokens` (Tokens, ColorTokens, useThemeColors()). NUNCA `@/design-system` (legado). |
+| **TypeScript** | Strict mode sempre. Zero `any`. Use `unknown` + type guards. |
+| **Logging** | Use `logger.info()`, `logger.error()` de `src/utils/logger.ts`. Nunca `console.log`. |
+
+---
+
+## 🚫 THE ANTI-LAZY PROMPT (Reddit Gold)
+
+Você é um engenheiro expert.
+Você NÃO usa placeholders.
+Você outputa o CONTEÚDO COMPLETO do arquivo toda vez.
+Você não é preguiçoso.
+Você sempre mostra código completo, não comentários como `// ... existing code ...` ou `// ... more code ...`.
+Quando editar um arquivo, mostre o contexto completo necessário para entender a mudança.
+
+---
+
+Perfeito! Analisei o documento. Agora vou criar um PROMPT ULTRA-ROBUSTO PARA CURSOR AI que sintetiza tudo: context do projeto, stack, plano de ação, integração Supabase + IA multi-provider, e melhores práticas de Cursor.
+
+
+🎯 PROMPT ROBUSTO PARA CURSOR AI - Nossa Maternidade
+Cole este prompt todo na chat do Cursor AI (ou use como .cursor/rules):
+
+# 🔥 CONTEXTO COMPLETO: Our Maternidade (Nossa Maternidade)
+
+## PROJETO
+App mobile React Native + Expo + TypeScript para mães brasileiras.
+- **Propósito:** Apoio emocional, comunidade, autocuidado, IA amigável (NathIA)
+- **Público:** Mães 18-45 anos, classes C-D, Brasil (LGPD)
+- **Status:** MVP funcional existe (repo: LionGab/NossaMaternidade), precisa refatoração + features
+- **Versão app:** Expo 51+, React Native 0.75+, TypeScript 5.7+ (strict mode)
+
+---
+
+## STACK CONFIRMADA
+
+### Frontend
+- **Framework:** React Native + Expo (managed, SDK 51+)
+- **Language:** TypeScript 5.7+ (strict, zero `any`)
+- **Styling:** NativeWind (Tailwind para RN) + design tokens centralizados
+- **Navigation:** React Navigation 6+ (Stack + Tab)
+- **State:** TanStack Query (React Query) para sync Supabase
+- **UI Lib:** Componentes customizados (Box, Text, Button, Card) em `src/components`
+- **Theme:** "Bubblegum" design system (azul pastel #B3D9E8, rosa, verde segurança)
+- **Testing:** Jest + React Native Testing Library (60%+ MVP)
+
+### Backend
+- **Database:** Supabase (PostgreSQL) + RLS policies (LGPD)
+- **Auth:** Supabase Auth (magic links + social)
+- **Storage:** Supabase Storage (avatares, thumbs)
+- **Realtime:** Supabase Realtime (comunidade live)
+- **Edge Functions:** Supabase Edge Functions (Deno) para orquestração IA
+
+### IA Stack (Multi-Provider + Fallback)
+| Caso | Primary | Fallback 1 | Fallback 2 |
+|------|---------|-----------|-----------|
+| Chat NathIA (default) | Gemini 2.5 Flash | GPT-4o | Claude Opus |
+| Crise emocional | GPT-4o (OpenAI safety) | Gemini thinking | Claude Opus |
+| Análise profunda | Gemini 2.5 Flash thinking | Claude Opus | — |
+| Embeddings | Gemini 1.5 | OpenAI text-embed-3 | — |
+| Moderação conteúdo | Claude API | OpenAI Moderation | — |
+
+**Arquitetura IA:**
+- `llmRouter.ts`: Decide provider baseado em contexto (crise? → GPT-4o; normal? → Gemini)
+- `MaternalChatAgent` + `ContentRecommendationAgent` + `HabitsAnalysisAgent`: Orquestração
+- MCP architecture: SupabaseMCP, GoogleAIMCP, OpenAIMCP, AnthropicMCP
+- Prompt registry centralizado: `/src/ai/prompts/`
+- Fallback automático: se provedor cai, tenta próximo
+
+---
+
+## ESTRUTURA DE PASTAS ESPERADA
+
+
+NossaMaternidade/
+├── src/
+│ ├── app/ # App.tsx, navegação root
+│ ├── screens/ # HomeScreen, ChatScreen, OnboardingScreen, ProfileScreen, etc
+│ │ ├── HomeScreen.tsx
+│ │ ├── ChatScreen.tsx
+│ │ ├── MundoNathScreen.tsx
+│ │ ├── HabitsScreen.tsx
+│ │ ├── MaesValenteScreen.tsx (comunidade)
+│ │ └── SettingsScreen.tsx
+│ │
+│ ├── components/
+│ │ ├── primitives/ # Atoms: Box, Text, Button, HapticButton, ProgressIndicator
+│ │ ├── molecules/ # Molecules: Avatar, Badge, EmotionalPrompt, Card variants
+│ │ ├── organisms/ # Organisms: MaternalCard (hero|insight|action|progress|content)
+│ │ └── templates/ # Templates: ScreenLayout, SectionLayout
+│ │
+│ ├── services/
+│ │ ├── supabase/
+│ │ │ ├── profileService.ts
+│ │ │ ├── chatService.ts
+│ │ │ ├── emotionService.ts
+│ │ │ ├── habitService.ts
+│ │ │ └── contentService.ts
+│ │ ├── ai/
+│ │ │ ├── llmRouter.ts
+│ │ │ ├── aiOrchestrator.ts
+│ │ │ └── aiFallback.ts
+│ │ └── geminiService.ts (legacy, manter compatível)
+│ │
+│ ├── ai/
+│ │ ├── config/
+│ │ │ ├── llmConfig.ts # Profiles: CHAT_DEFAULT, CRISIS_SAFE, ANALYSIS_DEEP
+│ │ │ └── llmRouter.ts # Roteamento inteligente
+│ │ ├── agents/
+│ │ │ ├── MaternalChatAgent.ts
+│ │ │ ├── ContentRecommendationAgent.ts
+│ │ │ └── HabitsAnalysisAgent.ts
+│ │ ├── prompts/
+│ │ │ ├── nathia.system.md # Sistema prompt principal
+│ │ │ ├── crisis.system.md # Para crise emocional
+│ │ │ └── moderation.system.md # Para mod de conteúdo
+│ │ └── moderation/
+│ │ └── MedicalModerationService.ts
+│ │
+│ ├── theme/
+│ │ ├── colors.ts # Paleta: Bubblegum (azul, rosa, verde)
+│ │ ├── typography.ts # Font sizes, weights
+│ │ ├── spacing.ts # Grid 4px, margins/paddings
+│ │ └── tokens.ts # Design system centralizado
+│ │
+│ ├── types/
+│ │ ├── user.ts # UserProfile, EmotionValue, LifeStage
+│ │ ├── ai.ts # LlmProfile, RoutingContext, CrisisFlags
+│ │ ├── content.ts # ContentItem, Post, Comment
+│ │ └── index.ts # Exports
+│ │
+│ ├── hooks/
+│ │ ├── useAIRouting.ts
+│ │ ├── useEmotionTracking.ts
+│ │ ├── useHabits.ts
+│ │ └── useSupabase.ts
+│ │
+│ ├── utils/
+│ │ ├── logger.ts # Logging (não usar console.log)
+│ │ ├── ai.ts # Helper functions
+│ │ └── supabase.ts # Client setup
+│ │
+│ └── constants/
+│ ├── colors.ts # Referência de cores (use tokens.ts)
+│ ├── emotions.ts # 5 emojis, labels
+│ └── onboarding.ts # Perguntas da onboarding
+│
+├── supabase/
+│ ├── migrations/ # SQL versionadas
+│ │ ├── 001_initial_schema.sql
+│ │ ├── 002_rls_policies.sql
+│ │ └── 003_indexes_performance.sql
+│ └── functions/
+│ ├── chat/ # Orquestração NathIA
+│ ├── emotion-log/ # Check-in emocional
+│ ├── moderate-content/ # Moderação IA
+│ └── profile-complete/ # Onboarding 15Q
+│
+├── .cursor/
+│ └── rules # Regras Cursor (opcional, ver section)
+│
+├── app.json # Expo config
+├── package.json # Dependencies
+├── tsconfig.json # TypeScript config (strict)
+├── jest.config.js # Testing config
+├── .env.example # Variáveis de ambiente
+└── README.md # Documentação (já existe)
+
+---
+
+## PLANO DE AÇÃO (3 Fases)
+
+### Fase 1: MVP Básico (Semanas 1-4) ✅ Prioridade 1
+**Objetivo:** App funcional, TypeScript 0 erros, Home + Chat + Emocional + Hábitos
+
+#### Week 1-2: Setup + TypeScript Clean
+- [ ] Clonar repo, atualizar Expo para SDK 54+
+- [ ] **Corrigir todos erros TypeScript** (currently 16 errors via BUG_FIX_PLAN)
+  - Run: `npm run type-check 2>&1 | grep "error TS" | wc -l`
+  - Must be: 0
+- [ ] Limpar `src/` e `supabase/types` de `any`
+- [ ] Setup Supabase (schema MVP: user_profiles, chat_messages, emotion_logs, habits, content_interactions)
+- [ ] Create RLS policies (LGPD-ready)
+
+#### Week 2-3: Onboarding + Home + Design System
+- [ ] Implementar OnboardingScreen (2 perguntas críticas: name, life_stage)
+- [ ] Refatorar HomeScreen para 6 blocos (saudação, Hero CTA, emocional, diário, hábitos, mundo nath)
+- [ ] Create MaternalCard component (6 variants: hero, insight, action, progress, content, emotional)
+- [ ] Create EmotionalPrompt (5 emojis, haptic feedback)
+- [ ] Aplicar design tokens em todas as telas (use `src/theme/tokens.ts`)
+
+#### Week 3-4: Chat NathIA + Emotions + Supabase Integration
+- [ ] Implementar ChatScreen com NathIA (Gemini default)
+- [ ] Create `emotionService.ts` + hook `useEmotionTracking`
+- [ ] Create `habitService.ts` + habit logging
+- [ ] Connect HomeScreen a Supabase (profile, emotions, habits)
+- [ ] Add offline cache (AsyncStorage para fallback)
+- [ ] Tests: 40%+ coverage (services + components)
+
+**Resultado Week 4:** App com home, chat, check-in emocional, logging Supabase, 0 TS errors
+
+---
+
+### Fase 2: Ampliação + Refinement (Semanas 5-8) ✅ Prioridade 2
+**Objetivo:** Feed personalizado, Profile completo, IA avançada, 60%+ test coverage
+
+#### Week 5-6: MundoNath Feed + Content Interactions
+- [ ] Implementar MundoNathScreen (3 cards preview na Home, full feed em tela)
+- [ ] Create `contentService.ts` (log view, like, share, bookmark)
+- [ ] Content algo (iniciar simples: popular + recente)
+- [ ] Add content_interactions logging ao Supabase
+
+#### Week 6-7: Profile Completo + IA Routing
+- [ ] Implementar ProfileScreen com 15 perguntas opcionais
+- [ ] Expandir llmRouter (ligar modes do chat a diferentes modelos)
+  - "Chat Normal" → Gemini Flash
+  - "Pensar" → Claude Opus
+  - "Pesquisar" → Gemini com reasoning
+  - "Crise" → GPT-4o (OpenAI safety)
+- [ ] Add fallback automático entre providers
+- [ ] Implementar crisis detection (keywords + risk flags)
+- [ ] Add disclaimer médico dinâmico
+
+#### Week 7-8: Design System + Dark Mode + Acessibilidade
+- [ ] Uniformizar todas as telas com design tokens
+- [ ] Implementar Dark Mode (toggle em Settings)
+- [ ] WCAG AAA compliance: contrast ratios, touch targets 44pt+, accessibility labels
+- [ ] Testes: 60%+ coverage (todos services, principais screens)
+- [ ] Fix ESLint warnings críticos
+
+**Resultado Week 8:** App com feed, profile, IA multi-provider, acessibilidade WCAG AAA
+
+---
+
+### Fase 3: Comunidade + Lançamento (Semanas 9-12) ✅ Prioridade 3
+**Objetivo:** Comunidade moderada, embeddings, pronto para App Store
+
+#### Week 9-10: MãesValente (Comunidade)
+- [ ] Implementar MaesValenteScreen (posts, comentários, anônimos)
+- [ ] Create `communityService.ts` (create post, comment, like, moderation)
+- [ ] Integrar IA moderação: detecta violência, hate, sensibilidade
+- [ ] Add labels dinâmicos ("Conteúdo sensível — deseja ver?")
+- [ ] Implementar trust scoring (usuárias com posts apoiadores ganham badge)
+
+#### Week 10-11: Embeddings + Semantic Search
+- [ ] Integrar pgvector no Supabase
+- [ ] Implementar `embeddingService.ts` (Gemini Embeddings API)
+- [ ] Criar profile vector (preferências + history)
+- [ ] Semantic search para MundoNath (top-K similar content)
+- [ ] Personalizar feed com explicação ("Escolhemos isso porque você...")
+
+#### Week 11-12: Polish + Lançamento
+- [ ] Analytics dashboard (DAU, churn, sentiment)
+- [ ] Sentry setup (error tracking)
+- [ ] Build final (iOS + Android)
+- [ ] App Store + Google Play submission
+- [ ] Beta testing com 50+ mães
+- [ ] 80%+ test coverage
+
+**Resultado Week 12:** App pronto para lançamento público
+
+---
+
+## MELHORES PRÁTICAS DO CURSOR AI (Como Usar)
+
+### 1. Comece com Context
+
+Sempre comece conversas no Cursor com:
+- Arquivo que está editando: `@app.tsx` (ou o arquivo específico)
+- Contexto do projeto: Este é um app maternal React Native + Expo
+- Objetivo desta tarefa: "Criar MaternalCard component com 6 variants"
+
+### 2. Use @mentions Eficientemente
+
+- `@app.tsx` - Referência ao arquivo principal
+- `@package.json` - Para ver dependências
+- `@tsconfig.json` - Para entender tipos
+- `@src/theme` - Referência à pasta inteira
+- `@src/services` - Para ver padrões de services
+
+### 3. Peça Refatorações Específicas
+
+❌ RUIM: "Refatore este arquivo"
+✅ BOM: "Refatore HomeScreen.tsx para usar design tokens em vez de hardcoded colors.
+Mantenha mesma funcionalidade, apenas style updates."
+❌ RUIM: "Crie um componente"
+✅ BOM: "Crie MaternalCard.tsx em src/components/organisms com 6 variants
+(hero, insight, action, progress, content, emotional). Use apenas primitives
+(Box, Text, Button) de src/components/primitives. TypeScript strict mode."
+
+### 4. Use Composer para Multi-File Edits
+
+Usar Cursor Composer (Cmd+Shift+I no Mac) quando:
+- Criar múltiplos arquivos relacionados (ex: MaternalCard + types + tests)
+- Refatorar entre pastas (ex: mover services, atualizar imports)
+- Setup inicial (pastas + boilerplate)
+
+### 5. Peça Type-First Development
+
+Sempre peça tipos ANTES de implementação:
+```
+"Crie types/ai.ts com interfaces: LlmProfile, RoutingContext, CrisisFlags.
+Então use em src/ai/config/llmConfig.ts"
+```
+
+### 6. Commit Messages Cursor-Style
+
+Cursor entende contexto entre commits. Peça assim:
+```
+"Após criar MaternalCard.tsx, faça commit:
+'feat(ui): MaternalCard organism component (6 variants, Atomic Design'"
+```
+
+### 7. Debugging com Cursor
+
+Quando algo quebra:
+```
+"A HomeScreen tá com erro ao renderizar MaternalCard.
+O erro é: [copie erro]. Arquivo: @src/screens/HomeScreen.tsx.
+Qual é o problema?"
+```
+
+### 8. Testing Pattern
+
+Cursor escreve testes se pedir:
+```
+"Crie tests para @src/services/emotionService.ts.
+Test: saveEmotion() deve persistir em Supabase.
+Test: getTodayEmotion() deve retornar emotion de hoje."
+```
+
+---
+
+## REGRAS CRÍTICAS DO PROJETO
+
+### Anti-Lazy (Código Completo)
+- ✅ Sempre outputar código COMPLETO do arquivo
+- ✅ Sem placeholders como `// ... existing code ...` ou `// ... more code ...`
+- ✅ Sempre mostrar contexto suficiente para entender a mudança
+- ✅ Quando editar, mostrar a função/classe completa, não apenas a linha alterada
+- ❌ Nunca usar comentários para omitir código relevante
+
+### TypeScript
+- ✅ `strict: true` sempre
+- ✅ Zero `any`
+- ✅ Use `unknown` + type guards
+- ❌ Sem `// @ts-ignore` ou `@ts-expect-error`
+
+### Naming
+- Services: `*Service.ts` (profileService, chatService)
+- Screens: `*Screen.tsx` (HomeScreen, ChatScreen)
+- Components: `*Component.tsx` ou `*Organism.tsx` (MaternalCard, EmotionalPrompt)
+- Hooks: `use*` (useAIRouting, useEmotionTracking)
+
+### Logging
+- ✅ Use `logger.info()`, `logger.error()` (from utils/logger.ts)
+- ❌ Nunca `console.log`
+
+### Styling
+- ✅ Use design tokens (`src/theme/tokens.ts`)
+- ✅ NativeWind (Tailwind para React Native) para consistency
+- ✅ Use `className` com classes Tailwind via NativeWind
+- ❌ Nunca styled-components ou styled-components/native
+- ❌ Hardcoded colors/sizes (`#FFFFFF`, `rgba(...)`, `16`, etc.)
+- ❌ StyleSheet.create (use tokens diretamente ou NativeWind)
+
+### IA Integrations
+- ✅ Sempre rote via `llmRouter.ts`
+- ✅ Log cada chamada (provider, tokens, cost)
+- ✅ Fallback automático
+- ✅ Crisis detection antes de qualquer resposta
+- ❌ Diagnóstico médico sem disclaimer
+
+### Supabase
+- ✅ RLS policies em TODAS as tables
+- ✅ Migrations versionadas
+- ✅ EdgeFunctions para lógica complexa
+- ✅ AsyncStorage para offline cache
+- ❌ Queries sem índices (perf killer)
+
+### Testing
+- ✅ Jest + React Native Testing Library
+- ✅ **Toda função precisa de unit test** em `__tests__/`
+- ✅ Test services first (IA, Supabase, etc)
+- ✅ Mock Supabase (não use DB real em testes)
+- ✅ Coverage mínimo: 40% MVP, 60% Phase 2, 80% final
+- ❌ Funções sem testes não são aceitas
+
+### Arquitetura de Componentes React/React Native ⚠️ CRÍTICO
+
+**Separação de Responsabilidades:**
+
+1. **Componentes em `src/components` são APENAS apresentacionais:**
+   - ✅ Recebem props e renderizam UI
+   - ✅ Podem usar hooks de UI (`useState`, `useRef`, `useMemo` para performance)
+   - ✅ Podem usar hooks customizados de `src/hooks` para lógica reutilizável
+   - ❌ NÃO fazem chamadas diretas a APIs ou Supabase
+   - ❌ NÃO contêm lógica de negócio complexa
+   - ❌ NÃO fazem transformações de dados além de formatação de display
+
+2. **Lógica de negócio vai em `src/services`:**
+   - ✅ Services fazem chamadas a APIs, Supabase, IA
+   - ✅ Services contêm regras de negócio, validações, transformações de dados
+   - ✅ Services são testáveis isoladamente (mocks fáceis)
+   - ✅ Services podem ser usados por múltiplos componentes
+
+3. **Hooks em `src/hooks` são bridges entre UI e Services:**
+   - ✅ Hooks encapsulam lógica reutilizável que combina services + estado UI
+   - ✅ Exemplos: `useEmotionTracking`, `useHabits`, `useSupabase`
+   - ✅ Podem usar TanStack Query para cache/sync
+   - ❌ Não devem conter lógica de negócio complexa (isso vai em services)
+
+4. **Primitives em `src/components/primitives`:**
+   - ✅ Átomos básicos: Box, Text, Button, Input, etc.
+   - ✅ Devem ser completamente genéricos e reutilizáveis
+   - ✅ Podem usar shadcn/ui como base (se adaptado para React Native)
+   - ✅ Zero dependências de negócio
+
+**Exemplo Correto:**
+```typescript
+// ✅ CORRETO: Componente apresentacional
+// src/components/organisms/MaternalCard.tsx
+import { useEmotionTracking } from '@/hooks/useEmotionTracking';
+
+export const MaternalCard = ({ variant }: Props) => {
+  const { todayEmotion } = useEmotionTracking(); // Hook usa service internamente
+  
+  return (
+    <Box>
+      <Text>{todayEmotion?.label}</Text>
+    </Box>
+  );
+};
+
+// ✅ CORRETO: Service com lógica de negócio
+// src/services/supabase/emotionService.ts
+export const emotionService = {
+  async saveEmotion(emotion: EmotionValue) {
+    // Lógica de negócio aqui
+    return await supabase.from('emotion_logs').insert(emotion);
+  }
+};
+
+// ✅ CORRETO: Hook que conecta UI e Service
+// src/hooks/useEmotionTracking.ts
+export const useEmotionTracking = () => {
+  const { data } = useQuery({
+    queryKey: ['emotion', 'today'],
+    queryFn: () => emotionService.getTodayEmotion()
+  });
+  return { todayEmotion: data };
+};
+```
+
+**Exemplo Incorreto:**
+```typescript
+// ❌ ERRADO: Componente com lógica de negócio
+export const MaternalCard = () => {
+  const [emotion, setEmotion] = useState();
+  
+  useEffect(() => {
+    // ❌ Chamada direta ao Supabase no componente
+    supabase.from('emotion_logs').select().then(setEmotion);
+  }, []);
+  
+  return <Text>{emotion?.label}</Text>;
+};
+```
+
+### Design System Validation Protocol ⚠️ CRÍTICO
+
+**SEMPRE que modificar componentes, telas ou estilos:**
+
+1. ✅ Use APENAS `@/theme/tokens` (NUNCA `@/design-system` - sistema legado)
+2. ✅ Use `useThemeColors()` para cores theme-aware (suporta dark mode)
+3. ✅ Valide contraste WCAG AAA (7:1 mínimo para text, 4.5:1 para large text)
+4. ✅ Touch targets >= 44pt (iOS) / 48dp (Android)
+5. ✅ Rode `@design-tokens validate FILE` antes de commit
+6. ✅ Rode `@accessibility audit.screen FILE` para telas completas
+7. ✅ Teste dark mode (use `isDark` do `useTheme()` hook)
+
+**MCPs de Validação Disponíveis:**
+```bash
+# Validação de design tokens
+@design-tokens validate src/screens/HomeScreen.tsx
+
+# Análise de qualidade de código
+@code-quality analyze.design src/components/Button.tsx
+
+# Auditoria de acessibilidade WCAG AAA
+@accessibility audit.screen src/screens/ChatScreen.tsx
+
+# Otimização mobile (FlatList, memo, images)
+@mobile-optimization check.flatlist src/screens/FeedScreen.tsx
+
+# Validação de prompts de IA
+@prompt-testing validate.all promptPath=src/ai/prompts/nathia.system.md
+
+# Migração de sistema legado (futuro)
+@design-migration analyze src/components/primitives/Button.tsx
+```
+
+**Auto-fix Engine:**
+```bash
+# Preview de correções (dry-run)
+node scripts/cursor-auto-fix.js --file=src/screens/HomeScreen.tsx --dry-run
+
+# Aplicar correções de alta confiança (95%+)
+node scripts/cursor-auto-fix.js --file=src/screens/HomeScreen.tsx --confidence=high
+
+# Batch mode (todos os arquivos)
+node scripts/cursor-auto-fix.js --mode=batch --confidence=high
+```
+
+**Padrões Corretos:**
+```typescript
+// ❌ EVITE: Sistema legado + hardcoded values
+import { COLORS, SPACING } from '@/design-system';
+backgroundColor: '#FFFFFF'
+padding: 16
+
+// ✅ CORRETO: Tokens modernos + theme-aware
+import { Tokens } from '@/theme/tokens';
+import { useThemeColors } from '@/theme';
+
+const colors = useThemeColors();
+backgroundColor: colors.background.card  // Suporta dark mode
+padding: Tokens.spacing['4']            // 16px
+```
+
+**Violations Críticas:**
+- ⛔ Contraste < 7:1 (WCAG AAA text)
+- ⛔ Touch targets < 44pt
+- ⛔ Hardcoded colors (#FFFFFF, rgba(0,0,0,0.1), 'white')
+- ⛔ Uso de `@/design-system` imports
+- ⛔ Missing accessibility labels (accessibilityLabel, accessibilityRole)
+- ⛔ Dark mode não testado
+
+---
+
+## PROMPTS RÁPIDOS DE USO (Copiar/Colar)
+
+### Para criar novo componente
+
+```
+Crie @src/components/organisms/MaternalCard.tsx com 6 variants.
+Código deve ser typescript strict, usar apenas primitives, memoized.
+Types em @src/types/component.ts.
+Teste básico em tests/MaternalCard.test.tsx
+```
+
+### Para integrar IA
+
+```
+Integre Gemini chat no @src/services/chatService.ts.
+Roteamento via @src/ai/config/llmRouter.ts.
+Crisis detection antes de resposta.
+Log em Supabase (tokens, provider, custo).
+Fallback para GPT-4o se Gemini cair.
+```
+
+### Para criar service
+
+```
+Crie @src/services/supabase/emotionService.ts.
+Funções: saveEmotion(), getTodayEmotion(), getEmotionHistory().
+Use tipos de @src/types/user.ts.
+RLS-ready (filtra por user.id).
+Teste com mocks (não use DB real).
+```
+
+### Para refatorar tela
+
+```
+Refatore @src/screens/HomeScreen.tsx.
+Use MaternalCard (6 blocos).
+Aplique design tokens (sem hardcoded colors).
+WCAG AAA accessibility labels.
+Dark mode support.
+Load dados via useSupabase() hook.
+```
+
+---
+
+## CHECKLIST DE QUALIDADE
+
+Antes de commitar:
+- [ ] TypeScript: `npm run type-check` → 0 errors
+- [ ] Lint: `npm run lint` → 0 critical warnings
+- [ ] Tests: `npm test` → All green, coverage ≥ 40% (MVP)
+- [ ] Naming: Arquivos em kebab-case, variáveis/funções em camelCase
+- [ ] No console.log: Use logger
+- [ ] No hardcoded colors: Use tokens
+- [ ] Accessibility: Labels, 44pt+ touch targets
+- [ ] Performance: No unnecessary re-renders (use memo)
+- [ ] Commit message: feat|fix|refactor(scope): description
+
+---
+
+## PRÓXIMAS AÇÕES AGORA
+
+1. **Clone repo:** `git clone [repo-url] && cd NossaMaternidade`
+2. **Setup:** `npm install && npx expo start`
+3. **Check TS:** `npm run type-check`
+4. **First prompt to Cursor:**
+
+```
+"Estou desenvolvendo Nossa Maternidade (app maternal React Native + Expo).
+Preciso começar a Fase 1, Week 1: corrigir todos os 16 erros TypeScript.
+Repo estrutura: @src, @supabase, @app.json.
+Qual é o erro mais crítico e como fixar?"
+```
+
+---
+
+## Ressources
+- Repo: LionGab/NossaMaternidade (GitHub)
+- Plano de ação: Documento fornecido
+- Design System: src/theme/ (Bubblegum palette)
+- IA Docs: CLAUDE.md, src/ai/
+- BugFix: BUG_FIX_PLAN.md (16 TS errors)
+
+---
+
+**Status: Pronto para Cursor AI começar!** 🚀
+
+---
+
+## 🎯 COMO USAR ESTE PROMPT
+
+### Opção 1: Cole Direto no Cursor Chat
+1. Abra Cursor AI
+2. Cmd+L (ou Ctrl+L no Windows/Linux)
+3. Cole TODO o prompt acima
+4. Pressione Enter
+5. Cursor terá contexto completo do projeto
+
+### Opção 2: Salve como .cursor/rules
+1. Na raiz do projeto, crie pasta `.cursor/`
+2. Crie arquivo `rules` (sem extensão) ou `instructions.md`
+3. Cole o prompt
+4. Cursor lerá automaticamente em toda conversa
+
+### Opção 3: Use como Template para Prompts Específicos
+Depois que tiver contexto, use sub-prompts:
+
+```
+"Fase 1, Week 1, Task 1: Corrigir erros TypeScript.
+ Rodei npm run type-check e achei 16 errors.
+ Primeiro erro: 'Property X does not exist on type Y' em HomeScreen.tsx:45.
+ Como fixar? Mostre passo-a-passo."
+```
+
+---
+
+## ⚡ MELHORES PRÁTICAS CURSOR (Resumo Executivo)
+
+| Prática | Por Que | Como |
+|---------|---------|------|
+| @mentions | Cursor entende contexto de arquivo/pasta | `@HomeScreen.tsx` ou `@src/services` |
+| Type-First | TypeScript strict garante qualidade | Peça tipos ANTES de código |
+| Composer | Multi-file edits sincronizadas | Cmd+Shift+I, edite múltiplos em paralelo |
+| Commit com Context | Cursor entende relacionamento de commits | Peça commit message específica |
+| Debugging | Descreva erro exato | "Erro: TypeError, arquivo: @X, linha Y" |
+| Testing | Teste enquanto escreve | Peça testes + code juntos |
+| Refactor Gradual | Evita grandes quebras | Refatore 1 componente/serviço por vez |

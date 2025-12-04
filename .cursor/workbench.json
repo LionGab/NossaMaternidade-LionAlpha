@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "name": "Nossa Maternidade Rules",
+  "description": "Regras organizadas para Cursor Workbench - Nossa Maternidade",
+  "registries": [],
+  "rules": {
+    "00-project-context.mdc": {
+      "title": "Contexto do Projeto",
+      "alwaysApply": true,
+      "tags": ["context", "project", "overview"]
+    },
+    "01-typescript-rules.mdc": {
+      "title": "Regras TypeScript",
+      "alwaysApply": true,
+      "tags": ["typescript", "strict", "types", "quality"]
+    },
+    "02-design-system.mdc": {
+      "title": "Design System Rules",
+      "alwaysApply": true,
+      "tags": ["design", "tokens", "colors", "accessibility", "wcag"],
+      "globs": ["**/*.tsx", "**/*.ts", "src/components/**", "src/screens/**"]
+    },
+    "03-ai-integration.mdc": {
+      "title": "IA Integration Rules",
+      "alwaysApply": false,
+      "tags": ["ai", "llm", "routing", "fallback", "crisis"],
+      "globs": ["src/ai/**", "src/services/ai/**", "src/agents/**"]
+    },
+    "04-supabase-rules.mdc": {
+      "title": "Supabase Rules",
+      "alwaysApply": false,
+      "tags": ["supabase", "database", "rls", "lgpd", "security"],
+      "globs": ["src/services/supabase/**", "supabase/**"]
+    },
+    "05-testing-rules.mdc": {
+      "title": "Testing Rules",
+      "alwaysApply": false,
+      "tags": ["testing", "jest", "coverage", "quality"],
+      "globs": ["**/*.test.ts", "**/*.test.tsx", "__tests__/**"]
+    },
+    "06-code-quality.mdc": {
+      "title": "Code Quality Rules",
+      "alwaysApply": true,
+      "tags": ["quality", "logging", "performance", "naming", "best-practices"]
+    },
+    "07-accessibility.mdc": {
+      "title": "Accessibility Rules",
+      "alwaysApply": true,
+      "tags": ["accessibility", "wcag", "a11y", "inclusive-design"],
+      "globs": ["**/*.tsx", "src/components/**", "src/screens/**"]
+    }
+  }
+}

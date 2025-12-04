@@ -1,0 +1,34 @@
+appId: com.nossamaternidade.app
+---
+# Login flow test
+# Tests the login screen functionality with valid credentials
+
+- launchApp
+
+# Wait for app to load
+- waitForAnimationToEnd
+
+# Look for login screen elements
+# Note: Adjust these selectors based on your actual UI text/IDs
+- assertVisible:
+    text: ".*[Ee]mail.*"
+
+# Input email
+- tapOn:
+    text: ".*[Ee]mail.*"
+- inputText: "test@example.com"
+
+# Input password
+- tapOn:
+    text: ".*[Ss]enha.*|.*[Pp]assword.*"
+- inputText: "testpassword123"
+
+# Hide keyboard if visible
+- hideKeyboard
+
+# Tap login button
+- tapOn:
+    text: ".*[Ee]ntrar.*|.*[Ll]ogin.*"
+
+# Wait for navigation after login
+- waitForAnimationToEnd

@@ -1,0 +1,61 @@
+#!/usr/bin/env sh
+# Commit-msg hook - Validação de Conventional Commits
+# Padrão: type(scope): description
+# Tipos: feat, fix, docs, style, refactor, perf, test, build, ci, chore
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+echo "📝 Validando mensagem de commit..."
+
+# Padrão para conventional commits
+# Tipos permitidos: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?: .{1,100}"
+
+# Permitir mensagens de merge e revert automáticas
+if echo "$COMMIT_MSG" | grep -qE "^(Merge|Revert|Initial commit)"; then
+  echo "✅ Commit de merge/revert detectado - permitido"
+  exit 0
+fi
+
+# Validar padrão
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌ COMMIT BLOQUEADO: Mensagem não segue Conventional Commits"
+  echo ""
+  echo "📖 Formato esperado: type(scope): description"
+  echo ""
+  echo "📋 Tipos permitidos:"
+  echo "   feat     - Nova funcionalidade"
+  echo "   fix      - Correção de bug"
+  echo "   docs     - Documentação"
+  echo "   style    - Formatação (não muda código)"
+  echo "   refactor - Refatoração"
+  echo "   perf     - Melhoria de performance"
+  echo "   test     - Testes"
+  echo "   build    - Build system"
+  echo "   ci       - CI/CD"
+  echo "   chore    - Tarefas diversas"
+  echo ""
+  echo "📝 Exemplos válidos:"
+  echo '   feat(home): adicionar card de emoções'
+  echo '   fix(chat): corrigir scroll infinito'
+  echo '   refactor(design): migrar para tokens'
+  echo '   docs: atualizar README'
+  echo ""
+  echo "🔍 Sua mensagem: $COMMIT_MSG"
+  exit 1
+fi
+
+# Validar tamanho da linha (máximo 100 caracteres)
+FIRST_LINE=$(echo "$COMMIT_MSG" | head -1)
+if [ ${#FIRST_LINE} -gt 100 ]; then
+  echo ""
+  echo "❌ COMMIT BLOQUEADO: Primeira linha muito longa (>${#FIRST_LINE} > 100)"
+  echo "💡 Mantenha a primeira linha com no máximo 100 caracteres"
+  exit 1
+fi
+
+echo "✅ Mensagem de commit válida!"
+exit 0
+

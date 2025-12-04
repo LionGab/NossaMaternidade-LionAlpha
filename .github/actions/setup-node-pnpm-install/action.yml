@@ -1,0 +1,31 @@
+name: 'Setup Node and Install Dependencies'
+description: 'Setup Node.js, cache dependencies, and install with npm ci'
+author: 'Nossa Maternidade Team'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '20'
+  frozen-lockfile:
+    description: 'Use frozen lockfile for install (npm ci)'
+    required: false
+    default: 'true'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        if [ "${{ inputs.frozen-lockfile }}" = "true" ]; then
+          npm ci
+        else
+          npm install
+        fi

@@ -1,0 +1,156 @@
+name: 🔍 Preview Build
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  preview:
+    name: 🔍 Create Preview Update
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node and Install
+        uses: ./.github/actions/setup-node-pnpm-install
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔐 Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🔍 Publish Preview Update
+        id: preview
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          BRANCH_NAME="pr-${PR_NUMBER}"
+          COMMIT_MESSAGE="Preview for PR #${PR_NUMBER}: ${{ github.event.pull_request.title }}"
+          
+          # Executar EAS update e capturar output
+          if ! eas update --branch "$BRANCH_NAME" --message "$COMMIT_MESSAGE" --non-interactive --json > preview-output.json 2>&1; then
+            echo "❌ EAS update failed"
+            cat preview-output.json
+            exit 1
+          fi
+          
+          # Verificar se arquivo existe e não está vazio
+          if [ ! -s preview-output.json ]; then
+            echo "❌ preview-output.json is empty or doesn't exist"
+            exit 1
+          fi
+          
+          # Extrair update ID com validação
+          UPDATE_ID=$(cat preview-output.json | jq -r '.[0].id // empty' 2>/dev/null || echo "")
+          
+          if [ -n "$UPDATE_ID" ]; then
+            echo "update-id=$UPDATE_ID" >> $GITHUB_OUTPUT
+            echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+            echo "✅ Preview published: $UPDATE_ID"
+          else
+            echo "❌ Failed to extract update ID from output"
+            cat preview-output.json
+            exit 1
+          fi
+
+      - name: 💬 Comment on PR
+        if: steps.preview.outputs.update-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const updateId = '${{ steps.preview.outputs.update-id }}';
+            const branch = '${{ steps.preview.outputs.branch }}';
+            const prNumber = '${{ github.event.pull_request.number }}';
+            
+            const body = `## 🔍 Preview Build Available
+            
+            This PR has been deployed as a preview update!
+            
+            **Branch:** \`${branch}\`
+            **Update ID:** \`${updateId}\`
+            
+            ### 📱 How to test:
+            
+            1. Install the **development build** of Nossa Maternidade
+            2. Open the app
+            3. Go to the Expo developer menu (shake device or press \`m\` in terminal)
+            4. Select **"Expo Go"** or **"Open in Expo Go"**
+            5. Enter channel: \`${branch}\`
+            
+            Or use this QR code with Expo Go:
+            
+            ![QR Code](https://qr.expo.dev/eas-update?updateId=${updateId}&appScheme=nossamaternidade)
+            
+            ### 🔄 Update Instructions:
+            
+            This preview will automatically update when you push new commits to this PR.
+            
+            ---
+            *Preview builds are for testing only and may have different behavior than production builds.*`;
+            
+            // Find existing preview comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+            });
+            
+            const previewComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Preview Build Available')
+            );
+            
+            if (previewComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previewComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body
+              });
+            }
+
+      - name: 📊 Preview Summary
+        if: always()
+        run: |
+          echo "### 🔍 Preview Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**PR:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ steps.preview.outputs.branch }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ steps.preview.outputs.update-id }}" ]; then
+            echo "✅ **Preview Published Successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Update ID:** \`${{ steps.preview.outputs.update-id }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Instructions have been posted in the PR comments." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Preview Failed to Publish**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 💾 Upload Preview Output
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preview-output-pr-${{ github.event.pull_request.number }}
+          path: preview-output.json
+          retention-days: 7

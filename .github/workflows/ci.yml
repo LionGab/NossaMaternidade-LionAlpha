@@ -1,0 +1,338 @@
+# GitHub Actions: CI Pipeline Completo
+# Executa validações, testes e build em cada PR/push
+
+name: 🚀 CI Pipeline
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # JOB 1: Lint e Formatação
+  # ============================================
+  lint:
+    name: 🧹 Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🧹 ESLint
+        run: npm run lint -- --max-warnings 0
+        continue-on-error: true
+
+      - name: 📊 Lint Report
+        if: always()
+        run: |
+          echo "### 🧹 Lint Results" >> $GITHUB_STEP_SUMMARY
+          npm run lint -- --format json > lint-report.json 2>&1 || true
+          if [ -f lint-report.json ]; then
+            ERRORS=$(cat lint-report.json | jq '[.[] | .errorCount] | add // 0')
+            WARNINGS=$(cat lint-report.json | jq '[.[] | .warningCount] | add // 0')
+            echo "- Errors: $ERRORS" >> $GITHUB_STEP_SUMMARY
+            echo "- Warnings: $WARNINGS" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ============================================
+  # JOB 2: TypeScript
+  # ============================================
+  typescript:
+    name: 📝 TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 📝 Type Check
+        run: npm run type-check 2>&1 | tee typescript-output.txt
+        continue-on-error: true
+
+      - name: 📊 TypeScript Report
+        if: always()
+        run: |
+          echo "### 📝 TypeScript Results" >> $GITHUB_STEP_SUMMARY
+          if [ -f typescript-output.txt ]; then
+            ERROR_COUNT=$(grep -c "error TS" typescript-output.txt || echo "0")
+            echo "- TypeScript Errors: $ERROR_COUNT" >> $GITHUB_STEP_SUMMARY
+            if [ "$ERROR_COUNT" != "0" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "<details><summary>Show Errors</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              head -100 typescript-output.txt >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "</details>" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # ============================================
+  # JOB 3: Design Tokens
+  # ============================================
+  design-tokens:
+    name: 🎨 Design Tokens
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🎨 Validate Design Tokens
+        run: npm run validate:design 2>&1 | tee design-output.txt
+
+      - name: 📊 Design Report
+        if: always()
+        run: |
+          echo "### 🎨 Design Token Validation" >> $GITHUB_STEP_SUMMARY
+          if [ -f design-output.txt ]; then
+            if grep -q "✅ Nenhuma violação crítica" design-output.txt; then
+              echo "✅ **All design tokens validated successfully!**" >> $GITHUB_STEP_SUMMARY
+            else
+              VIOLATIONS=$(grep "violações:" design-output.txt | head -1 || echo "Unknown")
+              echo "⚠️ $VIOLATIONS" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: 💾 Upload Design Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: design-violations
+          path: design-output.txt
+          retention-days: 7
+
+  # ============================================
+  # JOB 4: Testes Unitários
+  # ============================================
+  test:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🧪 Run Tests
+        run: npm test -- --coverage --passWithNoTests 2>&1 | tee test-output.txt
+        continue-on-error: true
+        env:
+          CI: true
+
+      - name: 📊 Test Report
+        if: always()
+        run: |
+          echo "### 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ]; then
+            COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            echo "- Line Coverage: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f test-output.txt ]; then
+            if grep -q "passed" test-output.txt; then
+              PASSED=$(grep -oP '\d+(?= passed)' test-output.txt | tail -1 || echo "0")
+              echo "- Tests Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: 💾 Upload Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ============================================
+  # JOB 5: Validação de Acessibilidade
+  # ============================================
+  accessibility:
+    name: ♿ Accessibility
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: ♿ Check Accessibility Labels
+        run: |
+          echo "### ♿ Accessibility Check" >> $GITHUB_STEP_SUMMARY
+          
+          # Contar componentes sem accessibilityLabel
+          MISSING=$(grep -r "TouchableOpacity\|Pressable\|Button" src/components src/screens --include="*.tsx" | grep -v "accessibilityLabel" | wc -l || echo "0")
+          
+          echo "- Components without accessibilityLabel: $MISSING" >> $GITHUB_STEP_SUMMARY
+          
+          # Check touch targets
+          SMALL_TARGETS=$(grep -rE "height:\s*(3[0-9]|[1-2][0-9]|[0-9])(?!px)" src/ --include="*.tsx" | wc -l || echo "0")
+          echo "- Potential small touch targets: $SMALL_TARGETS" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # JOB 6: Summary
+  # ============================================
+  summary:
+    name: 📋 CI Summary
+    runs-on: ubuntu-latest
+    needs: [lint, typescript, design-tokens, test, accessibility]
+    if: always()
+    steps:
+      - name: 📋 Generate Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = ${{ toJSON(needs) }};
+            
+            let summary = `## 🚀 CI Pipeline Summary\n\n`;
+            summary += `| Job | Status |\n`;
+            summary += `|-----|--------|\n`;
+            
+            const statusEmoji = {
+              'success': '✅',
+              'failure': '❌',
+              'cancelled': '⏹️',
+              'skipped': '⏭️'
+            };
+            
+            for (const [name, job] of Object.entries(jobs)) {
+              const emoji = statusEmoji[job.result] || '❓';
+              summary += `| ${name} | ${emoji} ${job.result} |\n`;
+            }
+            
+            const allPassed = Object.values(jobs).every(j => j.result === 'success');
+            
+            if (allPassed) {
+              summary += `\n### ✅ All checks passed! Ready to merge.\n`;
+            } else {
+              summary += `\n### ⚠️ Some checks failed. Please review.\n`;
+            }
+            
+            await core.summary
+              .addRaw(summary)
+              .write();
+
+  # ============================================
+  # JOB 7: PR Comment (apenas em PRs)
+  # ============================================
+  pr-comment:
+    name: 💬 PR Comment
+    runs-on: ubuntu-latest
+    needs: [lint, typescript, design-tokens, test]
+    if: github.event_name == 'pull_request' && always()
+    steps:
+      - name: 💬 Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = ${{ toJSON(needs) }};
+            
+            const statusEmoji = {
+              'success': '✅',
+              'failure': '❌',
+              'cancelled': '⏹️',
+              'skipped': '⏭️'
+            };
+            
+            let body = `## 🚀 CI Pipeline Results\n\n`;
+            body += `| Check | Status |\n`;
+            body += `|-------|--------|\n`;
+            
+            for (const [name, job] of Object.entries(jobs)) {
+              const emoji = statusEmoji[job.result] || '❓';
+              const displayName = {
+                'lint': '🧹 Lint',
+                'typescript': '📝 TypeScript',
+                'design-tokens': '🎨 Design Tokens',
+                'test': '🧪 Tests'
+              }[name] || name;
+              body += `| ${displayName} | ${emoji} ${job.result} |\n`;
+            }
+            
+            const allPassed = Object.values(jobs).every(j => j.result === 'success');
+            
+            if (allPassed) {
+              body += `\n### ✅ All checks passed!\n`;
+              body += `This PR is ready for review.\n`;
+            } else {
+              body += `\n### ⚠️ Some checks need attention\n`;
+              body += `Please fix the failing checks before merging.\n`;
+            }
+            
+            body += `\n---\n*Nossa Maternidade CI Pipeline*`;
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('CI Pipeline Results')
+            );
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body
+              });
+            }
+

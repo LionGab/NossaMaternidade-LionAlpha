@@ -1,0 +1,7 @@
+appId: com.nossamaternidade.app
+---
+# Basic app launch test
+# Verifies the app launches successfully and displays the splash/initial screen
+
+- launchApp
+- assertVisible: "Nossa Maternidade"

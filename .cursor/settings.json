@@ -1,0 +1,58 @@
+{
+  "// Configurações otimizadas para Claude no Cursor - Nossa Maternidade": "Atualizado em 29/11/2025",
+
+  "cursor.ai.model": "claude-sonnet-4.5",
+  "cursor.ai.maxTokens": 8192,
+  "cursor.ai.temperature": 0.4,
+  "cursor.ai.enableCodebaseIndexing": true,
+  "cursor.ai.enableAutocomplete": true,
+  "cursor.ai.contextWindow": "large",
+  "cursor.ai.preferClaude": true,
+  "cursor.ai.fallbackModel": "claude-opus-4",
+
+  "// Configurações de arquivos": "",
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/.git": true,
+    "**/.DS_Store": true
+  },
+
+  "// Configurações de busca": "",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true
+  },
+
+  "// Configurações de TypeScript": "",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  "// Configurações de editor": "",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "// Configurações específicas do projeto": "",
+  "files.associations": {
+    "*.tsx": "typescriptreact",
+    "*.ts": "typescript"
+  },
+
+  "// Performance": "",
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.expo/**": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  }
+}

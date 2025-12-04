@@ -1,0 +1,52 @@
+#!/bin/bash
+# Pre-commit hook - Validação de Design System
+# Compatível com Windows (Git Bash) e Unix
+
+echo "🎨 Nossa Maternidade - Pre-commit Validation"
+echo "============================================="
+
+# 1. Validar Design Tokens (crítico - bloqueia commit)
+echo ""
+echo "📦 Design Tokens..."
+npm run validate:design --silent
+if [ $? -ne 0 ]; then
+  echo "❌ Design Tokens falhou!"
+  echo ""
+  echo "🚫 COMMIT BLOQUEADO: Violações de design tokens encontradas"
+  echo "💡 Execute 'npm run validate:design' para ver detalhes"
+  echo "💡 Use tokens do design system em vez de cores hardcoded"
+  exit 1
+fi
+echo "✅ Design Tokens passou"
+
+# 2. TypeScript Check (crítico - bloqueia commit)
+echo ""
+echo "📦 TypeScript..."
+npm run type-check --silent
+TS_RESULT=$?
+if [ $TS_RESULT -ne 0 ]; then
+  echo "❌ TypeScript falhou!"
+  echo ""
+  echo "🚫 COMMIT BLOQUEADO: Erros de TypeScript encontrados"
+  echo "💡 Execute 'npm run type-check' para ver detalhes"
+  exit 1
+fi
+echo "✅ TypeScript passou"
+
+# 3. Lint-staged (arquivos modificados)
+echo ""
+echo "🧹 Executando lint nos arquivos staged..."
+npx lint-staged --quiet
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "🚫 COMMIT BLOQUEADO: Erros de lint encontrados"
+  echo "💡 Execute 'npm run lint' para ver detalhes"
+  exit 1
+fi
+
+echo ""
+echo "============================================="
+echo "✅ Todas as validações passaram!"
+echo "🚀 Commit autorizado - Nossa Maternidade"
+echo "============================================="
+exit 0

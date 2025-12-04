@@ -1,0 +1,378 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================
+   Nossa Maternidade - Design System v2.0
+   Mobile-First Design with Ocean Theme
+   =========================================== */
+
+:root {
+  /* App Container */
+  --app-max-width: 430px;
+  --app-bg-color: #F1F5F9;
+  --app-shadow: 0 0 60px rgba(0, 78, 154, 0.15);
+
+  /* Primary Colors - Ocean Blue */
+  --primary: #004E9A;
+  --primary-light: #E6F0FA;
+  --primary-dark: #002244;
+
+  /* Secondary Colors - Coral */
+  --secondary: #D93025;
+  --secondary-light: #FEE2E2;
+
+  /* Semantic Colors */
+  --success: #236B62;
+  --warning: #F59E0B;
+  --error: #D93025;
+  --info: #2563EB;
+
+  /* Background Colors */
+  --bg-canvas: #F1F5F9;
+  --bg-surface: #FFFFFF;
+  --bg-input: #FFFFFF;
+
+  /* Text Colors */
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #6B7280;
+  --text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-medium: #CBD5E1;
+  --border-focus: #004E9A;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-premium: 0 10px 30px -5px rgba(0, 78, 154, 0.4);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  /* Color scheme */
+  color-scheme: light dark;
+}
+
+/* Dark Mode Variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-canvas: #020617;
+    --bg-surface: #1E293B;
+    --bg-input: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-tertiary: #94A3B8;
+    --border-medium: #475569;
+    --primary: #60A5FA;
+    --app-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
+  }
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+/* Container principal - simula tela de celular na web */
+#root {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  /* ✅ Acessibilidade: Indicador de foco para navegação por teclado */
+  outline: rgb(0, 122, 204) solid 2px;
+  outline-offset: 2px;
+}
+
+/* Em telas grandes, limitar largura para parecer celular */
+@media (min-width: 768px) {
+  #root {
+    padding: 20px 0;
+  }
+
+  #root > div {
+    max-width: var(--app-max-width);
+    width: 100%;
+    height: calc(100vh - 40px);
+    max-height: 932px;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: var(--app-shadow);
+    position: relative;
+    background-color: var(--bg-canvas);
+  }
+
+  /* Simular Dynamic Island do iPhone */
+  #root > div::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 9999;
+  }
+}
+
+/* Em mobile, ocupar tela toda */
+@media (max-width: 767px) {
+  #root {
+    background: var(--bg-canvas);
+  }
+
+  #root > div {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    background-color: var(--bg-canvas);
+  }
+
+  #root > div::before {
+    display: none;
+  }
+}
+
+/* Scroll suave */
+* {
+  scroll-behavior: smooth;
+  box-sizing: border-box;
+}
+
+/* Melhorar touch em mobile */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* Evitar zoom em inputs no iOS */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid rgb(0, 122, 204);
+  outline-offset: 2px;
+}
+
+/* ✅ Acessibilidade: Indicador de foco global para elementos interativos */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(0, 122, 204);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ✅ Acessibilidade: Remover outline padrão e usar apenas :focus-visible */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ================================
+   ANIMATIONS
+   ================================ */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* ================================
+   UTILITY CLASSES
+   ================================ */
+
+/* Safe area padding for notch devices */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 44px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 34px);
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-dark {
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Premium gradient */
+.gradient-premium {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+}
+
+.card-elevated {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Button base styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  min-height: 44px;
+  padding: 12px 24px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-light);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Hide scrollbar but allow scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

@@ -1,0 +1,26 @@
+appId: com.nossamaternidade.app
+---
+# Navigation flow test
+# Tests basic app navigation between main screens
+
+- launchApp
+- waitForAnimationToEnd
+
+# Navigate to Chat screen
+- tapOn: "Chat"
+- assertVisible: "Chat"
+- waitForAnimationToEnd
+
+# Navigate to Feed
+- tapOn: "Feed"
+- assertVisible: "Feed"
+- waitForAnimationToEnd
+
+# Navigate to Habits
+- tapOn:
+    text: ".*[Hh]ábitos.*|.*[Hh]abits.*"
+- waitForAnimationToEnd
+
+# Navigate back to Home
+- tapOn: "Home"
+- assertVisible: "Home"

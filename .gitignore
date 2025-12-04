@@ -1,0 +1,88 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env*.local
+
+# Claude Code MCP config (contains secrets)
+.claude/
+
+# Google Play Service Account (contains secrets)
+google-play-service-account.json
+*.json.key
+
+# typescript
+*.tsbuildinfo
+
+# compiled scripts (generated at runtime)
+scripts/*.js
+scripts/*.js.map
+
+# generated native folders
+/ios
+/android
+
+# Testing
+coverage/
+*.lcov
+__tests__/coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cursor IDE
+.cursor/debug.log
+.cursor/*.log
+
+# Backup files
+*.bak
+*.backup
+*.tar.gz
+backup/
+mcp-backup*/
+*.zip
+secrets-values.txt
+docker-secrets-list.txt
+
+# Duplicates (prevent future issues)
+*-1/
+*-copy/
+*-backup/
+NossaMaternidade/
+
+# Windows reserved names
+nul

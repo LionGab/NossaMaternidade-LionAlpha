@@ -1,0 +1,3 @@
+// ... existing code ...
+export { OptimizedImage } from '../OptimizedImage';
+export type { ImagePriority, ImageCachePolicy } from '../OptimizedImage';

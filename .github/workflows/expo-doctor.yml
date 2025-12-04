@@ -1,0 +1,38 @@
+name: 🩺 Expo Doctor
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  expo-doctor:
+    name: 🩺 Run Expo Doctor
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node and Install
+        uses: ./.github/actions/setup-node-pnpm-install
+        with:
+          node-version: '20'
+
+      - name: 🩺 Run Expo Doctor
+        run: npx expo-doctor@latest
+        continue-on-error: true
+
+      - name: 📊 Doctor Report
+        if: always()
+        run: |
+          echo "### 🩺 Expo Doctor Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Expo Doctor has completed its diagnostic checks." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Review the output above for any issues or warnings." >> $GITHUB_STEP_SUMMARY

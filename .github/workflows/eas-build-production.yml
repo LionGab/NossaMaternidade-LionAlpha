@@ -1,0 +1,102 @@
+name: 🚀 EAS Build Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        type: choice
+        options:
+          - all
+          - ios
+          - android
+        default: 'all'
+      auto_submit:
+        description: 'Auto-submit to stores'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build:
+    name: 🏗️ Build ${{ github.event.inputs.platform }}
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node and Install
+        uses: ./.github/actions/setup-node-pnpm-install
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🔐 Configure AI API Keys
+        run: |
+          echo "EXPO_PUBLIC_GEMINI_API_KEY=${{ secrets.EXPO_PUBLIC_GEMINI_API_KEY }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_CLAUDE_API_KEY=${{ secrets.EXPO_PUBLIC_CLAUDE_API_KEY }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_OPENAI_API_KEY=${{ secrets.EXPO_PUBLIC_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_SUPABASE_URL=${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "EXPO_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+
+      - name: 🏗️ Build with EAS
+        uses: ./.github/actions/eas-build
+        id: build
+        with:
+          app-env: 'production'
+          expo-token: ${{ secrets.EXPO_TOKEN }}
+          platform: ${{ github.event.inputs.platform }}
+          auto-submit: ${{ github.event.inputs.auto_submit }}
+
+      - name: 📊 Build Summary
+        if: always()
+        run: |
+          echo "### 🚀 Production Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platform:** ${{ github.event.inputs.platform }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Profile:** production" >> $GITHUB_STEP_SUMMARY
+          echo "**Auto-Submit:** ${{ github.event.inputs.auto_submit }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -n "${{ steps.build.outputs.build-id }}" ]; then
+            echo "✅ **Build Started Successfully**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Build ID:** \`${{ steps.build.outputs.build-id }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "**Build Logs:** ${{ steps.build.outputs.build-url }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Track your build progress at [EAS Build](${{ steps.build.outputs.build-url }})" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Build Failed to Start**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Check the workflow logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 💬 Comment on Commit (if triggered from PR)
+        if: github.event_name == 'pull_request' && steps.build.outputs.build-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildId = '${{ steps.build.outputs.build-id }}';
+            const buildUrl = '${{ steps.build.outputs.build-url }}';
+            const platform = '${{ github.event.inputs.platform }}';
+            
+            const body = `## 🚀 Production Build Started
+            
+            **Platform:** ${platform}
+            **Build ID:** \`${buildId}\`
+            
+            [View Build Details](${buildUrl})
+            
+            The build will be available in EAS once complete.`;
+            
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body
+            });

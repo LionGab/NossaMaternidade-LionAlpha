@@ -1,0 +1,101 @@
+name: Android Submit to Google Play
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      build_id:
+        description: 'EAS Build ID to submit'
+        required: true
+        type: string
+
+jobs:
+  submit:
+    name: Submit to Google Play
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.11.1'
+          cache: 'npm'
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EAS_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Google Play Service Account
+        run: |
+          if [ -z "$GOOGLE_PLAY_SERVICE_ACCOUNT" ]; then
+            echo "::error::GOOGLE_PLAY_SERVICE_ACCOUNT secret não configurado"
+            exit 1
+          fi
+
+          # Write service account JSON securely (avoid shell expansion issues)
+          printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT" > google-play-service-account.json
+
+          # Validate JSON format
+          if ! python3 -c "import json; json.load(open('google-play-service-account.json'))" 2>/dev/null; then
+            echo "::error::Service account JSON inválido"
+            rm -f google-play-service-account.json
+            exit 1
+          fi
+
+          echo "::notice::Service account key configurado com sucesso"
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+
+      - name: Submit to Google Play
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            eas submit --platform android \
+              --profile production \
+              --latest \
+              --non-interactive
+          else
+            # Submit latest build from tag
+            eas submit --platform android \
+              --profile production \
+              --latest \
+              --non-interactive
+          fi
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Cleanup service account
+        if: always()
+        run: rm -f google-play-service-account.json
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/') && success()
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Release Android ${{ github.ref_name }}
+
+            Build enviado automaticamente para Google Play Store.
+
+            **Tag**: ${{ github.ref_name }}
+            **Commit**: ${{ github.sha }}
+
+            ### Proximos Passos
+            1. Verificar status na [Google Play Console](https://play.google.com/console)
+            2. Monitorar reviews e feedback
+            3. Verificar metricas de instalacao
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

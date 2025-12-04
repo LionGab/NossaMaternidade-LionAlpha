@@ -1,0 +1,105 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server-supabase"],
+      "env": {
+        "SUPABASE_URL": "https://mnszbkeuerjcevjvdqme.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uc3pia2V1ZXJqY2V2anZkcW1lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MTY3ODEsImV4cCI6MjA3NzQ5Mjc4MX0.f2jPp6KLzzrJPTt63FKNyDanh_0uw9rJ1-gbSvQFueo",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1uc3pia2V1ZXJqY2V2anZkcW1lIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MTkxNjc4MSwiZXhwIjoyMDc3NDkyNzgxfQ.zOb5c5HhJhOF3-tWAkfo9HxKoUpA2JbsKFS939IPnd4"
+      }
+    },
+    "docker": {
+      "command": "docker",
+      "args": ["mcp", "gateway", "run"],
+      "type": "stdio"
+    },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:9E2XLJVsYzGGhuKP@db.mnszbkeuerjcevjvdqme.supabase.co:5432/postgres"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "env": {
+        "PUPPETEER_LAUNCH_OPTIONS": "{ \"headless\": false, \"args\": [\"--start-maximized\"] }"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/mcp-server-playwright"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha"
+      ]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "BSA_HzGhPTbT2loxQCr5jw95NGgMAqk"
+      }
+    },
+    "design-tokens": {
+      "command": "node",
+      "args": [
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/design-tokens-runner.js"
+      ]
+    },
+    "code-quality": {
+      "command": "node",
+      "args": [
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/code-quality-runner.js"
+      ]
+    },
+    "accessibility": {
+      "command": "node",
+      "args": [
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/accessibility-runner.js"
+      ]
+    },
+    "mobile-optimization": {
+      "command": "node",
+      "args": [
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/mobile-optimization-runner.js"
+      ]
+    },
+    "prompt-testing": {
+      "command": "node",
+      "args": [
+        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/prompt-testing-runner.js"
+      ]
+    },
+    "basicmemory": {
+      "type": "http",
+      "url": "https://cloud.basicmemory.com/mcp"
+    }
+  }
+}

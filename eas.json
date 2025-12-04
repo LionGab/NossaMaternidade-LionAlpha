@@ -1,0 +1,144 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "local",
+    "promptToConfigurePushNotifications": false,
+    "requireCommit": true
+  },
+  "build": {
+    "base": {
+      "node": "20.11.1",
+      "cache": {
+        "key": "nossa-maternidade-v1",
+        "paths": ["node_modules"]
+      },
+      "ios": {
+        "resourceClass": "medium"
+      },
+      "android": {
+        "resourceClass": "medium"
+      }
+    },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "development",
+      "env": {
+        "APP_ENV": "development",
+        "EXPO_PUBLIC_ENABLE_AI_FEATURES": "true"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleDebug"
+      }
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "APP_ENV": "preview",
+        "EXPO_PUBLIC_ENABLE_AI_FEATURES": "true",
+        "EXPO_PUBLIC_ENABLE_ANALYTICS": "true"
+      },
+      "ios": {
+        "enterpriseProvisioning": "adhoc"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "staging": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "staging",
+      "env": {
+        "APP_ENV": "staging",
+        "EXPO_PUBLIC_ENABLE_AI_FEATURES": "true",
+        "EXPO_PUBLIC_ENABLE_ANALYTICS": "true"
+      },
+      "ios": {
+        "enterpriseProvisioning": "adhoc",
+        "resourceClass": "medium"
+      },
+      "android": {
+        "buildType": "apk",
+        "resourceClass": "medium"
+      }
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "APP_ENV": "production",
+        "EXPO_PUBLIC_ENABLE_AI_FEATURES": "true",
+        "EXPO_PUBLIC_ENABLE_ANALYTICS": "true"
+      },
+      "ios": {
+        "enterpriseProvisioning": "universal",
+        "autoIncrement": "buildNumber",
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "app-bundle",
+        "autoIncrement": "versionCode",
+        "resourceClass": "m-medium",
+        "gradleCommand": ":app:bundleRelease"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "language": "pt-BR",
+        "sku": "NOSSA_MATERNIDADE_2025",
+        "ascAppId": "YOUR_APP_STORE_CONNECT_APP_ID",
+        "appleTeamId": "YOUR_APPLE_TEAM_ID"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "production",
+        "releaseStatus": "completed",
+        "changesNotSentForReview": false
+      }
+    },
+    "staging": {
+      "ios": {
+        "language": "pt-BR",
+        "sku": "NOSSA_MATERNIDADE_2025"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    },
+    "internal": {
+      "ios": {
+        "language": "pt-BR",
+        "sku": "NOSSA_MATERNIDADE_2025"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    },
+    "beta": {
+      "ios": {
+        "language": "pt-BR",
+        "sku": "NOSSA_MATERNIDADE_2025"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "beta",
+        "releaseStatus": "completed"
+      }
+    }
+  }
+}

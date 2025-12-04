@@ -1,0 +1,130 @@
+# Regras para Claude Code CLI - Nossa Maternidade
+
+## 🧠 Sistema de Organização Estruturado
+
+**IMPORTANTE:** Antes de começar qualquer tarefa, leia o `CONTEXTO.md` na raiz do projeto.
+
+O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. Ele contém:
+- Visão e objetivos do projeto
+- Regras fundamentais com "porquê" explícito
+- Estado atual (métricas, conquistas, bloqueadores)
+- Próximos passos priorizados
+- Stack e arquitetura
+
+**Sistema completo de organização:**
+- `CONTEXTO.md` - Cérebro Externo (raiz do projeto)
+- `docs/ORGANIZACAO/template-plano.md` - Template para planos de fases
+- `docs/ORGANIZACAO/fluxo-trabalho.md` - Fluxo completo de 4 fases
+- `docs/ORGANIZACAO/templates-prompts.md` - Prompts específicos prontos
+- `docs/ORGANIZACAO/guia-uso.md` - Guia prático completo
+
+**Como usar:**
+1. No início de conversas importantes: "Leia @CONTEXTO.md e use como base"
+2. Para tarefas complexas: Use `template-plano.md` para criar plano de fases
+3. Para prompts específicos: Consulte `templates-prompts.md`
+4. Para processo completo: Siga `fluxo-trabalho.md`
+
+## Contexto do Projeto
+- **Plataforma**: React Native + Expo (iOS App Store + Android Google Play)
+- **NÃO é web**: Apenas componentes React Native nativos
+- **Design System**: src/theme/tokens.ts
+- **Referência Visual**: LAYOUT_COMPLETO_REFERENCIA.md (site web apenas para referência)
+
+## Regras Críticas de Design
+
+### Tokens Obrigatórios
+- ✅ SEMPRE usar `colors` do `useTheme()` hook
+- ✅ SEMPRE usar `Spacing` tokens (múltiplos de 4px)
+- ✅ SEMPRE usar `Typography.sizes` e `Typography.weights`
+- ✅ SEMPRE usar `Radius` tokens para bordas
+- ❌ NUNCA valores hardcoded de cor, espaçamento ou tipografia
+
+### Componentes Primitivos
+- ✅ SEMPRE usar componentes de `src/components/primitives/`
+- ✅ Box, Text, Heading, Button, HapticButton, Input
+- ❌ NUNCA usar View, Text ou TouchableOpacity diretamente (exceto casos específicos)
+
+### Acessibilidade WCAG AAA
+- ✅ Contraste mínimo 7:1 (texto normal) ou 4.5:1 (texto grande)
+- ✅ Alvos de toque mínimos 44x44pt
+- ✅ accessibilityLabel em todos os componentes interativos
+- ✅ accessibilityHint quando necessário
+- ✅ Suporte a Dynamic Type (allowFontScaling)
+
+### Dark Mode
+- ✅ SEMPRE implementar suporte completo
+- ✅ Todas as cores devem vir do theme context
+- ✅ Testar transição entre temas
+
+### Performance Mobile
+- ✅ Usar FlatList para listas (não ScrollView com map)
+- ✅ useMemo e useCallback quando apropriado
+- ✅ Lazy loading de imagens (expo-image)
+- ✅ getItemLayout em FlatList quando possível
+
+### Responsividade
+- ✅ SafeAreaView para iOS notch
+- ✅ KeyboardAvoidingView em formulários
+- ✅ Flexbox para layout responsivo
+- ✅ Testar em múltiplos tamanhos de tela
+
+## Validação Antes de Commit
+
+Antes de aceitar mudanças, sempre valide:
+1. Tokens de design usados corretamente?
+2. Dark mode implementado?
+3. Acessibilidade WCAG AAA?
+4. Componentes primitivos usados?
+5. Performance otimizada?
+6. Responsividade testada?
+
+## Referências Obrigatórias
+
+- **Cérebro Externo:** `CONTEXTO.md` (raiz do projeto) - **LEIA PRIMEIRO**
+- **Design System (Fonte Única da Verdade):**
+  - `docs/design/DESIGN_PRINCIPLES.md` - Princípios fundamentais de design
+  - `docs/design/DESIGN_SYSTEM_REFERENCE.md` - Guia definitivo do sistema
+  - `docs/design/COMPONENT_PATTERNS.md` - Padrões de componentes
+  - `docs/design/DESIGN_DECISIONS.md` - Decisões estabelecidas (cores, espaçamento, etc.)
+  - `docs/design/DESIGN_QUICK_REFERENCE.md` - Cheat sheet rápido
+- Design System Tokens: `src/theme/tokens.ts`
+- Layout Completo: `LAYOUT_COMPLETO_REFERENCIA.md`
+- Guia Mobile: `MOBILE_IMPLEMENTATION_GUIDE.md`
+- Prompts: `PROMPTS_DESIGN_VALIDATION.md`
+- Sistema de Organização: `docs/ORGANIZACAO/` (templates, fluxos, guias)
+
+## 🎨 Documentação de Design (Fonte Única da Verdade)
+
+**IMPORTANTE:** Quando houver dúvida sobre design, cores, espaçamento, tipografia ou padrões de componentes, consulte a documentação de design em `docs/design/`. Esta documentação elimina ambiguidades e estabelece decisões definitivas.
+
+**Documentos de Design:**
+1. **DESIGN_PRINCIPLES.md** - Filosofia, valores, objetivos e princípios fundamentais
+2. **DESIGN_SYSTEM_REFERENCE.md** - Guia completo do sistema moderno, hierarquia e padrões de uso
+3. **COMPONENT_PATTERNS.md** - Padrões obrigatórios para criação de componentes (Atomic Design)
+4. **DESIGN_DECISIONS.md** - Todas as decisões estabelecidas (cores, tipografia, espaçamento, etc.)
+5. **DESIGN_QUICK_REFERENCE.md** - Cheat sheet rápido para desenvolvimento
+
+**Regra de Ouro:** Não "adivinhe" decisões de design. Tudo está documentado em `docs/design/`. Consulte primeiro, depois implemente.
+
+## Otimização Claude no Cursor
+
+### Configurações Recomendadas
+- ✅ Modelo padrão: Claude Sonnet 4.5 (melhor custo/benefício)
+- ✅ Codebase Indexing: Ativo para melhor contexto
+- ✅ Context Window: Large (8192 tokens)
+- ✅ Configurações em: `.cursor/settings.json`
+
+### Uso Eficiente
+- ✅ Use `@mentions` para contexto específico (`@arquivo.tsx`, `@pasta/`)
+- ✅ Inicie novas conversas para novos tópicos
+- ✅ Use Composer (Cmd+Shift+I) para edições multi-arquivo
+- ✅ Agrupe perguntas relacionadas
+- ❌ Evite conversas muito longas (economiza tokens)
+
+### Verificação
+- Execute `npm run verify:cursor` para verificar configuração
+- Consulte `docs/CURSOR_CLAUDE_SETUP.md` para guia completo
+
+## Lembrete Constante
+
+Este é um projeto MOBILE (iOS/Android), não web. Todo código deve ser React Native nativo.

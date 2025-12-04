@@ -1,0 +1,85 @@
+name: 'EAS Build'
+description: 'Setup EAS CLI and execute build with the specified profile'
+author: 'Nossa Maternidade Team'
+
+inputs:
+  app-env:
+    description: 'Application environment (development, preview, staging, production)'
+    required: true
+  expo-token:
+    description: 'Expo authentication token'
+    required: true
+  platform:
+    description: 'Platform to build for (ios, android, all)'
+    required: false
+    default: 'all'
+  auto-submit:
+    description: 'Automatically submit build after completion'
+    required: false
+    default: 'false'
+  profile:
+    description: 'EAS build profile to use (overrides app-env)'
+    required: false
+    default: ''
+
+outputs:
+  build-id:
+    description: 'Build ID from EAS'
+    value: ${{ steps.build.outputs.build-id }}
+  build-url:
+    description: 'URL to view build details'
+    value: ${{ steps.build.outputs.build-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Expo
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        eas-version: latest
+        token: ${{ inputs.expo-token }}
+
+    - name: Determine build profile
+      id: profile
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.profile }}" ]; then
+          echo "PROFILE=${{ inputs.profile }}" >> $GITHUB_OUTPUT
+        else
+          echo "PROFILE=${{ inputs.app-env }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build with EAS
+      id: build
+      shell: bash
+      run: |
+        echo "Building for platform: ${{ inputs.platform }}"
+        echo "Using profile: ${{ steps.profile.outputs.PROFILE }}"
+        
+        if [ "${{ inputs.auto-submit }}" = "true" ]; then
+          eas build --platform ${{ inputs.platform }} --profile ${{ steps.profile.outputs.PROFILE }} --non-interactive --auto-submit --json > build-output.json
+        else
+          eas build --platform ${{ inputs.platform }} --profile ${{ steps.profile.outputs.PROFILE }} --non-interactive --json > build-output.json
+        fi
+        
+        # Parse build output
+        BUILD_ID=$(cat build-output.json | jq -r '.[0].id // empty')
+        BUILD_URL=$(cat build-output.json | jq -r '.[0].logsUrl // empty')
+        
+        if [ -n "$BUILD_ID" ]; then
+          echo "build-id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "build-url=$BUILD_URL" >> $GITHUB_OUTPUT
+          echo "✅ Build started: $BUILD_ID"
+        else
+          echo "❌ Failed to start build"
+          exit 1
+        fi
+
+    - name: Upload build output
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: eas-build-output-${{ inputs.platform }}-${{ steps.profile.outputs.PROFILE }}
+        path: build-output.json
+        retention-days: 30
