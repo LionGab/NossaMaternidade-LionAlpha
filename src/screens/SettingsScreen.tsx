@@ -155,7 +155,16 @@ export default function SettingsScreen() {
   };
 
   /**
-   * Solicita deleção da conta
+   * Fluxo de deleção permanente da conta (LGPD - direito ao esquecimento)
+   * Usa Edge Function delete-account + limpeza de dados locais
+   *
+   * Fluxo:
+   * 1. Confirmação inicial com lista do que será deletado
+   * 2. Confirmação final (dupla confirmação para segurança)
+   * 3. Chama userDataService.deleteAccount() que:
+   *    - Deleta dados no servidor via Edge Function
+   *    - Faz signOut e limpa todos os dados locais
+   * 4. AuthContext detecta signOut e redireciona para login
    */
   const handleDeleteAccount = () => {
     Alert.alert(
@@ -167,14 +176,14 @@ export default function SettingsScreen() {
           text: 'Deletar Conta',
           style: 'destructive',
           onPress: () => {
-            // Confirmação final
+            // Confirmação final (dupla confirmação para segurança)
             Alert.alert(
               'Última Confirmação',
-              'Digite "DELETAR" para confirmar a exclusão permanente da sua conta.',
+              'Confirme que deseja excluir permanentemente sua conta e todos os dados associados.',
               [
                 { text: 'Cancelar', style: 'cancel' },
                 {
-                  text: 'Confirmar',
+                  text: 'Excluir definitivamente',
                   style: 'destructive',
                   onPress: async () => {
                     try {
@@ -183,39 +192,31 @@ export default function SettingsScreen() {
                         userId: user?.id,
                       });
 
-                      // Usar soft delete (marca para deleção após período de retenção)
-                      const { success, error } = await userDataService.requestAccountDeletion();
+                      const { success, error } = await userDataService.deleteAccount();
 
                       if (!success) {
-                        const errorMsg =
-                          typeof error === 'string'
-                            ? error
-                            : error instanceof Error
-                              ? error.message
-                              : 'Erro ao deletar conta';
-                        throw new Error(errorMsg);
+                        // error já é string amigável do userDataService
+                        throw new Error(error || 'Erro ao deletar conta');
                       }
 
+                      // Sucesso: mostrar mensagem de despedida empática
+                      // O signOut já foi feito pelo userDataService
+                      // O AuthContext detectará e redirecionará para login
                       Alert.alert(
-                        'Conta Deletada',
-                        'Sua solicitação de exclusão foi registrada. Sua conta será permanentemente deletada em até 30 dias, conforme previsto pela LGPD.',
-                        [
-                          {
-                            text: 'OK',
-                            onPress: () => {
-                              signOut();
-                              // Navigation será redirecionado automaticamente pelo AuthContext
-                            },
-                          },
-                        ]
+                        'Conta deletada',
+                        'Sua conta e todos os dados foram removidos permanentemente. Obrigada por ter feito parte da Nossa Maternidade. 💙',
+                        [{ text: 'OK' }]
                       );
+
+                      logger.info('[SettingsScreen] Conta deletada com sucesso');
                     } catch (error) {
                       logger.error('[SettingsScreen] Erro ao deletar conta', error);
-                      const errorMessage =
+                      Alert.alert(
+                        'Não foi possível excluir',
                         error instanceof Error
                           ? error.message
-                          : 'Não foi possível deletar sua conta. Tente novamente.';
-                      Alert.alert('Erro', errorMessage);
+                          : 'Não conseguimos completar a exclusão da sua conta agora. Verifique sua conexão e tente novamente.'
+                      );
                     } finally {
                       setDeleting(false);
                     }

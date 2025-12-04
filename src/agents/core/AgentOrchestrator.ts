@@ -22,7 +22,7 @@ import {
 } from '../../mcp/dynamic';
 import {
   supabaseMCP,
-  googleAIMCP,
+  // googleAIMCP - Deprecated: movido para Edge Function (chat-gemini)
   openAIMCP,
   anthropicMCP,
   analyticsMCP,
@@ -396,7 +396,7 @@ export class AgentOrchestrator {
             params as Record<string, JsonValue>
           );
         }
-      } catch (error) {
+      } catch {
         logger.debug('[AgentOrchestrator] Server not found in Docker Gateway', { server });
       }
     }

@@ -5,11 +5,13 @@
 
 import type { UserProfile } from '@/types/user';
 
+import { consentManager } from '@/core/security/ConsentManager';
 import { chatService, ChatConversation, ChatMessage } from './chatService';
 import { profileService } from './profileService';
 import { sessionManager } from './sessionManager';
 import { supabase } from './supabase';
 import { logger } from '../utils/logger';
+import { clearAllLocalData } from '../utils/localStorageCleanup';
 
 // Supabase database types
 interface SupabaseHabit {
@@ -231,8 +233,13 @@ class UserDataService {
   /**
    * Deleta permanentemente a conta e todos os dados (LGPD compliance)
    * ⚠️ ATENÇÃO: Esta operação é IRREVERSÍVEL
+   *
+   * Fluxo:
+   * 1. Chama Edge Function delete-account (ÚNICA fonte de verdade)
+   * 2. SOMENTE se servidor confirmar: faz signOut e limpa dados locais
+   * 3. NÃO faz fallback inseguro - se Edge Function falhar, retorna erro
    */
-  async deleteAccount(): Promise<{ success: boolean; error: string | Error | null }> {
+  async deleteAccount(): Promise<{ success: boolean; error: string | null }> {
     try {
       const {
         data: { user },
@@ -243,56 +250,63 @@ class UserDataService {
 
       logger.warn('[UserDataService] Iniciando deleção de conta', { userId: user.id });
 
-      // Por segurança, deleção de conta deve ser feita via Edge Function
-      // que usa service_role_key para ter permissão de deletar tudo
-
-      // Obter token de sessão para passar na chamada
+      // Obter token de sessão para autenticar na Edge Function
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      // Tentar chamar Edge Function se disponível
-      const { data: _data, error } = await supabase.functions.invoke('delete-account', {
-        body: { userId: user.id },
-        headers: session?.access_token
-          ? {
-              Authorization: `Bearer ${session.access_token}`,
-            }
-          : undefined,
-      });
-
-      if (error) {
-        // Fallback: deletar via cliente (limitado pelo RLS)
-        logger.warn('[UserDataService] Edge Function não disponível, usando fallback');
-
-        // 1. Deletar dados relacionados (cascata deve funcionar via RLS)
-        await supabase.from('chat_conversations').delete().eq('user_id', user.id);
-        await supabase.from('user_habits').delete().eq('user_id', user.id);
-        await supabase.from('user_content_interactions').delete().eq('user_id', user.id);
-        await supabase.from('user_baby_milestones').delete().eq('user_id', user.id);
-
-        // 2. Deletar perfil
-        await supabase.from('profiles').delete().eq('id', user.id);
-
-        // 3. Deletar conta de autenticação
-        // Nota: Isso requer service_role_key, então apenas fazer logout
-        await supabase.auth.signOut();
-      } else {
-        // Edge Function deletou com sucesso
-        await supabase.auth.signOut();
+      if (!session?.access_token) {
+        return { success: false, error: 'Sessão inválida. Faça login novamente.' };
       }
 
-      // Limpar sessões locais
+      // Chamar Edge Function (ÚNICA fonte de verdade para deleção)
+      const { data, error: edgeFnError } = await supabase.functions.invoke('delete-account', {
+        body: { userId: user.id },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      // Verificar resposta da Edge Function
+      if (edgeFnError || !data?.success) {
+        // Logar apenas código do erro, não detalhes sensíveis
+        logger.warn('[UserDataService] Edge Function falhou', {
+          errorCode: edgeFnError?.message ?? 'unknown',
+        });
+
+        // ❌ SEM FALLBACK INSEGURO - Retornar erro amigável
+        return {
+          success: false,
+          error:
+            'Não conseguimos completar a exclusão da sua conta agora. Verifique sua conexão e tente novamente. Se o problema persistir, entre em contato com o suporte.',
+        };
+      }
+
+      // ================================================================
+      // ✅ SERVIDOR CONFIRMOU - AGORA LIMPAR LOCALMENTE
+      // ================================================================
+      logger.info('[UserDataService] Deleção confirmada pelo servidor');
+
+      // 1. SignOut do Supabase (invalida tokens remotos)
+      await supabase.auth.signOut();
+
+      // 2. Limpar sessões gerenciadas (auth, chat, analytics)
       await sessionManager.clearAllSessions();
+
+      // 3. Limpar consentimentos LGPD locais
+      await consentManager.clearAllConsents();
+
+      // 4. Limpar TODOS os dados locais (AsyncStorage + SecureStore)
+      await clearAllLocalData();
 
       logger.info('[UserDataService] Conta deletada com sucesso', { userId: user.id });
 
       return { success: true, error: null };
     } catch (error) {
-      logger.error('[UserDataService] Erro ao deletar conta', error);
+      logger.error('[UserDataService] Erro inesperado na deleção', error);
       return {
         success: false,
-        error: error instanceof Error ? error : new Error(String(error)),
+        error: 'Ocorreu um erro inesperado. Por favor, tente novamente.',
       };
     }
   }
