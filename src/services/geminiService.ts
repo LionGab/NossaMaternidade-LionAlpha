@@ -1,3 +1,22 @@
+/**
+ * =============================================================================
+ * GEMINI SERVICE - SEGURO VIA EDGE FUNCTIONS
+ * =============================================================================
+ * 
+ * ⚠️ IMPORTANTE - SEGURANÇA:
+ * - Este serviço NÃO usa API keys locais (EXPO_PUBLIC_GEMINI_API_KEY removida)
+ * - Todas as chamadas ao Gemini são via Supabase Edge Functions
+ * - A API key fica segura no servidor (Deno.env.get('GEMINI_API_KEY'))
+ * - Conforme Docfinal.md seção 5.1 - "API Key do Gemini Exposta"
+ * 
+ * Edge Functions disponíveis:
+ * - chat-ai: Chat geral com tool calling (usa Google Generative AI SDK)
+ * - audio-ai: Processamento de áudio
+ * - analyze-diary: Análise de diário
+ * 
+ * =============================================================================
+ */
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 
@@ -392,7 +411,9 @@ class GeminiService {
   }
 
   isConfigured(): boolean {
-    return true; // Backend is always "configured" from client perspective, connection check could be added
+    // Backend está sempre "configurado" do ponto de vista do cliente
+    // A API key está segura no Supabase Edge Function, não no app
+    return true;
   }
 }
 

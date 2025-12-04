@@ -104,14 +104,15 @@ export class AgentOrchestrator {
         tags: ['database', 'auth', 'storage', 'essential'],
         description: 'Supabase backend para database, auth e storage',
       },
-      {
-        name: 'googleai',
-        factory: () => googleAIMCP,
-        deferLoading: false,
-        priority: 90,
-        tags: ['ai', 'chat', 'gemini', 'essential'],
-        description: 'Google AI (Gemini) para chat e análise',
-      },
+      // ⚠️ DESABILITADO: googleAIMCP agora está na Edge Function (chat-gemini)
+      // {
+      //   name: 'googleai',
+      //   factory: () => googleAIMCP,
+      //   deferLoading: false,
+      //   priority: 90,
+      //   tags: ['ai', 'chat', 'gemini', 'essential'],
+      //   description: 'Google AI (Gemini) para chat e análise - DEPRECATED: use Edge Function',
+      // },
       {
         name: 'analytics',
         factory: () => analyticsMCP,
@@ -204,7 +205,8 @@ export class AgentOrchestrator {
         // LEGACY: Inicializar todos os servidores
         await Promise.all([
           supabaseMCP.initialize(),
-          googleAIMCP.initialize(),
+          // ⚠️ DESABILITADO: googleAIMCP está deprecated (API key exposta)
+          // googleAIMCP.initialize(),
           openAIMCP
             .initialize()
             .catch((err) =>
@@ -219,7 +221,8 @@ export class AgentOrchestrator {
         ]);
 
         this.mcpServers.set('supabase', supabaseMCP);
-        this.mcpServers.set('googleai', googleAIMCP);
+        // ⚠️ DESABILITADO: googleAIMCP está deprecated - use Edge Function (chat-gemini)
+        // this.mcpServers.set('googleai', googleAIMCP);
         this.mcpServers.set('openai', openAIMCP);
         this.mcpServers.set('anthropic', anthropicMCP);
         this.mcpServers.set('analytics', analyticsMCP);
@@ -685,7 +688,8 @@ export class AgentOrchestrator {
       // LEGACY: Shutdown direto
       await Promise.all([
         supabaseMCP.shutdown(),
-        googleAIMCP.shutdown(),
+        // ⚠️ DESABILITADO: googleAIMCP está deprecated
+        // googleAIMCP.shutdown(),
         openAIMCP.shutdown(),
         anthropicMCP.shutdown(),
         analyticsMCP.shutdown(),

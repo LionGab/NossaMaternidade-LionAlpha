@@ -12,7 +12,7 @@ interface PublicEnv {
   EXPO_PUBLIC_SUPABASE_FUNCTIONS_URL: string;
 
   // AI APIs
-  EXPO_PUBLIC_GEMINI_API_KEY: string;
+  // EXPO_PUBLIC_GEMINI_API_KEY: REMOVIDA por segurança - chave fica no Supabase Edge Function
   EXPO_PUBLIC_CLAUDE_API_KEY: string;
   EXPO_PUBLIC_OPENAI_API_KEY: string;
   EXPO_PUBLIC_PERPLEXITY_API_KEY?: string;
@@ -85,7 +85,7 @@ export const ENV_CONFIG = {
   supabaseFunctionsUrl: getEnv('EXPO_PUBLIC_SUPABASE_FUNCTIONS_URL'),
 
   // AI APIs
-  geminiApiKey: getEnv('EXPO_PUBLIC_GEMINI_API_KEY'),
+  // geminiApiKey: REMOVIDA - API key está segura no Supabase Edge Function (chat-gemini)
   claudeApiKey: getEnv('EXPO_PUBLIC_CLAUDE_API_KEY'),
   openaiApiKey: getEnv('EXPO_PUBLIC_OPENAI_API_KEY'),
   perplexityApiKey: getEnv('EXPO_PUBLIC_PERPLEXITY_API_KEY'),
