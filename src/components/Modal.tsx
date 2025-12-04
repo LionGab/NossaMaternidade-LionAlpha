@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export interface ModalProps {
   visible: boolean;
@@ -29,7 +32,7 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   showCloseButton = true,
   fullScreen = false,
-  className = '',
+  className: _className = '', // Mantido para compatibilidade
 }) => {
   const colors = useThemeColors();
 
@@ -42,11 +45,19 @@ export const Modal: React.FC<ModalProps> = ({
         style={styles.backdrop}
         onPress={onClose}
       >
-        <SafeAreaView edges={['top']} className="flex-1 justify-end">
+        <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Pressable accessibilityRole="button" onPress={(e) => e.stopPropagation()}>
             <View
-              className={`${fullScreen ? 'h-full' : 'rounded-t-3xl'} ${className}`}
-              style={{ backgroundColor: colors.background.card }}
+              style={[
+                { backgroundColor: colors.background.card },
+                fullScreen
+                  ? { flex: 1 }
+                  : {
+                      borderTopLeftRadius: 24,
+                      borderTopRightRadius: 24,
+                      maxHeight: SCREEN_HEIGHT * 0.85, // Limitar altura para não bloquear tela inteira
+                    },
+              ]}
             >
               {/* Header */}
               {(title || showCloseButton) && (
@@ -101,7 +112,7 @@ export const Modal: React.FC<ModalProps> = ({
               )}
 
               {/* Content */}
-              <View className={fullScreen ? 'flex-1' : ''}>{children}</View>
+              <View style={fullScreen ? { flex: 1 } : undefined}>{children}</View>
             </View>
           </Pressable>
         </SafeAreaView>

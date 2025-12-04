@@ -17,6 +17,7 @@ const LoginScreenNew = React.lazy(() => import('../screens/LoginScreenNew'));
 const AuthCallbackScreen = React.lazy(() => import('../screens/AuthCallbackScreen'));
 const ResetPasswordScreen = React.lazy(() => import('../screens/ResetPasswordScreen'));
 const OnboardingScreen = React.lazy(() => import('../screens/Onboarding/OnboardingScreen'));
+const ConsentScreen = React.lazy(() => import('../screens/ConsentScreen'));
 const RitualScreen = React.lazy(() => import('../screens/RitualScreen'));
 const DiaryScreen = React.lazy(() => import('../screens/DiaryScreen'));
 const PrivacyPolicyScreen = React.lazy(() => import('../screens/PrivacyPolicyScreen'));
@@ -172,6 +173,16 @@ export const StackNavigator = () => {
         {(props) => <LazyScreen component={OnboardingScreen} {...props} />}
       </Stack.Screen>
       <Stack.Screen name="Main" component={TabNavigator} />
+      {/* Consent - Tela LGPD (acessível de qualquer lugar) */}
+      <Stack.Screen
+        name="Consent"
+        options={{
+          presentation: 'card',
+          animation: 'slide_from_right',
+        }}
+      >
+        {(props) => <LazyScreen component={ConsentScreen} {...props} />}
+      </Stack.Screen>
       {/* Modais */}
       <Stack.Screen
         name="Ritual"

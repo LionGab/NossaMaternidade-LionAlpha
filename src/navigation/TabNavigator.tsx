@@ -84,10 +84,11 @@ export const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true, // ✅ Garantir labels visíveis
         tabBarActiveTintColor: colors.primary.main,
         tabBarInactiveTintColor: isDark ? colors.text.tertiary : ColorTokens.neutral[500],
         tabBarStyle: {
-          height: 60 + insets.bottom,
+          height: 70 + insets.bottom, // Aumentado para acomodar labels
           paddingBottom: insets.bottom + 8,
           paddingTop: 8,
           paddingHorizontal: Tokens.spacing['2'],
@@ -100,15 +101,15 @@ export const TabNavigator = () => {
         },
         tabBarLabelStyle: {
           fontSize: Tokens.typography.sizes.xs,
-          fontWeight: '500',
-          marginTop: 4,
+          fontWeight: '600', // Mais legível
+          marginTop: 2,
         },
         tabBarIconStyle: {
-          marginTop: 0,
+          marginTop: 2,
         },
         tabBarItemStyle: {
-          paddingVertical: Tokens.spacing['2'],
-          paddingHorizontal: Tokens.spacing['3'],
+          paddingVertical: Tokens.spacing['1'],
+          paddingHorizontal: Tokens.spacing['2'],
           borderRadius: Tokens.radius.xl,
         },
         tabBarButton: (props) => {
@@ -171,7 +172,7 @@ export const TabNavigator = () => {
         name="MaesValentes"
         component={CommunityScreenWrapper}
         options={{
-          tabBarLabel: 'MãesValente',
+          tabBarLabel: 'Mães',
           tabBarAccessibilityLabel: 'Comunidade Mães Valentes',
           tabBarIcon: ({ color, focused }) => (
             <Users
@@ -193,7 +194,7 @@ export const TabNavigator = () => {
         name="Chat"
         component={ChatScreenWrapper}
         options={{
-          tabBarLabel: 'NathIA',
+          tabBarLabel: 'Nat',
           tabBarAccessibilityLabel: 'Chat com NathIA, assistente de IA',
           tabBarIcon: ({ color, focused }) => (
             <MessageCircle
@@ -215,8 +216,8 @@ export const TabNavigator = () => {
         name="MundoNath"
         component={MundoNathScreenWrapper}
         options={{
-          tabBarLabel: 'MundoNath',
-          tabBarAccessibilityLabel: 'Mundo Naty, conteúdo e feed',
+          tabBarLabel: 'Mundo',
+          tabBarAccessibilityLabel: 'Mundo Nath, conteúdo e feed',
           tabBarIcon: ({ color, focused }) => (
             <Sparkles
               size={20}
@@ -237,7 +238,7 @@ export const TabNavigator = () => {
         name="Habitos"
         component={HabitsScreenWrapper}
         options={{
-          tabBarLabel: 'Meus Cuidados',
+          tabBarLabel: 'Meu',
           tabBarAccessibilityLabel: 'Meus Cuidados e bem-estar',
           tabBarIcon: ({ color, focused }) => (
             <Heart
