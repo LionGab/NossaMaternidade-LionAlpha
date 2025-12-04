@@ -16,12 +16,14 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Plus, Users, MoreVertical, Heart, MessageCircle, Grid } from 'lucide-react-native';
 import React, { useState, useRef } from 'react';
-import { TouchableOpacity, ScrollView, StyleSheet, Alert, View } from 'react-native';
+import { TouchableOpacity, ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { Modal } from '@/components/Modal';
 import { Box } from '@/components/primitives/Box';
+import { HapticButton } from '@/components/primitives/HapticButton';
 import { Text } from '@/components/primitives/Text';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import type { RootStackParamList } from '@/navigation/types';
@@ -151,15 +153,13 @@ export default function CommunityScreen() {
     setSelectedFilter(filter);
   };
 
+  // Estado para controlar modal "em breve"
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
   const handleCreatePost = () => {
     triggerPlatformHaptic('buttonPress');
     logger.info('[CommunityScreen] Criar Post pressionado');
-    // Por enquanto mostra alerta, depois implementar tela de criar post
-    Alert.alert(
-      'Criar Post',
-      'Funcionalidade em desenvolvimento. Em breve você poderá criar posts na comunidade!',
-      [{ text: 'OK' }]
-    );
+    setShowComingSoon(true);
   };
 
   const handleViewFeed = () => {
@@ -687,6 +687,53 @@ export default function CommunityScreen() {
           ))}
         </Box>
       </ScrollView>
+
+      {/* Modal "Em Breve" - UX clara em vez de Alert */}
+      <Modal
+        visible={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        title="Em Breve! 🚀"
+        fullScreen={false}
+      >
+        <Box p="6">
+          <Box align="center" mb="4">
+            <Box
+              p="4"
+              rounded="full"
+              style={{
+                backgroundColor: isDark
+                  ? ColorTokens.primary[900]
+                  : ColorTokens.primary[100],
+              }}
+            >
+              <Plus size={40} color={colors.primary.main} />
+            </Box>
+          </Box>
+
+          <Text size="md" color="secondary" align="center" style={{ marginBottom: Spacing['4'] }}>
+            Estamos trabalhando para você poder criar posts e compartilhar suas experiências com
+            outras mães da comunidade.
+          </Text>
+
+          <Text size="sm" color="tertiary" align="center" style={{ marginBottom: Spacing['6'] }}>
+            Enquanto isso, você pode interagir curtindo e lendo as histórias inspiradoras de outras
+            mães. 💜
+          </Text>
+
+          <HapticButton
+            onPress={() => setShowComingSoon(false)}
+            variant="primary"
+            style={{
+              minHeight: Tokens.touchTargets.min,
+            }}
+            accessibilityLabel="Fechar aviso"
+          >
+            <Text size="md" weight="bold" align="center" style={{ color: ColorTokens.neutral[0] }}>
+              Entendi!
+            </Text>
+          </HapticButton>
+        </Box>
+      </Modal>
     </SafeAreaView>
   );
 }

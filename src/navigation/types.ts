@@ -11,6 +11,8 @@ export type RootStackParamList = {
   Ritual: { ritual?: string; autoStart?: boolean; message?: string } | undefined; // 🧘 Ritual com params opcionais
   Diary: undefined;
   ContentDetail: { contentId: string }; // 🆕 Tela de detalhes de conteúdo (Week 1)
+  ChatSessions: undefined; // 💬 Modal de histórico de conversas
+  SOSMae: undefined; // 🆘 SOS Mãe - suporte emergencial
   PrivacyPolicy: undefined;
   TermsOfService: undefined;
   Settings: undefined;
@@ -36,7 +38,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   MaesValentes: undefined;
-  Chat: undefined;
+  Chat: { sessionId?: string } | undefined;
   MundoNath: undefined;
   Habitos: undefined;
 };

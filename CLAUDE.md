@@ -2,247 +2,249 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Para contexto completo:** Leia `CONTEXTO.md` antes de tarefas importantes.
+> **Contexto completo:** `CONTEXTO.md` contém estado atual, métricas e próximos passos.
 
 ---
 
 ## Quick Reference
 
-| Acao                    | Comando                                           |
-| ----------------------- | ------------------------------------------------- |
-| Dev server              | `npm start`                                       |
-| Type check              | `npm run type-check`                              |
-| Lint                    | `npm run lint`                                    |
-| Test                    | `npm test`                                        |
-| Test especifico         | `npx jest __tests__/services/chatService.test.ts` |
-| **Diagnostico producao** | `npm run diagnose:production`                    |
-| Build Android           | `npm run build:android`                           |
-| Build iOS               | `npm run build:ios`                               |
-| Limpar cache Metro      | `npx expo start -c`                               |
-| Validar design          | `npm run validate:design`                         |
-| Validar tudo            | `npm run validate`                                |
+| Ação                  | Comando                                           |
+| --------------------- | ------------------------------------------------- |
+| Dev server            | `npm start`                                       |
+| Type check            | `npm run type-check`                              |
+| Lint                  | `npm run lint`                                    |
+| Test                  | `npm test`                                        |
+| Test específico       | `npx jest __tests__/path/to/test.ts`              |
+| Diagnóstico produção  | `npm run diagnose:production`                     |
+| Build Android         | `npm run build:android`                           |
+| Build iOS             | `npm run build:ios`                               |
+| Limpar cache Metro    | `npx expo start -c`                               |
+| Validar design        | `npm run validate:design`                         |
+| Validar tudo          | `npm run validate`                                |
 
-### Path Aliases (tsconfig.json)
+### Path Aliases
 
 ```typescript
-@/*           -> ./src/*
-@components/* -> ./src/components/*
-@screens/*    -> ./src/screens/*
-@services/*   -> ./src/services/*
-@utils/*      -> ./src/utils/*
-@types/*      -> ./src/types/*
-@constants/*  -> ./src/constants/*
-@hooks/*      -> ./src/hooks/*
-@context/*    -> ./src/context/*
+@/*           → ./src/*
+@components/* → ./src/components/*
+@screens/*    → ./src/screens/*
+@services/*   → ./src/services/*
+@utils/*      → ./src/utils/*
+@types/*      → ./src/types/*
+@hooks/*      → ./src/hooks/*
 ```
 
 ---
 
-## Regras de Ouro
+## Critical Rules
 
-### SEMPRE fazer:
+### SEMPRE:
 
-- `logger.*` para logs (NUNCA `console.log`)
-- `useThemeColors()` para cores (NUNCA hardcoded)
-- `FlatList` para listas (NUNCA `ScrollView` com `.map()`)
-- Tokens do Design System (`Tokens.spacing`, `Tokens.radius`)
-- Touch targets minimo 44pt (iOS) / 48dp (Android)
-- Memoizar componentes de lista com `memo()`
-- Tratar erros explicitamente (padrao `{ data, error }`)
-- Rotear IA via `llmRouter.ts` (fallback automatico)
+1. `logger.*` para logs (integra Sentry)
+2. `useThemeColors()` para cores (suporta dark mode)
+3. `FlatList` para listas (nunca ScrollView + map)
+4. `Tokens.*` do Design System (`Tokens.spacing`, `Tokens.radius`)
+5. Touch targets mínimo 44pt (WCAG AAA)
+6. `memo()` em componentes de lista
+7. Retornar `{ data, error }` em services
+8. Rotear IA via `llmRouter.ts`
 
-### NUNCA fazer:
+### NUNCA:
 
-- Usar `any` em TypeScript (use `unknown`)
-- Usar `console.log/warn/error`
-- Commitar secrets, API keys, tokens
-- Fazer `git push --force` em main/master
-- Deixar RLS desabilitado no Supabase
+1. `any` em TypeScript (use `unknown`)
+2. `console.log/warn/error` (use `logger`)
+3. Cores hardcoded (`#FFFFFF`, `rgba(...)`)
+4. RLS desabilitado no Supabase
 
 ---
 
-## Patterns Criticos
+## Core Patterns
 
-### Logger (src/utils/logger.ts)
+### Logger (`src/utils/logger.ts`)
 
 ```typescript
 import { logger } from '@/utils/logger';
 
-logger.debug('Debug info'); // Dev only
+logger.debug('Debug info');         // Dev only
 logger.info('User action', { userId });
-logger.warn('Problema', error); // + Sentry
-logger.error('Falha critica', error); // + Sentry
+logger.warn('Problema', error);     // → Sentry
+logger.error('Falha crítica', error); // → Sentry
 ```
 
-### Error Handling Pattern
+### Service Error Handling
 
 ```typescript
-// Services SEMPRE retornam { data, error }
+// Services retornam { data, error }
 const { data, error } = await profileService.getProfile(userId);
 if (error) {
   logger.error('Falha ao carregar perfil', error);
   return;
 }
-// usar data...
 ```
 
-### LLM Router (src/agents/helpers/llmRouter.ts)
-
-```typescript
-// Fallback: Gemini → GPT-4o → Claude Opus
-const result = await llmRouter.route({
-  context: 'chat',
-  message: userMessage,
-  userId,
-});
-```
-
----
-
-## Design System (Obrigatorio)
+### Design System (`src/theme/tokens.ts`)
 
 ```typescript
 import { Tokens } from '@/theme/tokens';
 import { useThemeColors } from '@/hooks/useTheme';
 
-// Cores do tema (light/dark aware)
 const colors = useThemeColors();
-colors.background.canvas;
-colors.text.primary;
-colors.primary.main;
+// colors.background.canvas, colors.text.primary, colors.primary.main
 
-// Spacing (multiplos de 4)
-Tokens.spacing['4']; // 16px
-Tokens.spacing['6']; // 24px
+// Spacing (múltiplos de 4)
+Tokens.spacing['4'];  // 16px
+Tokens.spacing['6'];  // 24px
 
 // Typography
-Tokens.typography.sizes.md; // 16
+Tokens.typography.sizes.md;  // 16
+Tokens.textStyles.bodyMedium; // Semantic text style
 
 // Border radius
-Tokens.radius.lg; // 12
+Tokens.radius.lg;  // 12
 
 // Touch targets (WCAG AAA)
-Tokens.touchTargets.min; // 44pt
+Tokens.touchTargets.min;  // 44pt
 ```
 
 ---
 
 ## AI Architecture
 
-### Agentes (9 total)
+### LLM Router (`src/agents/helpers/llmRouter.ts`)
 
-| Agente                       | Funcao                       |
-| ---------------------------- | ---------------------------- |
-| `AgentOrchestrator`          | Gerencia todos os agentes    |
-| `MaternalChatAgent`          | Chat principal com IA        |
-| `ContentRecommendationAgent` | Recomendacoes personalizadas |
-| `HabitsAnalysisAgent`        | Analise de habitos           |
-| `EmotionAnalysisAgent`       | Analise emocional            |
-| `NathiaPersonalityAgent`     | Personalidade da NathIA      |
-| `SleepAnalysisAgent`         | Analise de sono              |
-| `DesignQualityAgent`         | Qualidade de design          |
-
-**Localizacao:** `src/agents/`
-
-### MCP Servers (6 total)
-
-| Server                | Funcao                    |
-| --------------------- | ------------------------- |
-| `SupabaseMCPServer`   | Database + Auth + Storage |
-| `GoogleAIMCPServer`   | Gemini integration        |
-| `OpenAIMCPServer`     | GPT integration           |
-| `AnthropicMCPServer`  | Claude integration        |
-| `AnalyticsMCPServer`  | Metricas e analytics      |
-| `PlaywrightMCPServer` | Automacao de testes       |
-
-**Localizacao:** `src/mcp/servers/`
-
-### Parallel Execution
+Roteamento inteligente com fallback automático:
+- **Crisis detected** → GPT-4o (safety)
+- **Complex context** → Gemini Flash (analysis)
+- **Short messages** → Gemini Flash-Lite (cheap)
+- **Default** → Gemini Flash
 
 ```typescript
-const result = await orchestrator.callMCPParallel([
+import { selectLlmProfile } from '@/agents/helpers/llmRouter';
+
+const profile = selectLlmProfile(message, { emotion, conversationDepth });
+// Returns: 'CRISIS_SAFE' | 'ANALYSIS_DEEP' | 'CHAT_CHEAP' | 'CHAT_DEFAULT'
+```
+
+### Agent Orchestrator (`src/agents/core/AgentOrchestrator.ts`)
+
+Singleton que gerencia agentes e MCP servers:
+- Parallel tool execution
+- Lazy loading de MCP servers
+- Retry logic com exponential backoff
+
+```typescript
+const orchestrator = AgentOrchestrator.getInstance();
+await orchestrator.callMCPParallel([
   { server: 'supabase', method: 'db.query', params: {...} },
-  { server: 'googleai', method: 'analyze', params: {...} }
+  { server: 'analytics', method: 'track', params: {...} }
 ]);
 ```
 
+### Agents (`src/agents/`)
+
+| Agent                        | Função                      |
+| ---------------------------- | --------------------------- |
+| `MaternalChatAgent`          | Chat principal (NathIA)     |
+| `ContentRecommendationAgent` | Recomendações personalizadas|
+| `HabitsAnalysisAgent`        | Análise de hábitos/streaks  |
+| `EmotionAnalysisAgent`       | Análise emocional           |
+| `SleepAnalysisAgent`         | Análise de sono             |
+| `NathiaPersonalityAgent`     | Personalidade da NathIA     |
+| `DesignQualityAgent`         | Validação de design         |
+
+### MCP Servers (`src/mcp/servers/`)
+
+| Server                | Função                    | Loading    |
+| --------------------- | ------------------------- | ---------- |
+| `SupabaseMCPServer`   | Database + Auth + Storage | Essencial  |
+| `AnalyticsMCPServer`  | Métricas e tracking       | Essencial  |
+| `OpenAIMCPServer`     | GPT fallback              | Lazy       |
+| `AnthropicMCPServer`  | Claude fallback           | Lazy       |
+
+> **Nota:** GoogleAI MCP foi movido para Edge Function (`chat-gemini`)
+
 ---
 
-## Arquitetura de Pastas
+## Architecture Overview
 
 ```
 src/
-├── screens/            # Telas do app
+├── screens/            # Telas (HomeScreen, ChatScreen, etc)
 ├── components/
 │   └── primitives/     # Design System base (Box, Text, Button)
 ├── navigation/         # React Navigation 7
-├── theme/              # Tokens e ThemeContext
-├── services/           # Logica de negocio (retornam { data, error })
-├── contexts/           # AuthContext, AgentsContext
-├── agents/             # Sistema de Agentes IA (9)
-│   ├── core/           # BaseAgent, AgentOrchestrator
-│   └── helpers/        # llmRouter.ts
-├── mcp/                # Model Context Protocol (6 servers)
-├── hooks/              # Custom hooks (useTheme, useHaptics)
+├── theme/
+│   ├── tokens.ts       # Design tokens (cores, spacing, typography)
+│   └── ThemeContext.tsx
+├── services/           # Lógica de negócio (retornam { data, error })
+├── agents/
+│   ├── core/           # BaseAgent, AgentOrchestrator, MCPLoader
+│   ├── helpers/        # llmRouter.ts
+│   ├── maternal/       # MaternalChatAgent
+│   └── ...             # Outros agentes especializados
+├── mcp/
+│   ├── servers/        # MCP server implementations
+│   ├── dynamic/        # Dynamic MCP (Docker Gateway)
+│   └── types/          # MCPMethod, MCPRequest, MCPResponse
+├── ai/
+│   ├── config/         # llmConfig.ts
+│   ├── prompts/        # System prompts (nathia.system.md)
+│   └── moderation/     # CrisisDetectionService
+├── hooks/              # useTheme, useHaptics, etc
 ├── types/              # TypeScript definitions
 └── utils/              # logger.ts, helpers
 ```
 
 ---
 
-## Antes de Commit
+## Before Commit
 
 ```bash
 npm run lint && npm run type-check && npm test
 ```
 
-**Antes de Build/Deploy:**
+**Before Build/Deploy:**
+
 ```bash
 npm run diagnose:production
 ```
 
-**Conventional Commits (portugues):**
+**Conventional Commits (português):**
 
 ```bash
 feat: adiciona funcionalidade X
 fix: corrige crash ao abrir perfil
-refactor: extrai logica de autenticacao
+refactor: extrai lógica de autenticação
 ```
 
 ---
 
-## Documentacao Relacionada
+## Key Documentation
 
-| Arquivo                                   | Conteudo                               |
-| ----------------------------------------- | -------------------------------------- |
-| `CONTEXTO.md`                             | Visao completa, regras, estado atual   |
-| `README.md`                               | Setup, deploy, estrutura detalhada     |
-| `docs/design/`                            | Design System (fonte unica da verdade) |
-| `docs/ORGANIZACAO/`                       | Fluxo de trabalho, templates           |
-| `docs/PRODUCTION_READINESS_DIAGNOSTIC.md` | Guia do diagnostico de producao        |
-
----
-
-## Claude Code Infrastructure (Avançado)
-
-Este projeto inclui um workflow avançado do Claude Code baseado no post do Reddit: "Claude Code is a Beast – Tips from 6 Months of Heavy Usage".
-
-### Recursos Disponíveis
-
-- **Auto-ativação de Skills:** Guidelines injetadas automaticamente baseadas em keywords, intenção e arquivos
-- **Validação Pós-Edição:** Type-check, lint e design tokens validados automaticamente
-- **Agentes Especializados:** `/plan`, `/test`, `/review` para tarefas específicas
-- **Sistema de Dev Docs:** Documentação automática para tarefas complexas
-
-### Quick Start
-
-1. **Skills são auto-ativadas** - Não precisa fazer nada, funciona automaticamente
-2. **Validações automáticas** - Após editar arquivos, validações são executadas
-3. **Use slash commands** - `/plan`, `/test`, `/review` para agentes especializados
-
-**Documentação completa:** `.claude/README.md`
-**Quick Start:** `.claude/QUICK_START.md`
+| Arquivo                                   | Conteúdo                             |
+| ----------------------------------------- | ------------------------------------ |
+| `CONTEXTO.md`                             | Estado atual, métricas, próximos passos |
+| `docs/design/`                            | Design System (fonte única da verdade) |
+| `docs/PRODUCTION_READINESS_DIAGNOSTIC.md` | Guia do diagnóstico de produção      |
+| `.claude/skill-rules.json`                | Auto-ativação de skills por contexto |
 
 ---
 
-_Ultima atualizacao: 4 de dezembro de 2025_
+## Claude Code Skills (Auto-Activation)
+
+Skills são ativadas automaticamente baseado em arquivos editados e keywords:
+
+| Trigger                    | Skills Ativadas                                   |
+| -------------------------- | ------------------------------------------------- |
+| `src/services/*.ts`        | typescript-strict, architecture, error-handling   |
+| `src/components/*.tsx`     | react-native, design-tokens, accessibility        |
+| `src/agents/*.ts`          | ai-architecture, error-handling, typescript-strict|
+| `src/mcp/*.ts`             | mcp-architecture, typescript-strict               |
+| Keywords: "fix", "bug"     | error-handling, debugging                         |
+| Keywords: "feature", "add" | task-docs                                         |
+
+**Config:** `.claude/skill-rules.json`
+
+---
+
+_Última atualização: 4 de dezembro de 2025_

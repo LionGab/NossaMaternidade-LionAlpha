@@ -100,8 +100,18 @@ export class AnalyticsMCPServer implements MCPServer {
         timestamp: Date.now(),
       });
     } catch (error) {
-      logger.error('[AnalyticsMCP] Initialization failed', error);
-      throw error;
+      // GRACEFUL DEGRADATION: Não propagar erro
+      // Analytics é opcional - app deve funcionar sem ele
+      logger.warn('[AnalyticsMCP] Initialization failed (graceful degradation)', error);
+
+      // Marcar como inicializado mesmo com erro parcial
+      // Isso permite que handleRequest retorne erros ao invés de crashar
+      this.initialized = true;
+
+      // Gerar session ID fallback se não tiver
+      if (!this.sessionId) {
+        this.sessionId = `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      }
     }
   }
 

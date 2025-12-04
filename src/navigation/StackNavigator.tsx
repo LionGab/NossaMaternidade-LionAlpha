@@ -26,6 +26,8 @@ const SettingsScreen = React.lazy(() => import('../screens/SettingsScreen'));
 const AgentsStatusScreen = React.lazy(() => import('../screens/AgentsStatusScreen'));
 const ProfileScreen = React.lazy(() => import('../screens/ProfileScreen'));
 const ContentDetailScreen = React.lazy(() => import('../screens/ContentDetailScreen'));
+const ChatSessionsScreen = React.lazy(() => import('../screens/ChatSessionsScreen'));
+const SOSMaeScreen = React.lazy(() => import('../screens/SOSMaeScreen'));
 const DesignSystemScreen = React.lazy(() => import('../screens/DesignSystemScreen'));
 const DesignMetricsDashboard = React.lazy(() => import('../screens/DesignMetricsDashboard'));
 const SearchScreen = React.lazy(() => import('../screens/SearchScreen'));
@@ -210,6 +212,26 @@ export const StackNavigator = () => {
         }}
       >
         {(props) => <LazyScreen component={ContentDetailScreen} {...props} />}
+      </Stack.Screen>
+      {/* ChatSessions Modal - Histórico de conversas */}
+      <Stack.Screen
+        name="ChatSessions"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      >
+        {(props) => <LazyScreen component={ChatSessionsScreen} {...props} />}
+      </Stack.Screen>
+      {/* SOS Mãe - Suporte emergencial */}
+      <Stack.Screen
+        name="SOSMae"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      >
+        {(props) => <LazyScreen component={SOSMaeScreen} {...props} />}
       </Stack.Screen>
       <Stack.Screen
         name="PrivacyPolicy"

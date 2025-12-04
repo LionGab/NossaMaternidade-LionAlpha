@@ -150,7 +150,7 @@ export const TabNavigator = () => {
         name="Home"
         component={HomeScreenWrapper}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Início',
           tabBarAccessibilityLabel: 'Tela inicial, dashboard principal',
           tabBarIcon: ({ color, focused }) => (
             <Home
@@ -172,7 +172,7 @@ export const TabNavigator = () => {
         name="MaesValentes"
         component={CommunityScreenWrapper}
         options={{
-          tabBarLabel: 'Mães',
+          tabBarLabel: 'Mães Valente',
           tabBarAccessibilityLabel: 'Comunidade Mães Valentes',
           tabBarIcon: ({ color, focused }) => (
             <Users
@@ -194,7 +194,7 @@ export const TabNavigator = () => {
         name="Chat"
         component={ChatScreenWrapper}
         options={{
-          tabBarLabel: 'Nat',
+          tabBarLabel: 'NathIA',
           tabBarAccessibilityLabel: 'Chat com NathIA, assistente de IA',
           tabBarIcon: ({ color, focused }) => (
             <MessageCircle
@@ -211,20 +211,20 @@ export const TabNavigator = () => {
         }}
       />
 
-      {/* 📚 Tab 4: Mundo Naty */}
+      {/* 📚 Tab 4: Mundo da Nath */}
       <Tab.Screen
         name="MundoNath"
         component={MundoNathScreenWrapper}
         options={{
-          tabBarLabel: 'Mundo',
-          tabBarAccessibilityLabel: 'Mundo Nath, conteúdo e feed',
+          tabBarLabel: 'Mundo da Nath',
+          tabBarAccessibilityLabel: 'Mundo da Nath, conteúdo e feed',
           tabBarIcon: ({ color, focused }) => (
             <Sparkles
               size={20}
               color={color}
               strokeWidth={focused ? 2.5 : 2}
               accessibilityLabel="Ícone de conteúdo e feed"
-              accessibilityHint="Navega para o Mundo Naty, conteúdo e feed"
+              accessibilityHint="Navega para o Mundo da Nath, conteúdo e feed"
             />
           ),
         }}
@@ -238,7 +238,7 @@ export const TabNavigator = () => {
         name="Habitos"
         component={HabitsScreenWrapper}
         options={{
-          tabBarLabel: 'Meu',
+          tabBarLabel: 'Meus Cuidados',
           tabBarAccessibilityLabel: 'Meus Cuidados e bem-estar',
           tabBarIcon: ({ color, focused }) => (
             <Heart

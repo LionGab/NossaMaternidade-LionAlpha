@@ -1,435 +1,1052 @@
-import { useNavigation } from '@react-navigation/native';
+/**
+ * Ritual de Reconexão Screen
+ * Exercícios de respiração e mindfulness para mães
+ * Migrado de app-redesign-studio
+ */
+
+import * as Haptics from 'expo-haptics';
 import {
   ArrowLeft,
-  Moon,
-  Sun,
-  Coffee,
+  Clock,
   Heart,
-  Shield,
-  Meh,
-  Frown,
-  BatteryLow,
-  BatteryMedium,
-  BatteryFull,
+  Sparkles,
+  CheckCircle2,
+  Play,
+  Pause,
+  SkipForward,
+  Volume2,
+  VolumeX,
 } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import Animated, {
+  FadeIn,
+  SlideInRight,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+  cancelAnimation,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Button } from '../components';
-import { Box } from '../components/primitives/Box';
-import { useTheme } from '../theme/ThemeContext';
-import { Tokens, TextStyles, Spacing, Radius, Shadows } from '../theme/tokens';
+import { Box } from '@/components/primitives/Box';
+import { Button } from '@/components/primitives/Button';
+import { Text } from '@/components/primitives/Text';
+import { useTheme } from '@/theme';
+import { Tokens } from '@/theme/tokens';
+import { logger } from '@/utils/logger';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/navigation/types';
+import {
+  RitualStep,
+  EmotionState,
+  EmotionValue,
+  AmbientSoundType,
+  BreathingConfig,
+  EMOTION_OPTIONS,
+  AMBIENT_SOUNDS,
+  DEFAULT_BREATHING_CONFIG,
+} from '@/types/ritual';
 
-export default function RitualScreen() {
-  const navigation = useNavigation();
-  const { colors, isDark } = useTheme();
-  const [step, setStep] = useState(1);
-  const [currentFeeling, setCurrentFeeling] = useState<string | null>(null);
-  const [desiredFeeling, setDesiredFeeling] = useState<string | null>(null);
+type RitualPhase = 'preparation' | 'running' | 'completion';
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-  const getPractice = () => {
-    return {
-      title: 'Pausa de Respiração 4-7-8',
-      text: 'Inspire pelo nariz contando até 4. Segure o ar por 7. Solte pela boca fazendo som de "ahh" por 8. Repita 3 vezes.',
-      action: 'Fazer agora (30s)',
-    };
-  };
+// ============================================
+// EMOTION CHECK-IN COMPONENT
+// ============================================
+interface EmotionCheckInProps {
+  onComplete: (emotion: EmotionState) => void;
+  context: 'before' | 'after';
+  title: string;
+  description: string;
+}
 
-  const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-    else {
-      navigation.navigate('Main' as never);
+const EmotionCheckIn: React.FC<EmotionCheckInProps> = ({
+  onComplete,
+  context,
+  title,
+  description,
+}) => {
+  const { colors } = useTheme();
+  const [selectedEmotion, setSelectedEmotion] = useState<EmotionValue | null>(null);
+
+  const handleSelect = useCallback(
+    (emotion: EmotionValue) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setSelectedEmotion(emotion);
+    },
+    []
+  );
+
+  const handleContinue = useCallback(() => {
+    if (selectedEmotion) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onComplete({
+        emotion: selectedEmotion,
+        intensity: 7,
+      });
     }
-  };
-
-  const feelings = [
-    { icon: BatteryLow, label: 'Exausta', id: 'exausta', color: colors.status.error },
-    { icon: Frown, label: 'Ansiosa', id: 'ansiosa', color: colors.raw.accent.orange },
-    { icon: Meh, label: 'Confusa', id: 'confusa', color: colors.status.warning },
-    { icon: BatteryMedium, label: 'Ok', id: 'ok', color: colors.primary.main },
-    { icon: BatteryFull, label: 'Grata', id: 'grata', color: colors.status.success },
-  ];
-
-  const desires = [
-    { icon: Shield, label: 'Mais forte', id: 'forte', color: colors.primary.main },
-    { icon: Heart, label: 'Acolhida', id: 'acolhida', color: colors.raw.accent.pink },
-    { icon: Moon, label: 'Em paz', id: 'paz', color: colors.raw.accent.purple },
-    { icon: Sun, label: 'Energizada', id: 'energia', color: colors.status.warning },
-  ];
-
-  const practice = getPractice();
+  }, [selectedEmotion, onComplete]);
 
   return (
-    <SafeAreaView
+    <Animated.View entering={FadeIn.duration(400)}>
+      <Box p="4" gap="6">
+        {/* Header */}
+        <Box gap="2" align="center">
+          <Text
+            variant="body"
+            size="xl"
+            weight="bold"
+            align="center"
+            style={{ color: colors.text.primary }}
+          >
+            {title}
+          </Text>
+          <Text
+            variant="body"
+            size="sm"
+            align="center"
+            style={{ color: colors.text.secondary }}
+          >
+            {description}
+          </Text>
+        </Box>
+
+        {/* Emotion Options */}
+        <Box direction="row" justify="center" gap="3" style={{ flexWrap: 'wrap' }}>
+          {EMOTION_OPTIONS.map((option) => {
+            const isSelected = selectedEmotion === option.value;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                onPress={() => handleSelect(option.value)}
+                accessibilityRole="button"
+                accessibilityLabel={option.label}
+                accessibilityState={{ selected: isSelected }}
+                style={{
+                  alignItems: 'center',
+                  padding: Tokens.spacing['3'],
+                  borderRadius: Tokens.radius.xl,
+                  backgroundColor: isSelected
+                    ? `${colors.primary.main}20`
+                    : 'transparent',
+                  borderWidth: 2,
+                  borderColor: isSelected ? colors.primary.main : 'transparent',
+                  minWidth: 70,
+                }}
+              >
+                <Text style={{ fontSize: 40 }}>{option.value}</Text>
+                <Text
+                  variant="caption"
+                  size="xs"
+                  weight={isSelected ? 'semibold' : 'regular'}
+                  style={{
+                    color: isSelected ? colors.primary.main : colors.text.tertiary,
+                    marginTop: Tokens.spacing['1'],
+                  }}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </Box>
+
+        {/* Continue Button */}
+        <Button
+          title={context === 'before' ? 'Começar Ritual' : 'Finalizar'}
+          onPress={handleContinue}
+          disabled={!selectedEmotion}
+          style={{
+            backgroundColor: colors.primary.main,
+          }}
+        />
+      </Box>
+    </Animated.View>
+  );
+};
+
+// ============================================
+// BREATHING GUIDE COMPONENT
+// ============================================
+interface BreathingGuideProps {
+  config: BreathingConfig;
+  onComplete: () => void;
+  isPaused: boolean;
+}
+
+const BreathingGuide: React.FC<BreathingGuideProps> = ({
+  config,
+  onComplete,
+  isPaused,
+}) => {
+  const { colors } = useTheme();
+  const [currentPhase, setCurrentPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
+  const [cyclesCompleted, setCyclesCompleted] = useState(0);
+  const [countdown, setCountdown] = useState(config.inhaleDuration);
+
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(0.6);
+
+  // Animation based on phase
+  useEffect(() => {
+    if (isPaused) {
+      cancelAnimation(scale);
+      return;
+    }
+
+    if (currentPhase === 'inhale') {
+      scale.value = withTiming(1.5, {
+        duration: config.inhaleDuration * 1000,
+        easing: Easing.inOut(Easing.ease),
+      });
+      opacity.value = withTiming(1, { duration: config.inhaleDuration * 1000 });
+    } else if (currentPhase === 'hold') {
+      // Keep scale steady during hold
+    } else if (currentPhase === 'exhale') {
+      scale.value = withTiming(1, {
+        duration: config.exhaleDuration * 1000,
+        easing: Easing.inOut(Easing.ease),
+      });
+      opacity.value = withTiming(0.6, { duration: config.exhaleDuration * 1000 });
+    }
+  }, [currentPhase, isPaused, config, scale, opacity]);
+
+  // Timer logic
+  useEffect(() => {
+    if (isPaused) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          // Transition to next phase
+          if (currentPhase === 'inhale') {
+            setCurrentPhase('hold');
+            return config.holdDuration;
+          } else if (currentPhase === 'hold') {
+            setCurrentPhase('exhale');
+            return config.exhaleDuration;
+          } else {
+            // Exhale complete - new cycle
+            const newCycles = cyclesCompleted + 1;
+            setCyclesCompleted(newCycles);
+
+            if (newCycles >= config.cycles) {
+              onComplete();
+              return 0;
+            }
+
+            setCurrentPhase('inhale');
+            return config.inhaleDuration;
+          }
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [currentPhase, cyclesCompleted, isPaused, config, onComplete]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  const phaseLabels = {
+    inhale: 'Inspire...',
+    hold: 'Segure...',
+    exhale: 'Expire...',
+  };
+
+  return (
+    <Box align="center" gap="6" py="4">
+      {/* Breathing Circle */}
+      <Animated.View style={animatedStyle}>
+        <View
+          style={{
+            width: 180,
+            height: 180,
+            borderRadius: 90,
+            backgroundColor: `${colors.primary.main}30`,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 4,
+            borderColor: colors.primary.main,
+          }}
+        >
+      <Text
+        variant="body"
+        size="3xl"
+        weight="bold"
+        style={{ color: colors.primary.main }}
+      >
+        {countdown}
+      </Text>
+        </View>
+      </Animated.View>
+
+      {/* Phase Label */}
+      <Text
+        variant="body"
+        size="xl"
+        weight="semibold"
+        style={{ color: colors.text.primary }}
+      >
+        {phaseLabels[currentPhase]}
+      </Text>
+
+      {/* Progress */}
+      <Box direction="row" gap="2" align="center">
+        {Array.from({ length: config.cycles }).map((_, i) => (
+          <View
+            key={i}
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: 6,
+              backgroundColor:
+                i < cyclesCompleted
+                  ? colors.primary.main
+                  : i === cyclesCompleted
+                  ? `${colors.primary.main}60`
+                  : colors.border.light,
+            }}
+          />
+        ))}
+      </Box>
+      <Text variant="caption" size="sm" style={{ color: colors.text.tertiary }}>
+        Ciclo {cyclesCompleted + 1} de {config.cycles}
+      </Text>
+    </Box>
+  );
+};
+
+// ============================================
+// AMBIENT SOUND SELECTOR
+// ============================================
+interface AmbientSoundSelectorProps {
+  selectedSound: AmbientSoundType | null;
+  enabled: boolean;
+  onToggle: () => void;
+  onSelectSound: (sound: AmbientSoundType) => void;
+}
+
+const AmbientSoundSelector: React.FC<AmbientSoundSelectorProps> = ({
+  selectedSound,
+  enabled,
+  onToggle,
+  onSelectSound,
+}) => {
+  const { colors } = useTheme();
+
+  return (
+    <Box
+      p="4"
+      gap="3"
+      style={{
+        backgroundColor: colors.background.card,
+        borderRadius: Tokens.radius['2xl'],
+        borderWidth: 1,
+        borderColor: colors.border.light,
+      }}
+    >
+      <Box direction="row" justify="space-between" align="center">
+        <Text variant="body" size="sm" weight="semibold" style={{ color: colors.text.primary }}>
+          Som ambiente
+        </Text>
+        <TouchableOpacity onPress={onToggle} accessibilityLabel="Alternar som ambiente">
+          {enabled ? (
+            <Volume2 size={24} color={colors.primary.main} />
+          ) : (
+            <VolumeX size={24} color={colors.text.tertiary} />
+          )}
+        </TouchableOpacity>
+      </Box>
+
+      {enabled && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <Box direction="row" gap="2">
+            {AMBIENT_SOUNDS.map((sound) => (
+              <TouchableOpacity
+                key={sound.type}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  onSelectSound(sound.type);
+                }}
+                style={{
+                  paddingHorizontal: Tokens.spacing['3'],
+                  paddingVertical: Tokens.spacing['2'],
+                  borderRadius: Tokens.radius.full,
+                  backgroundColor:
+                    selectedSound === sound.type
+                      ? colors.primary.main
+                      : colors.background.input,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: Tokens.spacing['1'],
+                }}
+              >
+                <Text>{sound.icon}</Text>
+                <Text
+                  variant="caption"
+                  size="xs"
+                  style={{
+                    color: selectedSound === sound.type ? '#FFFFFF' : colors.text.secondary,
+                  }}
+                >
+                  {sound.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </Box>
+        </ScrollView>
+      )}
+    </Box>
+  );
+};
+
+// ============================================
+// MAIN SCREEN COMPONENT
+// ============================================
+export default function RitualScreen() {
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NavigationProp>();
+
+  const [phase, setPhase] = useState<RitualPhase>('preparation');
+  const [emotionBefore, setEmotionBefore] = useState<EmotionState | null>(null);
+  const [emotionAfter, setEmotionAfter] = useState<EmotionState | null>(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [ambientSound, setAmbientSound] = useState<AmbientSoundType | null>('rain');
+  const [ambientEnabled, setAmbientEnabled] = useState(true);
+  const startTimeRef = useRef<number>(0);
+
+  // Ritual Steps
+  const steps: RitualStep[] = [
+    {
+      id: 'preparation',
+      type: 'preparation',
+      title: 'Preparação',
+      description: 'Vamos reconectar você com você mesma em apenas alguns minutos.',
+      content: 'Respire fundo e prepare-se para este momento especial. Este é um tempo só seu.',
+      duration: 10,
+      animationType: 'gradient',
+    },
+    {
+      id: 'breathing',
+      type: 'breathing',
+      title: 'Respiração Consciente',
+      description: 'Inspire profundamente pelo nariz... e expire pela boca.',
+      content: 'Siga o guia visual. Sinta o ar entrando e saindo do seu corpo.',
+      duration: 90,
+      breathingConfig: DEFAULT_BREATHING_CONFIG,
+      animationType: 'pulse',
+    },
+    {
+      id: 'gratitude',
+      type: 'gratitude',
+      title: 'Gratidão',
+      description: 'Pense em 3 coisas pelas quais você é grata hoje.',
+      content:
+        'Pode ser algo simples: um sorriso, um abraço, um momento de paz. Deixe sua mente viajar por esses momentos.',
+      duration: 60,
+      animationType: 'particles',
+    },
+    {
+      id: 'intention',
+      type: 'intention',
+      title: 'Intenção do Dia',
+      description: 'Qual é a sua intenção para hoje?',
+      content:
+        'Pense em uma palavra ou frase que vai guiar seu dia. Pode ser "paciência", "amor", "presença".',
+      duration: 45,
+      animationType: 'gradient',
+    },
+    {
+      id: 'closing',
+      type: 'closing',
+      title: 'Encerramento',
+      description: 'Este momento é só seu. Respire, sinta, reconecte-se.',
+      content: 'Você dedicou este tempo para você mesma. Isso faz toda a diferença.',
+      duration: 15,
+      animationType: 'gradient',
+    },
+  ];
+
+  const currentStep = steps[currentStepIndex];
+  const progress = ((currentStepIndex + 1) / steps.length) * 100;
+  const totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
+
+  // Timer for non-breathing steps
+  useEffect(() => {
+    if (
+      phase !== 'running' ||
+      isPaused ||
+      !currentStep ||
+      currentStep.type === 'breathing'
+    )
+      return;
+
+    // Set initial time outside interval
+    const stepDuration = currentStep.duration;
+    let remaining = stepDuration;
+    setTimeRemaining(stepDuration);
+
+    const timer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        // Move to next step
+        if (currentStepIndex < steps.length - 1) {
+          setCurrentStepIndex((prev) => prev + 1);
+        } else {
+          setPhase('completion');
+        }
+        return;
+      }
+      setTimeRemaining(remaining);
+    }, 1000);
+
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepIndex, phase, isPaused, steps.length]);
+
+  const handleStepComplete = useCallback(() => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prev) => prev + 1);
+    } else {
+      setPhase('completion');
+    }
+  }, [currentStepIndex, steps.length]);
+
+  const handleStartRitual = useCallback((emotion: EmotionState) => {
+    setEmotionBefore(emotion);
+    startTimeRef.current = Date.now();
+    setPhase('running');
+    setCurrentStepIndex(0);
+    logger.info('Ritual started', { emotionBefore: emotion.emotion });
+  }, []);
+
+  const handleCompleteRitual = useCallback(
+    (emotion: EmotionState) => {
+      setEmotionAfter(emotion);
+      const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
+      logger.info('Ritual completed', {
+        emotionBefore: emotionBefore?.emotion,
+        emotionAfter: emotion.emotion,
+        duration,
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    },
+    [emotionBefore]
+  );
+
+  const handleGoBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleSkipStep = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    handleStepComplete();
+  }, [handleStepComplete]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // ============================================
+  // RENDER: PREPARATION PHASE
+  // ============================================
+  if (phase === 'preparation') {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background.canvas,
+          paddingTop: insets.top,
+        }}
+      >
+        {/* Header */}
+        <Box
+          direction="row"
+          align="center"
+          p="4"
+          style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+        >
+          <TouchableOpacity
+            onPress={handleGoBack}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            accessibilityLabel="Voltar"
+          >
+            <ArrowLeft size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+          <Box flex={1} ml="3">
+          <Text
+            variant="body"
+            size="lg"
+            weight="bold"
+            style={{ color: colors.primary.main }}
+          >
+            ✨ Ritual de Reconexão
+          </Text>
+            <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
+              ~{Math.ceil(totalDuration / 60)} minutos
+            </Text>
+          </Box>
+        </Box>
+
+        <ScrollView
+          contentContainerStyle={{
+            paddingBottom: insets.bottom + Tokens.spacing['8'],
+          }}
+        >
+          <EmotionCheckIn
+            onComplete={handleStartRitual}
+            context="before"
+            title="Como você está se sentindo agora?"
+            description="Vamos começar reconhecendo como você está neste momento."
+          />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // ============================================
+  // RENDER: COMPLETION PHASE
+  // ============================================
+  if (phase === 'completion') {
+    const emotionImproved =
+      emotionBefore &&
+      emotionAfter &&
+      EMOTION_OPTIONS.findIndex((e) => e.value === emotionAfter.emotion) >
+        EMOTION_OPTIONS.findIndex((e) => e.value === emotionBefore.emotion);
+
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.background.canvas,
+          paddingTop: insets.top,
+        }}
+      >
+        {/* Header */}
+        <Box
+          direction="row"
+          align="center"
+          p="4"
+          style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+        >
+          <TouchableOpacity
+            onPress={handleGoBack}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            accessibilityLabel="Voltar"
+          >
+            <ArrowLeft size={24} color={colors.text.primary} />
+          </TouchableOpacity>
+        </Box>
+
+        <ScrollView
+          contentContainerStyle={{
+            padding: Tokens.spacing['4'],
+            paddingBottom: insets.bottom + Tokens.spacing['8'],
+          }}
+        >
+          {!emotionAfter ? (
+            <EmotionCheckIn
+              onComplete={handleCompleteRitual}
+              context="after"
+              title="Como você está se sentindo agora?"
+              description="Vamos ver como você se sente após este momento de reconexão."
+            />
+          ) : (
+            <Animated.View entering={FadeIn.duration(500)}>
+              <Box gap="6" align="center" py="8">
+                {/* Success Icon */}
+                <Box
+                  align="center"
+                  justify="center"
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 40,
+                    backgroundColor: colors.primary.main,
+                  }}
+                >
+                  <CheckCircle2 size={40} color="#FFFFFF" />
+                </Box>
+
+              {/* Success Message */}
+              <Box gap="2" align="center">
+                <Text
+                  variant="body"
+                  size="2xl"
+                  weight="bold"
+                  align="center"
+                  style={{ color: colors.primary.main }}
+                >
+                  Ritual Concluído! ✨
+                </Text>
+                <Text
+                  variant="body"
+                  size="lg"
+                  align="center"
+                  style={{ color: colors.text.secondary }}
+                >
+                  Você completou seu ritual de reconexão.
+                </Text>
+              </Box>
+
+                {/* Emotion Journey */}
+                {emotionBefore && emotionAfter && (
+                  <Box
+                    p="5"
+                    gap="4"
+                    style={{
+                      backgroundColor: colors.background.card,
+                      borderRadius: Tokens.radius['2xl'],
+                      borderWidth: 2,
+                      borderColor: colors.border.light,
+                      width: '100%',
+                    }}
+                  >
+                <Text
+                  variant="label"
+                  size="md"
+                  weight="bold"
+                  align="center"
+                  style={{ color: colors.text.primary }}
+                >
+                  Sua Jornada
+                </Text>
+                    <Box direction="row" align="center" justify="space-between">
+                      <Box align="center">
+                        <Text style={{ fontSize: 40 }}>{emotionBefore.emotion}</Text>
+                        <Text
+                          variant="caption"
+                          size="xs"
+                          style={{ color: colors.text.tertiary }}
+                        >
+                          Antes
+                        </Text>
+                      </Box>
+                      <View
+                        style={{
+                          flex: 1,
+                          height: 4,
+                          backgroundColor: colors.primary.main,
+                          marginHorizontal: Tokens.spacing['3'],
+                          borderRadius: 2,
+                        }}
+                      />
+                      <Box align="center">
+                        <Text style={{ fontSize: 40 }}>{emotionAfter.emotion}</Text>
+                        <Text
+                          variant="caption"
+                          size="xs"
+                          style={{ color: colors.text.tertiary }}
+                        >
+                          Depois
+                        </Text>
+                      </Box>
+                    </Box>
+                    {emotionImproved && (
+                      <Text
+                        variant="body"
+                        size="sm"
+                        weight="semibold"
+                        align="center"
+                        style={{ color: Tokens.colors.success[600] }}
+                      >
+                        Você se sente melhor! 🎉
+                      </Text>
+                    )}
+                  </Box>
+                )}
+
+                {/* Actions */}
+                <Box gap="3" style={{ width: '100%' }}>
+                  <Button
+                    title="Conversar com NathIA"
+                    onPress={() => navigation.navigate('Main', { screen: 'Chat' })}
+                    leftIcon={<Heart size={20} color="#FFFFFF" />}
+                  />
+                  <Button
+                    title="Voltar para Home"
+                    onPress={handleGoBack}
+                    variant="outline"
+                  />
+                </Box>
+              </Box>
+            </Animated.View>
+          )}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // ============================================
+  // RENDER: RUNNING PHASE
+  // ============================================
+  return (
+    <View
       style={{
         flex: 1,
         backgroundColor: colors.background.canvas,
+        paddingTop: insets.top,
       }}
-      accessible={true}
-      accessibilityLabel="Tela de Ritual de Respiração"
     >
       {/* Header */}
       <Box
         direction="row"
         align="center"
-        justify="space-between"
-        px="4"
-        py="4"
-        style={{
-          backgroundColor: colors.background.card,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border.light,
-        }}
+        p="4"
+        gap="3"
+        style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
       >
         <TouchableOpacity
-          onPress={() => navigation.goBack()}
+          onPress={() => {
+            if (currentStepIndex > 0) {
+              navigation.goBack();
+            } else {
+              handleGoBack();
+            }
+          }}
           style={{
-            backgroundColor: colors.text.primary,
-            padding: Spacing['2'],
-            borderRadius: Radius.full,
-            minWidth: Tokens.touchTargets.min,
-            minHeight: Tokens.touchTargets.min,
+            width: 44,
+            height: 44,
+            borderRadius: 22,
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          activeOpacity={0.7}
-          accessibilityRole="button"
           accessibilityLabel="Voltar"
-          accessibilityHint="Retorna para a tela anterior"
         >
-          <ArrowLeft size={20} color={colors.text.inverse} />
+          <ArrowLeft size={24} color={colors.text.primary} />
         </TouchableOpacity>
-
-        <Box flex={1} align="center" mx="4">
+        <Box flex={1}>
           <Text
-            style={[
-              TextStyles.labelSmall,
-              {
-                color: colors.primary.main,
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-              },
-            ]}
-            accessibilityLabel="Nossa Maternidade"
+            variant="body"
+            size="md"
+            weight="bold"
+            style={{ color: colors.primary.main }}
           >
-            Nossa Maternidade
+            Ritual de Reconexão
           </Text>
+          <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
+            Passo {currentStepIndex + 1} de {steps.length}
+          </Text>
+        </Box>
+        {currentStep?.type !== 'breathing' && (
           <Box
+            direction="row"
+            align="center"
+            gap="1"
+            px="3"
+            py="1"
             style={{
-              width: 120,
-              height: 6,
-              backgroundColor: colors.background.elevated,
-              borderRadius: Radius.full,
-              marginTop: Spacing['1'],
-              overflow: 'hidden',
+              backgroundColor: colors.background.input,
+              borderRadius: Tokens.radius.full,
             }}
-            accessible={true}
-            accessibilityLabel={`Progresso: ${step} de 3 passos`}
-            accessibilityRole="progressbar"
+          >
+            <Clock size={16} color={colors.text.tertiary} />
+            <Text
+              variant="caption"
+              size="sm"
+              weight="semibold"
+              style={{ color: colors.text.secondary }}
+            >
+              {formatTime(timeRemaining)}
+            </Text>
+          </Box>
+        )}
+      </Box>
+
+      <ScrollView
+        contentContainerStyle={{
+          padding: Tokens.spacing['4'],
+          paddingBottom: insets.bottom + Tokens.spacing['8'],
+        }}
+      >
+        {/* Progress Bar */}
+        <Box mb="4">
+          <View
+            style={{
+              height: 6,
+              backgroundColor: colors.border.light,
+              borderRadius: 3,
+            }}
           >
             <View
               style={{
-                width: `${(step / 3) * 100}%`,
+                width: `${progress}%`,
                 height: '100%',
                 backgroundColor: colors.primary.main,
-                borderRadius: Radius.full,
+                borderRadius: 3,
               }}
             />
-          </Box>
+          </View>
         </Box>
 
-        <Text
-          style={[
-            TextStyles.labelSmall,
-            {
-              color: colors.text.secondary,
-              width: 36,
-              textAlign: 'right',
-            },
-          ]}
-          accessibilityLabel="30 segundos"
+        {/* Step Card */}
+        <Animated.View
+          key={currentStepIndex}
+          entering={SlideInRight.duration(300)}
         >
-          00:30
-        </Text>
-      </Box>
-
-      <Box flex={1} px="6" justify="center">
-        {/* Step 1: Current Feeling */}
-        {step === 1 && (
-          <Box accessible={true} accessibilityRole="none">
-            <Text
-              style={[
-                TextStyles.displaySmall,
-                {
-                  marginBottom: Spacing['2'],
-                  textAlign: 'center',
-                  color: colors.text.primary,
-                },
-              ]}
-              accessibilityRole="header"
-              accessibilityLabel="Passo 1: Como você está agora?"
-            >
-              Como você está agora?
-            </Text>
-            <Text
-              style={[
-                TextStyles.bodyMedium,
-                {
-                  textAlign: 'center',
-                  marginBottom: Spacing['8'],
-                  color: colors.text.secondary,
-                },
-              ]}
-              accessibilityLabel="Sem julgamentos, só a verdade"
-            >
-              Sem julgamentos, só a verdade.
-            </Text>
-            <Box direction="row" gap="3" justify="center" style={{ flexWrap: 'wrap' }}>
-              {feelings.map((f) => {
-                const Icon = f.icon;
-                const isSelected = currentFeeling === f.id;
-                return (
-                  <TouchableOpacity
-                    key={f.id}
-                    onPress={() => setCurrentFeeling(f.id)}
-                    style={{
-                      padding: Spacing['4'],
-                      borderRadius: Radius['2xl'],
-                      borderWidth: 2,
-                      borderColor: isSelected ? colors.primary.main : colors.border.light,
-                      backgroundColor: isSelected
-                        ? isDark
-                          ? `${colors.primary.main}33`
-                          : colors.primary.light
-                        : colors.background.card,
-                      width: '47%',
-                      alignItems: 'center',
-                      gap: Spacing['2'],
-                      minHeight: Tokens.touchTargets.min,
-                      ...Shadows.sm,
-                    }}
-                    activeOpacity={0.7}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Sentimento: ${f.label}`}
-                    accessibilityHint={`Toque para selecionar ${f.label} como seu sentimento atual`}
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Icon size={24} color={f.color} />
-                    <Text
-                      style={[
-                        TextStyles.labelMedium,
-                        {
-                          color: isSelected ? colors.primary.main : colors.text.primary,
-                        },
-                      ]}
-                    >
-                      {f.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </Box>
-          </Box>
-        )}
-
-        {/* Step 2: Desired Feeling */}
-        {step === 2 && (
-          <Box accessible={true} accessibilityRole="none">
-            <Text
-              style={[
-                TextStyles.displaySmall,
-                {
-                  marginBottom: Spacing['2'],
-                  textAlign: 'center',
-                  color: colors.text.primary,
-                },
-              ]}
-              accessibilityRole="header"
-              accessibilityLabel="Passo 2: Como você quer se sentir?"
-            >
-              Como você quer se sentir?
-            </Text>
-            <Text
-              style={[
-                TextStyles.bodyMedium,
-                {
-                  textAlign: 'center',
-                  marginBottom: Spacing['8'],
-                  color: colors.text.secondary,
-                },
-              ]}
-              accessibilityLabel="Vamos setar uma intenção pro dia"
-            >
-              Vamos setar uma intenção pro dia.
-            </Text>
-            <Box direction="row" gap="3" justify="center" style={{ flexWrap: 'wrap' }}>
-              {desires.map((d) => {
-                const Icon = d.icon;
-                const isSelected = desiredFeeling === d.id;
-                return (
-                  <TouchableOpacity
-                    key={d.id}
-                    onPress={() => setDesiredFeeling(d.id)}
-                    style={{
-                      padding: Spacing['4'],
-                      borderRadius: Radius['2xl'],
-                      borderWidth: 2,
-                      borderColor: isSelected ? colors.raw.accent.pink : colors.border.light,
-                      backgroundColor: isSelected
-                        ? isDark
-                          ? `${colors.raw.accent.pink}33`
-                          : colors.secondary.light
-                        : colors.background.card,
-                      width: '47%',
-                      alignItems: 'center',
-                      gap: Spacing['2'],
-                      minHeight: Tokens.touchTargets.min,
-                      ...Shadows.sm,
-                    }}
-                    activeOpacity={0.7}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Intenção: ${d.label}`}
-                    accessibilityHint={`Toque para selecionar ${d.label} como sua intenção do dia`}
-                    accessibilityState={{ selected: isSelected }}
-                  >
-                    <Icon size={24} color={d.color} />
-                    <Text
-                      style={[
-                        TextStyles.labelMedium,
-                        {
-                          color: isSelected ? colors.raw.accent.pink : colors.text.primary,
-                        },
-                      ]}
-                    >
-                      {d.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </Box>
-          </Box>
-        )}
-
-        {/* Step 3: Practice */}
-        {step === 3 && (
-          <Box align="center" accessible={true} accessibilityRole="none">
-            <Box
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: Radius.full,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: Spacing['6'],
-                backgroundColor: isDark ? `${colors.status.success}33` : colors.primary.light,
-              }}
-              accessible={true}
-              accessibilityLabel="Ícone de exercício de respiração"
-            >
-              <Coffee size={32} color={colors.status.success} />
-            </Box>
-            <Text
-              style={[
-                TextStyles.titleLarge,
-                {
-                  marginBottom: Spacing['4'],
-                  textAlign: 'center',
-                  color: colors.text.primary,
-                },
-              ]}
-              accessibilityRole="header"
-              accessibilityLabel="Passo 3: Vamos fazer isso juntas"
-            >
-              Vamos fazer isso juntas:
-            </Text>
-
-            <Box
-              bg="card"
-              p="6"
-              rounded="2xl"
-              mb="8"
-              style={{
-                borderLeftWidth: 4,
-                borderLeftColor: colors.primary.main,
-                borderWidth: 1,
-                borderColor: colors.border.light,
-                ...Shadows.md,
-              }}
-              accessible={true}
-              accessibilityRole="text"
-              accessibilityLabel={`${practice.title}. Instruções: ${practice.text}`}
-            >
-              <Text
-                style={[
-                  TextStyles.titleMedium,
-                  {
-                    marginBottom: Spacing['2'],
-                    color: colors.primary.main,
-                  },
-                ]}
+          <Box
+            p="5"
+            gap="4"
+            style={{
+              backgroundColor: colors.background.card,
+              borderRadius: Tokens.radius['3xl'],
+              borderWidth: 2,
+              borderColor: colors.border.light,
+            }}
+          >
+            {/* Step Header */}
+            <Box align="center" gap="3">
+              <Box
+                align="center"
+                justify="center"
+                style={{
+                  width: 64,
+                  height: 64,
+                  borderRadius: 32,
+                  backgroundColor: colors.primary.main,
+                }}
               >
-                {practice.title}
+                <Sparkles size={32} color="#FFFFFF" />
+              </Box>
+              <Box
+                px="3"
+                py="1"
+                style={{
+                  backgroundColor: `${colors.primary.main}20`,
+                  borderRadius: Tokens.radius.full,
+                }}
+              >
+                <Text
+                  variant="caption"
+                  size="xs"
+                  weight="semibold"
+                  style={{ color: colors.primary.main }}
+                >
+                  Passo {currentStepIndex + 1}
+                </Text>
+              </Box>
+              <Text
+                variant="body"
+                size="xl"
+                weight="bold"
+                align="center"
+                style={{ color: colors.text.primary }}
+              >
+                {currentStep?.title}
               </Text>
               <Text
-                style={[
-                  TextStyles.bodyMedium,
-                  {
-                    color: colors.text.primary,
-                    lineHeight: Tokens.typography.lineHeights.md,
-                  },
-                ]}
+                variant="body"
+                size="md"
+                align="center"
+                style={{ color: colors.text.secondary }}
               >
-                {practice.text}
+                {currentStep?.description}
               </Text>
             </Box>
 
-            <Button
-              title="Concluído (Vitória!)"
-              onPress={() => {
-                navigation.navigate('Main' as never);
-              }}
-              fullWidth
-              accessibilityLabel="Concluído. Vitória!"
-              accessibilityHint="Marca o exercício como concluído e retorna para a tela inicial"
-            />
-            <Text
-              style={[
-                TextStyles.labelSmall,
-                {
-                  marginTop: Spacing['4'],
-                  color: colors.text.tertiary,
-                },
-              ]}
-              accessibilityLabel="Isso conta para sua Jornada Emocional"
-            >
-              Isso conta para sua Jornada Emocional.
-            </Text>
-          </Box>
-        )}
-      </Box>
+            {/* Step Content */}
+            {currentStep?.type === 'breathing' && currentStep.breathingConfig && (
+              <BreathingGuide
+                config={currentStep.breathingConfig}
+                onComplete={handleStepComplete}
+                isPaused={isPaused}
+              />
+            )}
 
-      {/* Footer Navigation (Steps 1 & 2) */}
-      {step < 3 && (
-        <Box px="6" pb="6">
-          <Button
-            title="Continuar"
-            onPress={handleNext}
-            disabled={step === 1 ? !currentFeeling : !desiredFeeling}
-            fullWidth
-            accessibilityLabel="Continuar para o próximo passo"
-            accessibilityHint={
-              step === 1
-                ? currentFeeling
-                  ? 'Avança para selecionar como você quer se sentir'
-                  : 'Selecione um sentimento antes de continuar'
-                : desiredFeeling
-                  ? 'Avança para o exercício de respiração'
-                  : 'Selecione uma intenção antes de continuar'
-            }
+            {currentStep?.type !== 'breathing' && (
+              <Box
+                p="4"
+                style={{
+                  backgroundColor: `${colors.primary.main}10`,
+                  borderRadius: Tokens.radius.xl,
+                }}
+              >
+                <Text
+                  variant="body"
+                  size="md"
+                  align="center"
+                  style={{ color: colors.text.primary, fontStyle: 'italic' }}
+                >
+                  {currentStep?.content}
+                </Text>
+              </Box>
+            )}
+          </Box>
+        </Animated.View>
+
+        {/* Ambient Sound */}
+        <Box mt="4">
+          <AmbientSoundSelector
+            selectedSound={ambientSound}
+            enabled={ambientEnabled}
+            onToggle={() => setAmbientEnabled(!ambientEnabled)}
+            onSelectSound={setAmbientSound}
           />
         </Box>
-      )}
-    </SafeAreaView>
+
+        {/* Action Buttons */}
+        <Box direction="row" gap="3" mt="4">
+          <Button
+            title={isPaused ? 'Retomar' : 'Pausar'}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setIsPaused(!isPaused);
+            }}
+            variant="outline"
+            style={{ flex: 1 }}
+            leftIcon={
+              isPaused ? (
+                <Play size={18} color={colors.text.primary} />
+              ) : (
+                <Pause size={18} color={colors.text.primary} />
+              )
+            }
+          />
+          {currentStepIndex < steps.length - 1 && (
+            <Button
+              title="Pular"
+              onPress={handleSkipStep}
+              variant="outline"
+              style={{ flex: 1 }}
+              leftIcon={<SkipForward size={18} color={colors.text.primary} />}
+            />
+          )}
+          <Button
+            title={currentStepIndex < steps.length - 1 ? 'Próximo' : 'Finalizar'}
+            onPress={handleStepComplete}
+            style={{ flex: 1 }}
+          />
+        </Box>
+      </ScrollView>
+    </View>
   );
 }

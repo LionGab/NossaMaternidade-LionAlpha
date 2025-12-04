@@ -20,7 +20,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Sparkles, Zap, Lock, CheckCircle2 } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, Zap, MessageCircle, CheckCircle2, Menu } from 'lucide-react-native';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
@@ -55,6 +55,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { useWellness } from '../features/wellness';
 import { useHasConsent } from '../hooks/useConsent';
+import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList, MainTabParamList } from '../navigation/types';
 import { chatService, ChatMessage } from '../services/chatService';
 import { profileService } from '../services/profileService';
@@ -282,11 +283,14 @@ EmptyState.displayName = 'EmptyState';
 // COMPONENTE PRINCIPAL
 // ======================
 
-export default function ChatScreen() {
+export default function ChatScreen({ route }: { route: RouteProp<MainTabParamList, 'Chat'> }) {
   const navigation = useNavigation<ChatScreenNavigationProp>();
   const { colors, isDark } = useTheme();
   const { profile } = useWellness();
   const insets = useSafeAreaInsets();
+  
+  // Capturar sessionId da navegação
+  const sessionIdFromRoute = route?.params?.sessionId;
 
   // Estados
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -332,7 +336,7 @@ export default function ChatScreen() {
     checkDisclaimerStatus();
     checkCrisisState();
     initializeChat();
-  }, []);
+  }, [initializeChat]);
 
   // Verificar estado de crise persistido (segurança crítica)
   const checkCrisisState = async () => {
@@ -399,24 +403,33 @@ export default function ChatScreen() {
     }
   };
 
-  const initializeChat = async () => {
+  const initializeChat = useCallback(async () => {
     setIsLoading(true);
 
     try {
-      const conversations = await chatService.getConversations(1);
-
-      if (conversations.length > 0) {
-        const latestConv = conversations[0];
-        setConversationId(latestConv.id);
-        const msgs = await chatService.getMessages(latestConv.id);
+      // Se veio sessionId da rota, usar ela
+      if (sessionIdFromRoute) {
+        logger.info('[ChatScreen] Carregando sessão específica', { sessionId: sessionIdFromRoute });
+        setConversationId(sessionIdFromRoute);
+        const msgs = await chatService.getMessages(sessionIdFromRoute);
         setMessages(msgs);
+      } else {
+        // Caso contrário, carregar última conversa
+        const conversations = await chatService.getConversations(1);
+
+        if (conversations.length > 0) {
+          const latestConv = conversations[0];
+          setConversationId(latestConv.id);
+          const msgs = await chatService.getMessages(latestConv.id);
+          setMessages(msgs);
+        }
       }
     } catch (err) {
       logger.error('Erro ao inicializar chat', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sessionIdFromRoute]);
 
   // Verificar consentimento para IA
   const { hasConsent: hasAIConsent, isLoading: isLoadingConsent } = useHasConsent('ai_processing');
@@ -553,6 +566,13 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
         logger.error('Erro ao enviar mensagem', err);
         setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+        // Mostrar mensagem amigável ao usuário
+        Alert.alert(
+          'Ops! Algo deu errado',
+          'Não consegui enviar sua mensagem. Verifique sua conexão e tente novamente.',
+          [{ text: 'OK', style: 'default' }]
+        );
       } finally {
         setIsSending(false);
       }
@@ -628,11 +648,11 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
       <View style={[styles.container, { backgroundColor: colors.background.canvas }]}>
         <StatusBar style={isDark ? 'light' : 'dark'} />
 
-        {/* Disclaimer Modal */}
+        {/* Disclaimer Modal - Fechável pelo X ou backdrop */}
         <AIDisclaimerModal
           visible={showDisclaimer}
           onAccept={handleAcceptDisclaimer}
-          onDismiss={undefined}
+          onDismiss={handleAcceptDisclaimer}
         />
 
         {/* Voice Mode Overlay */}
@@ -763,13 +783,23 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                   </View>
                 </View>
 
-                <ThemeToggle
+                <IconButton
+                  icon={
+                    <Menu
+                      size={20}
+                      color={isDark ? ColorTokens.neutral[0] : ColorTokens.neutral[900]}
+                    />
+                  }
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    navigation.navigate('ChatSessions');
+                  }}
+                  accessibilityLabel="Histórico de conversas"
                   variant="ghost"
-                  iconColor={isDark ? ColorTokens.neutral[0] : ColorTokens.neutral[900]}
                 />
               </View>
 
-              {/* Badges Rápido e Profundo */}
+              {/* Badges Rápido e 24/7 */}
               <View
                 style={{
                   flexDirection: 'row',
@@ -815,7 +845,7 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                     borderRadius: Radius.full,
                   }}
                 >
-                  <Lock
+                  <MessageCircle
                     size={12}
                     color={isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600]}
                   />
@@ -827,7 +857,7 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                       marginLeft: 4,
                     }}
                   >
-                    Profundo
+                    24/7
                   </Text>
                 </View>
               </View>
@@ -1044,7 +1074,7 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    marginTop: 100, // Account for header
+    // marginTop removido - header já ocupa espaço naturalmente
   },
   typingContainer: {
     flexDirection: 'row',

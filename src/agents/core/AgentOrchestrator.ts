@@ -217,7 +217,12 @@ export class AgentOrchestrator {
             .catch((err) =>
               logger.warn('[AgentOrchestrator] Anthropic MCP init failed (optional)', err)
             ),
-          analyticsMCP.initialize(),
+          // Analytics também é opcional - não deve quebrar o app
+          analyticsMCP
+            .initialize()
+            .catch((err) =>
+              logger.warn('[AgentOrchestrator] Analytics MCP init failed (optional)', err)
+            ),
         ]);
 
         this.mcpServers.set('supabase', supabaseMCP);
@@ -234,19 +239,30 @@ export class AgentOrchestrator {
         advancedTooling: this.useAdvancedTooling,
       });
 
-      // Track initialization
-      const request = createMCPRequest('event.track', {
-        name: 'orchestrator_initialized',
-        properties: {
-          timestamp: Date.now(),
-          advancedTooling: this.useAdvancedTooling,
-          dynamicMCP: this.useDynamicMCP,
-        },
-      });
-      await analyticsMCP.handleRequest(request);
+      // Track initialization (não deve quebrar se analytics falhar)
+      try {
+        const request = createMCPRequest('event.track', {
+          name: 'orchestrator_initialized',
+          properties: {
+            timestamp: Date.now(),
+            advancedTooling: this.useAdvancedTooling,
+            dynamicMCP: this.useDynamicMCP,
+          },
+        });
+        await analyticsMCP.handleRequest(request);
+      } catch (trackingError) {
+        logger.warn('[AgentOrchestrator] Analytics tracking failed (non-blocking)', trackingError);
+      }
     } catch (error) {
-      logger.error('[AgentOrchestrator] Initialization failed:', error);
-      throw error;
+      // GRACEFUL DEGRADATION: Não propagar erro
+      // Tentar continuar com funcionalidade parcial
+      logger.error('[AgentOrchestrator] Initialization partially failed:', error);
+
+      // Marcar como inicializado mesmo com falha parcial
+      // Isso permite que o app funcione com features degradadas
+      this.initialized = true;
+
+      logger.warn('[AgentOrchestrator] Running in degraded mode');
     }
   }
 
