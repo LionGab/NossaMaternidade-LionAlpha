@@ -16,18 +16,18 @@
       "@types/*": ["./src/types/*"],
       "@constants/*": ["./src/constants/*"],
       "@hooks/*": ["./src/hooks/*"],
-      "@context/*": ["./src/context/*"]
+      "@contexts/*": ["./src/contexts/*"],
+      "@agents/*": ["./src/agents/*"],
+      "@ai/*": ["./src/ai/*"],
+      "@mcp/*": ["./src/mcp/*"],
+      "@navigation/*": ["./src/navigation/*"],
+      "@theme/*": ["./src/theme/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": [
     "node_modules",
-    "temp_import",
-    "Lilia-App",
     "backend",
-    "NossaMaternidadeMelhor/**",
-    "app-redesign-studio/**",
-    "app-redesign-studio-*/**",
     "**/__tests__/**",
     "**/*.test.ts",
     "**/*.test.tsx",
