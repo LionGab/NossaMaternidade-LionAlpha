@@ -4,7 +4,7 @@
 >
 > **Use estas informações como base para todas as respostas.**
 >
-> **Última atualização:** 4 de Dezembro de 2025
+> **Última atualização:** 5 de Dezembro de 2025
 
 ---
 
@@ -348,13 +348,23 @@ src/
 
 ### Conquistas Recentes
 
+**Organizacao e Limpeza (5 Dez 2025):**
+- ✅ **Raiz limpa:** 4 .md apenas (README, CONTEXTO, CLAUDE, MEMORY)
+- ✅ **docs/archive/ removido:** 70 arquivos obsoletos (~724 KB)
+- ✅ **Migrations consolidadas:** 48 → 7 SQL limpos (migrations_mvp)
+- ✅ **Components refatorados:** primitives → atoms, home/chat → features/
+- ✅ **tsconfig.json:** Path aliases corrigidos + 5 novos adicionados
+- ✅ **Pre-commit hook:** Corrigido (removida validacao quebrada)
+- ✅ **Bug ChatScreen:** initializeChat usado antes de declarar (corrigido)
+
+**Qualidade Anterior:**
 - ✅ **TypeScript:** 0 errors (21 → 0)
 - ✅ **ESLint:** 0 errors (8 → 0)
-- ✅ **Design System:** Unificado (migrado de dual para único)
-- ✅ **Arquivos críticos:** 5 componentes migrados para tokens modernos
-- ✅ **Documentação:** +1,926 linhas de guias e scripts
-- ✅ **Tipos `any`:** 0 em services e agents críticos (~300 → 0)
-- ✅ **console.log:** Removidos (exceto legítimos)
+- ✅ **Design System:** Unificado (migrado de dual para unico)
+- ✅ **Arquivos criticos:** 5 componentes migrados para tokens modernos
+- ✅ **Documentacao:** +1,926 linhas de guias e scripts
+- ✅ **Tipos `any`:** 0 em services e agents criticos (~300 → 0)
+- ✅ **console.log:** Removidos (exceto legitimos)
 
 ### Em Progresso
 

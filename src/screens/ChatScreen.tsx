@@ -51,7 +51,6 @@ import { Box } from '@/components/atoms/Box';
 import { ChatBubble } from '@/components/atoms/ChatBubble';
 import { IconButton } from '@/components/atoms/IconButton';
 import { Text } from '@/components/atoms/Text';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { useWellness } from '../features/wellness';
 import { useHasConsent } from '../hooks/useConsent';
@@ -332,12 +331,6 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
     }
   }, [profile]);
 
-  useEffect(() => {
-    checkDisclaimerStatus();
-    checkCrisisState();
-    initializeChat();
-  }, [initializeChat]);
-
   // Verificar estado de crise persistido (segurança crítica)
   const checkCrisisState = async () => {
     try {
@@ -430,6 +423,13 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
       setIsLoading(false);
     }
   }, [sessionIdFromRoute]);
+
+  // Inicializar chat ao montar componente
+  useEffect(() => {
+    checkDisclaimerStatus();
+    checkCrisisState();
+    initializeChat();
+  }, [initializeChat]);
 
   // Verificar consentimento para IA
   const { hasConsent: hasAIConsent, isLoading: isLoadingConsent } = useHasConsent('ai_processing');

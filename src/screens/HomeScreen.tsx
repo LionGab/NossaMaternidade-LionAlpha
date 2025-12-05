@@ -20,7 +20,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Play, Heart, Search, AlertCircle, Lightbulb, Info, MessageCircle, Zap, Menu, Mic } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, TouchableOpacity, View, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -668,10 +668,6 @@ return (
               style={{
                 flex: 2,
                 backgroundColor: ColorTokens.neutral[0],
-              }}
-              textStyle={{
-                color: ColorTokens.primary[500],
-                fontWeight: 'bold',
               }}
             />
           </Box>
