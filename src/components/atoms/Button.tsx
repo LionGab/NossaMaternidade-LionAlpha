@@ -64,6 +64,8 @@ export interface ButtonProps {
   accessibilityLabel?: string;
   /** Hint de acessibilidade */
   accessibilityHint?: string;
+  /** Test ID para testes automatizados */
+  testID?: string;
 }
 
 export const Button: React.FC<ButtonProps> = React.memo(
@@ -82,6 +84,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
     style,
     accessibilityLabel,
     accessibilityHint,
+    testID,
   }) => {
     const colors = useThemeColors();
     const isDisabled = disabled || loading;
@@ -273,6 +276,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
     if (className || textClassName) {
       return (
         <Pressable
+          testID={testID}
           onPress={handlePress}
           disabled={isDisabled}
           onFocus={isWeb ? handleFocus : undefined}
@@ -332,6 +336,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
     // Usa variantStyles, sizeStyles, containerStyle já computados acima
     return (
       <Pressable
+        testID={testID}
         onPress={handlePress}
         disabled={isDisabled}
         onFocus={isWeb ? handleFocus : undefined}
