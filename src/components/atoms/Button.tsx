@@ -1,11 +1,11 @@
 /**
- * Button - Componente Primitivo Robusto
+ * Button - Componente Primitivo Robusto (Hybrid: Props + className)
  *
  * Baseado em Material Design 3 + Apple HIG
  * Usa tokens do design system
  *
- * @version 1.0
- * @date 2025-11-27
+ * @version 2.0 - Hybrid mode
+ * @date 2025-12-05
  */
 
 import React, { useMemo, useCallback, useState } from 'react';
@@ -23,6 +23,7 @@ import {
 import { Tokens } from '@/theme/tokens';
 
 import { SafeView, SafeText } from './SafeView';
+import { Text } from './Text';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -32,9 +33,9 @@ export interface ButtonProps {
   title: string;
   /** Handler de clique */
   onPress?: () => void;
-  /** Variante visual */
+  /** Variante visual (modo props) */
   variant?: ButtonVariant;
-  /** Tamanho do botão */
+  /** Tamanho do botão (modo props) */
   size?: ButtonSize;
   /** Estado de carregamento */
   loading?: boolean;
@@ -46,7 +47,18 @@ export interface ButtonProps {
   leftIcon?: React.ReactNode;
   /** Ícone à direita */
   rightIcon?: React.ReactNode;
-  /** Estilos customizados */
+  /**
+   * ⭐ NOVO: Suporte a className (NativeWind v4) para o contêiner
+   * Quando fornecido, className tem PRIORIDADE sobre variant/size para estilos visuais
+   * (semântica de loading/disabled/onPress continua funcionando normalmente)
+   */
+  className?: string;
+  /**
+   * ⭐ NOVO: className para o texto interno (usa Text híbrido)
+   * Quando fornecido, ignora o estilo de texto derivado de variant/size
+   */
+  textClassName?: string;
+  /** Estilos customizados (style > className > props) */
   style?: ViewStyle;
   /** Label de acessibilidade */
   accessibilityLabel?: string;
@@ -65,6 +77,8 @@ export const Button: React.FC<ButtonProps> = React.memo(
     fullWidth = false,
     leftIcon,
     rightIcon,
+    className,
+    textClassName,
     style,
     accessibilityLabel,
     accessibilityHint,
@@ -87,10 +101,26 @@ export const Button: React.FC<ButtonProps> = React.memo(
       }
     }, [isDisabled, onPress]);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // ESTILOS POR VARIANTE
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Android ripple effect (compartilhado entre modos)
+    const androidRipple = isAndroid
+      ? {
+          color: colors.text.primary,
+          borderless: false,
+        }
+      : undefined;
 
+    // Web focus ring style para acessibilidade (compartilhado entre modos)
+    const webFocusStyle: ViewStyle = useMemo(() => {
+      if (!isWeb || !isFocused) return {};
+      return {
+        outlineWidth: 2,
+        outlineColor: colors.primary.main,
+        outlineStyle: 'solid',
+        outlineOffset: 2,
+      } as ViewStyle;
+    }, [isFocused, colors.primary.main]);
+
+    // ⭐ CHAMADO INCONDICIONALMENTE (Rules of Hooks) - variantStyles
     const variantStyles = useMemo((): { container: ViewStyle; text: TextStyle } => {
       const baseContainer: ViewStyle = {
         borderRadius: Tokens.radius.lg,
@@ -183,10 +213,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
       }
     }, [variant, isDisabled, colors]);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // ESTILOS POR TAMANHO
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+    // ⭐ CHAMADO INCONDICIONALMENTE (Rules of Hooks) - sizeStyles
     const sizeStyles = useMemo((): { container: ViewStyle; text: TextStyle } => {
       switch (size) {
         case 'sm':
@@ -227,17 +254,7 @@ export const Button: React.FC<ButtonProps> = React.memo(
       }
     }, [size]);
 
-    // Web focus ring style para acessibilidade
-    const webFocusStyle: ViewStyle = useMemo(() => {
-      if (!isWeb || !isFocused) return {};
-      return {
-        outlineWidth: 2,
-        outlineColor: colors.primary.main,
-        outlineStyle: 'solid',
-        outlineOffset: 2,
-      } as ViewStyle;
-    }, [isFocused, colors.primary.main]);
-
+    // ⭐ CHAMADO INCONDICIONALMENTE (Rules of Hooks) - containerStyle
     const containerStyle: ViewStyle = useMemo(
       () => ({
         ...variantStyles.container,
@@ -249,18 +266,70 @@ export const Button: React.FC<ButtonProps> = React.memo(
       [variantStyles, sizeStyles, fullWidth, webFocusStyle, style]
     );
 
-    // Android ripple effect
-    const androidRipple = isAndroid
-      ? {
-          color: colors.text.primary,
-          borderless: false,
-        }
-      : undefined;
-
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // RENDER
+    // MODO 1: className/textClassName (NativeWind) → prioridade
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+    if (className || textClassName) {
+      return (
+        <Pressable
+          onPress={handlePress}
+          disabled={isDisabled}
+          onFocus={isWeb ? handleFocus : undefined}
+          onBlur={isWeb ? handleBlur : undefined}
+          className={className}
+          style={({ pressed }) => [
+            fullWidth && { width: '100%' },
+            webFocusStyle,
+            style,
+            pressed && {
+              opacity: isIOS ? 0.7 : 0.8,
+            },
+          ]}
+          android_ripple={androidRipple}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel || title}
+          {...(accessibilityHint ? a11yProps : {})}
+          accessibilityState={{
+            disabled: isDisabled,
+            busy: loading,
+          }}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.text.inverse} />
+          ) : (
+            <>
+              {leftIcon && (
+                <SafeView style={{ marginRight: Tokens.spacing['2'] }}>{leftIcon}</SafeView>
+              )}
+              {textClassName ? (
+                <Text className={textClassName}>{title}</Text>
+              ) : (
+                <SafeText
+                  style={{
+                    fontSize: Tokens.typography.sizes.md,
+                    fontWeight: Tokens.typography.weights.semibold,
+                    textAlign: 'center',
+                  }}
+                  fallbackText={title}
+                >
+                  {title}
+                </SafeText>
+              )}
+              {rightIcon && (
+                <SafeView style={{ marginLeft: Tokens.spacing['2'] }}>{rightIcon}</SafeView>
+              )}
+            </>
+          )}
+        </Pressable>
+      );
+    }
+
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // MODO 2: Props semânticas (legado, theme-aware)
+    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    // Usa variantStyles, sizeStyles, containerStyle já computados acima
     return (
       <Pressable
         onPress={handlePress}

@@ -4,14 +4,79 @@
 
 ---
 
-## 📋 Índice
+## ⚡ Modo Turbo - Início Rápido (2 minutos)
 
-1. [O que é o Modo Autônomo?](#o-que-é-o-modo-autônomo)
-2. [Pré-requisitos](#pré-requisitos)
-3. [Configuração Passo a Passo](#configuração-passo-a-passo)
-4. [Como Usar](#como-usar)
-5. [Melhores Práticas](#melhores-práticas)
-6. [Troubleshooting](#troubleshooting)
+### ✅ Checklist Rápido
+
+- [ ] Cursor versão 0.40+ (`Help` > `About Cursor`)
+- [ ] API Key configurada (`Settings` > `AI Models`)
+- [ ] Plano Max ativo ([claude.ai/settings](https://claude.ai/settings))
+- [ ] Arquivos de estado prontos (`.claude/state/`)
+
+### 🚀 Como Iniciar (3 Passos)
+
+1. **Abra o Chat:** `Ctrl+L` (ou `Cmd+L` no Mac)
+
+2. **Copie um prompt pronto:**
+   - Ver `.claude/autonomous-prompts.md` para prompts completos
+   - Ou use o template abaixo
+
+3. **Cole e envie:**
+
+```
+@CLAUDE.md
+@CONTEXTO.md
+@.claude/state/tasks.json
+@.claude/state/progress.txt
+
+Iniciar modo autônomo por 2h para:
+- [SUA TAREFA AQUI]
+- Seguir padrões em CLAUDE.md
+- Atualizar tasks.json e progress.txt a cada checkpoint (5 min)
+- Rodar type-check e lint após mudanças significativas
+- Parar se houver 3 erros consecutivos ou 15 min sem progresso
+```
+
+### 📊 Monitoramento Durante Execução
+
+```bash
+# Ver progresso
+cat .claude/state/progress.txt
+
+# Ver tarefas
+cat .claude/state/tasks.json
+
+# Ver mudanças
+git status
+git diff
+```
+
+### ✅ Validação Após Execução
+
+```bash
+# Revisar mudanças
+git diff --stat
+
+# Validar tudo
+npm run validate
+
+# Testar
+npm test
+npm start
+```
+
+---
+
+## 📋 Índice Completo
+
+1. [Modo Turbo - Início Rápido](#-modo-turbo---início-rápido-2-minutos)
+2. [O que é o Modo Autônomo?](#o-que-é-o-modo-autônomo)
+3. [Pré-requisitos](#pré-requisitos)
+4. [Configuração Passo a Passo](#configuração-passo-a-passo)
+5. [Como Usar](#como-usar)
+6. [Prompts Prontos](#prompts-prontos)
+7. [Melhores Práticas](#melhores-práticas)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -162,6 +227,30 @@ Execute o script de verificação:
 ```bash
 npm run verify:cursor
 ```
+
+---
+
+## Prompts Prontos
+
+Para facilitar o uso, criamos prompts prontos que você pode copiar e colar diretamente:
+
+📁 **Arquivo:** `.claude/autonomous-prompts.md`
+
+### Prompts Disponíveis:
+
+1. **Test Coverage** - Aumentar de 1.4% para 40%+
+2. **ESLint Warnings** - Reduzir de 272 para <50
+3. **Design Tokens** - Migrar componentes para tokens
+4. **WCAG AAA** - Compliance 100%
+5. **Dark Mode** - Coverage 100%
+6. **Template Customizado** - Para suas próprias tarefas
+
+**Como usar:**
+
+1. Abra `.claude/autonomous-prompts.md`
+2. Copie o prompt completo da tarefa desejada
+3. Cole no Chat do Cursor (`Ctrl+L`)
+4. Envie e monitore o progresso
 
 ---
 

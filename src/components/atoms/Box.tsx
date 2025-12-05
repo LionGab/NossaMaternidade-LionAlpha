@@ -1,6 +1,8 @@
 /**
- * Box Component - Layout primitive
- * Componente genérico de layout com props theme-aware
+ * Box Component - Layout primitive (Hybrid: Props + className)
+ * Suporta props semânticas (legado) e className (NativeWind v4)
+ *
+ * @version 2.0 - Hybrid mode
  */
 
 import React, { useMemo } from 'react';
@@ -12,6 +14,14 @@ import { Spacing, Radius, Shadows } from '@/theme/tokens';
 
 export interface BoxProps extends Omit<ViewProps, 'style'> {
   children?: React.ReactNode;
+
+  /**
+   * ⭐ NOVO: Suporte a className (NativeWind v4)
+   * Quando fornecido, className tem PRIORIDADE sobre props semânticas
+   * @example
+   * <Box className="bg-card p-4 rounded-xl" />
+   */
+  className?: string;
 
   // Background
   bg?: 'canvas' | 'card' | 'elevated' | 'transparent';
@@ -64,6 +74,7 @@ export interface BoxProps extends Omit<ViewProps, 'style'> {
 
 export const Box = React.memo(function Box({
   children,
+  className, // ⭐ NOVO: suporte a className
   bg,
   p,
   px,
@@ -93,6 +104,7 @@ export const Box = React.memo(function Box({
   style,
   ...props
 }: BoxProps) {
+  // ⭐ Chamar todos os hooks INCONDICIONALMENTE (React Rules of Hooks)
   const colors = useThemeColors();
 
   const computedStyle = useMemo(() => {
@@ -184,6 +196,16 @@ export const Box = React.memo(function Box({
     colors,
   ]);
 
+  // ⭐ MODO 1: className fornecido → usar NativeWind (prioridade)
+  if (className) {
+    return (
+      <View className={className} style={style} {...props}>
+        {children}
+      </View>
+    );
+  }
+
+  // ⭐ MODO 2: Props semânticas → usar lógica existente (backwards compatible)
   return (
     <View style={computedStyle as ViewStyle} {...props}>
       {children}

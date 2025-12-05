@@ -21,6 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Limpar cache Metro   | `npx expo start -c`                  |
 | Validar design       | `npm run validate:design`            |
 | Validar tudo         | `npm run validate`                   |
+| Verificar autônomo   | `npm run verify:autonomous`          |
 
 ### Path Aliases
 
@@ -229,6 +230,9 @@ refactor: extrai lógica de autenticação
 | `docs/design/`                            | Design System (fonte única da verdade)  |
 | `docs/PRODUCTION_READINESS_DIAGNOSTIC.md` | Guia do diagnóstico de produção         |
 | `.claude/skill-rules.json`                | Auto-ativação de skills por contexto    |
+| `.claude/autonomous-prompts.md`           | Prompts prontos para modo autônomo 2h   |
+| `.claude/QUICK_START_AUTONOMOUS.md`       | Quick start modo autônomo (2 min)       |
+| `docs/CURSOR_AUTONOMOUS_MODE.md`          | Guia completo modo autônomo             |
 
 ---
 

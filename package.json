@@ -51,6 +51,7 @@
     "fix:claude-bash": "pwsh -ExecutionPolicy Bypass -File scripts/fix-claude-code-bash.ps1",
     "verify:claude-bash": "pwsh -ExecutionPolicy Bypass -File scripts/verify-claude-code-bash.ps1",
     "verify:cursor": "node scripts/verify-cursor-setup.js",
+    "verify:autonomous": "node scripts/verify-autonomous-mode.js",
     "validate:env": "node scripts/validate-env.js",
     "generate:types": "npx supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > src/types/supabase.generated.ts",
     "generate:types:local": "npx supabase gen types typescript --local > src/types/supabase.generated.ts",

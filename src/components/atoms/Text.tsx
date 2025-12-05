@@ -1,6 +1,8 @@
 /**
- * Text Component - Typography primitive
- * Componente para textos body com variants e theme-aware
+ * Text Component - Typography primitive (Hybrid: Props + className)
+ * Suporta props semânticas (legado) e className (NativeWind v4)
+ *
+ * @version 2.0 - Hybrid mode
  */
 
 import React, { useMemo } from 'react';
@@ -24,6 +26,14 @@ export type TextColor =
   | 'error';
 
 export interface CustomTextProps extends Omit<RNTextProps, 'style'> {
+  /**
+   * ⭐ NOVO: Suporte a className (NativeWind v4)
+   * Quando fornecido, className tem PRIORIDADE sobre props semânticas
+   * @example
+   * <Text className="text-lg font-semibold text-primary" />
+   */
+  className?: string;
+
   variant?: TextVariant;
   size?: TextSize;
   color?: TextColor;
@@ -81,6 +91,7 @@ const sizeMap: Record<TextSize, number> = {
 };
 
 export const Text = React.memo(function Text({
+  className, // ⭐ NOVO: suporte a className
   variant = 'body',
   size,
   color = 'primary',
@@ -94,6 +105,7 @@ export const Text = React.memo(function Text({
   allowFontScaling = true,
   ...props
 }: CustomTextProps & { allowFontScaling?: boolean }) {
+  // ⭐ Chamar todos os hooks INCONDICIONALMENTE (React Rules of Hooks)
   const colors = useThemeColors();
 
   const colorMap: Record<TextColor, string> = useMemo(
@@ -148,6 +160,23 @@ export const Text = React.memo(function Text({
     colorMap,
   ]);
 
+  // ⭐ MODO 1: className fornecido → usar NativeWind (prioridade)
+  if (className) {
+    return (
+      <RNText
+        className={className}
+        style={style}
+        allowFontScaling={allowFontScaling}
+        accessible={true}
+        accessibilityRole="text"
+        {...props}
+      >
+        {children}
+      </RNText>
+    );
+  }
+
+  // ⭐ MODO 2: Props semânticas → usar lógica existente (backwards compatible)
   return (
     <RNText
       style={computedStyle}
