@@ -1,6 +1,8 @@
-# Migrations MVP - Nossa Maternidade
+# Supabase Migrations - Nossa Maternidade
 
-> Schema limpo com 16 tabelas para o MVP
+> Schema consolidado com 16 tabelas (migrado de migrations_mvp em 2025-12-05)
+>
+> Backup das migrations antigas: `migrations-backup-2025-12-05/` (ignorado pelo git)
 
 ---
 

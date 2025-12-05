@@ -54,5 +54,30 @@
     "**/.expo/**": true,
     "**/dist/**": true,
     "**/build/**": true
+  },
+
+  "// Configurações de modo autônomo": "",
+  "cursor.ai.autonomousMode": {
+    "enabled": true,
+    "maxDuration": 7200,
+    "autoSave": true,
+    "checkpointInterval": 300,
+    "maxIterations": 100,
+    "errorRetryLimit": 3,
+    "progressTracking": true
+  },
+
+  "// Configurações de contexto para modo autônomo": "",
+  "cursor.ai.autonomousContext": {
+    "includeTests": true,
+    "includeDocumentation": true,
+    "includeGitHistory": false,
+    "maxFiles": 50,
+    "priorityFiles": [
+      "src/theme/tokens.ts",
+      "CLAUDE.md",
+      "CONTEXTO.md",
+      ".cursor/rules"
+    ]
   }
 }

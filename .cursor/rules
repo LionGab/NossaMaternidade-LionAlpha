@@ -5,6 +5,7 @@
 **IMPORTANTE:** Antes de começar qualquer tarefa, leia o `CONTEXTO.md` na raiz do projeto.
 
 O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. Ele contém:
+
 - Visão e objetivos do projeto
 - Regras fundamentais com "porquê" explícito
 - Estado atual (métricas, conquistas, bloqueadores)
@@ -12,6 +13,7 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 - Stack e arquitetura
 
 **Sistema completo de organização:**
+
 - `CONTEXTO.md` - Cérebro Externo (raiz do projeto)
 - `docs/ORGANIZACAO/template-plano.md` - Template para planos de fases
 - `docs/ORGANIZACAO/fluxo-trabalho.md` - Fluxo completo de 4 fases
@@ -19,12 +21,14 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 - `docs/ORGANIZACAO/guia-uso.md` - Guia prático completo
 
 **Como usar:**
+
 1. No início de conversas importantes: "Leia @CONTEXTO.md e use como base"
 2. Para tarefas complexas: Use `template-plano.md` para criar plano de fases
 3. Para prompts específicos: Consulte `templates-prompts.md`
 4. Para processo completo: Siga `fluxo-trabalho.md`
 
 ## Contexto do Projeto
+
 - **Plataforma**: React Native + Expo (iOS App Store + Android Google Play)
 - **NÃO é web**: Apenas componentes React Native nativos
 - **Design System**: src/theme/tokens.ts
@@ -33,6 +37,7 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 ## Regras Críticas de Design
 
 ### Tokens Obrigatórios
+
 - ✅ SEMPRE usar `colors` do `useTheme()` hook
 - ✅ SEMPRE usar `Spacing` tokens (múltiplos de 4px)
 - ✅ SEMPRE usar `Typography.sizes` e `Typography.weights`
@@ -40,11 +45,13 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 - ❌ NUNCA valores hardcoded de cor, espaçamento ou tipografia
 
 ### Componentes Primitivos
+
 - ✅ SEMPRE usar componentes de `src/components/primitives/`
 - ✅ Box, Text, Heading, Button, HapticButton, Input
 - ❌ NUNCA usar View, Text ou TouchableOpacity diretamente (exceto casos específicos)
 
 ### Acessibilidade WCAG AAA
+
 - ✅ Contraste mínimo 7:1 (texto normal) ou 4.5:1 (texto grande)
 - ✅ Alvos de toque mínimos 44x44pt
 - ✅ accessibilityLabel em todos os componentes interativos
@@ -52,17 +59,20 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 - ✅ Suporte a Dynamic Type (allowFontScaling)
 
 ### Dark Mode
+
 - ✅ SEMPRE implementar suporte completo
 - ✅ Todas as cores devem vir do theme context
 - ✅ Testar transição entre temas
 
 ### Performance Mobile
+
 - ✅ Usar FlatList para listas (não ScrollView com map)
 - ✅ useMemo e useCallback quando apropriado
 - ✅ Lazy loading de imagens (expo-image)
 - ✅ getItemLayout em FlatList quando possível
 
 ### Responsividade
+
 - ✅ SafeAreaView para iOS notch
 - ✅ KeyboardAvoidingView em formulários
 - ✅ Flexbox para layout responsivo
@@ -71,6 +81,7 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 ## Validação Antes de Commit
 
 Antes de aceitar mudanças, sempre valide:
+
 1. Tokens de design usados corretamente?
 2. Dark mode implementado?
 3. Acessibilidade WCAG AAA?
@@ -98,6 +109,7 @@ Antes de aceitar mudanças, sempre valide:
 **IMPORTANTE:** Quando houver dúvida sobre design, cores, espaçamento, tipografia ou padrões de componentes, consulte a documentação de design em `docs/design/`. Esta documentação elimina ambiguidades e estabelece decisões definitivas.
 
 **Documentos de Design:**
+
 1. **DESIGN_PRINCIPLES.md** - Filosofia, valores, objetivos e princípios fundamentais
 2. **DESIGN_SYSTEM_REFERENCE.md** - Guia completo do sistema moderno, hierarquia e padrões de uso
 3. **COMPONENT_PATTERNS.md** - Padrões obrigatórios para criação de componentes (Atomic Design)
@@ -109,12 +121,14 @@ Antes de aceitar mudanças, sempre valide:
 ## Otimização Claude no Cursor
 
 ### Configurações Recomendadas
+
 - ✅ Modelo padrão: Claude Sonnet 4.5 (melhor custo/benefício)
 - ✅ Codebase Indexing: Ativo para melhor contexto
 - ✅ Context Window: Large (8192 tokens)
 - ✅ Configurações em: `.cursor/settings.json`
 
 ### Uso Eficiente
+
 - ✅ Use `@mentions` para contexto específico (`@arquivo.tsx`, `@pasta/`)
 - ✅ Inicie novas conversas para novos tópicos
 - ✅ Use Composer (Cmd+Shift+I) para edições multi-arquivo
@@ -122,8 +136,56 @@ Antes de aceitar mudanças, sempre valide:
 - ❌ Evite conversas muito longas (economiza tokens)
 
 ### Verificação
+
 - Execute `npm run verify:cursor` para verificar configuração
 - Consulte `docs/CURSOR_CLAUDE_SETUP.md` para guia completo
+
+## Modo Autônomo - Instruções Especiais
+
+Quando em modo autônomo (2h), siga estas regras:
+
+### Checkpoints Frequentes
+
+- Criar checkpoint a cada 5 minutos (300 segundos)
+- Salvar estado em `.claude/state/tasks.json`
+- Atualizar `progress.txt` após cada etapa completa
+- Usar git para marcar progresso: `git commit -m "checkpoint: [descrição]"`
+
+### Validação Contínua
+
+- Rodar `npm run type-check` após cada mudança significativa
+- Rodar `npm run lint` antes de prosseguir para próxima tarefa
+- Testar funcionalidade após cada feature completa
+- Validar com `npm run validate` a cada 30 minutos
+
+### Comunicação e Progresso
+
+- Reportar progresso a cada 10 minutos em `progress.txt`
+- Alertar sobre bloqueadores imediatamente
+- Documentar decisões importantes em `progress.txt`
+- Atualizar `tasks.json` com status atual
+
+### Limites e Paradas
+
+- Parar se encontrar mais de 3 erros consecutivos
+- Parar se progresso estagnar por 15 minutos sem mudanças
+- Parar se exceder 2 horas de trabalho (7200 segundos)
+- Parar se limite de iterações for atingido (100 iterações)
+
+### Estrutura de Trabalho
+
+1. Ler `CONTEXTO.md` e `CLAUDE.md` antes de começar
+2. Definir plano de ação claro
+3. Executar tarefas em ordem de prioridade
+4. Validar após cada tarefa
+5. Atualizar estado após cada tarefa
+6. Criar checkpoint a cada 5 minutos
+
+### Documentação
+
+- Consulte `docs/CURSOR_AUTONOMOUS_MODE.md` para guia completo
+- Use `.claude/state/` para rastreamento de estado
+- Mantenha `progress.txt` atualizado
 
 ## Lembrete Constante
 
