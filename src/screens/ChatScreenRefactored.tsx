@@ -49,9 +49,9 @@ import { AIDisclaimerModal } from '@/components/molecules/AIDisclaimerModal';
 import { ChatHeader } from '@/components/molecules/ChatHeader';
 import { NathIAChatInput } from '@/components/nathia/NathIAChatInput';
 import { ChatEmptyState } from '@/components/organisms/ChatEmptyState';
-import { Box } from '@/components/primitives/Box';
-import { ChatBubble } from '@/components/primitives/ChatBubble';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { ChatBubble } from '@/components/atoms/ChatBubble';
+import { Text } from '@/components/atoms/Text';
 
 import { useWellness } from '../features/wellness';
 import type { RootStackParamList, MainTabParamList } from '../navigation/types';

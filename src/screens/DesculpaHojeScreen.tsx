@@ -23,9 +23,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

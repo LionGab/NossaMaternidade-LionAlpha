@@ -11,8 +11,8 @@
 export { PeriodCard, type PeriodCardProps } from './PeriodCard';
 
 // Mood Tracking
-// ⚠️ MoodSelector foi movido para @/components/home/MoodSelector
-// Use: import { MoodSelector } from '@/components/home';
+// ⚠️ MoodSelector foi movido para @/components/features/home/MoodSelector
+// Use: import { MoodSelector } from '@/components/features/home';
 
 // Calendar
 export {

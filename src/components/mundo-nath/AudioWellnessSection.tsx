@@ -9,8 +9,8 @@ import { Headphones, Heart, Moon, Sun, Sparkles, Wind, ChevronRight } from 'luci
 import React, { useState, useCallback } from 'react';
 import { View, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Text } from '@/components/atoms/Text';
 import {
   AUDIO_WELLNESS_CATALOG,
   AUDIO_COLORS,

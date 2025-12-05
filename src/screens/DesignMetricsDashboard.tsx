@@ -23,10 +23,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

@@ -23,8 +23,8 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { TouchableOpacity, ViewStyle, View } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 

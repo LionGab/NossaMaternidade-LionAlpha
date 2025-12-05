@@ -15,9 +15,9 @@ import { Heart, Sparkles } from 'lucide-react-native';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

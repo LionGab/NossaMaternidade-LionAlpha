@@ -11,9 +11,9 @@ import { MessageCircle, Sparkles, Heart, Play } from 'lucide-react-native';
 import React from 'react';
 
 import { Badge } from '@/components/Badge';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 

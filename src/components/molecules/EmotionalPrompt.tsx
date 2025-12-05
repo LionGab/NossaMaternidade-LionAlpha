@@ -6,8 +6,8 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Text } from '@/components/atoms/Text';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useThemeColors } from '@/theme';
 import { Tokens } from '@/theme/tokens';

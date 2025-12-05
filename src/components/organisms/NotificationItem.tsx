@@ -21,8 +21,8 @@ import {
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Text } from '@/components/primitives/Text';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 

@@ -28,9 +28,9 @@ import { ArrowLeft, Sparkles, CheckCircle, Zap, Brain } from 'lucide-react-nativ
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { IconButton } from '@/components/primitives/IconButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { IconButton } from '@/components/atoms/IconButton';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

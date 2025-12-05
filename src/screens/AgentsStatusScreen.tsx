@@ -19,10 +19,10 @@ import React from 'react';
 import { ScrollView, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Box } from '@/components/primitives/Box';
-import { Heading } from '@/components/primitives/Heading';
-import { IconButton } from '@/components/primitives/IconButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Heading } from '@/components/atoms/Heading';
+import { IconButton } from '@/components/atoms/IconButton';
+import { Text } from '@/components/atoms/Text';
 import { Tokens, Typography } from '@/theme/tokens';
 
 import { useAgents } from '../contexts/AgentsContext';

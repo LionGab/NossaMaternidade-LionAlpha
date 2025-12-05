@@ -24,7 +24,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Box } from '@/components/primitives/Box';
+import { Box } from '@/components/atoms/Box';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';
 

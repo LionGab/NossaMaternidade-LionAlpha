@@ -10,7 +10,7 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 import { TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 
-import { Text } from '@/components/primitives/Text';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

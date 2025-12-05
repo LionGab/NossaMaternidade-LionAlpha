@@ -9,8 +9,8 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Box } from '../components/primitives/Box';
-import { HapticButton } from '../components/primitives/HapticButton';
+import { Box } from '../components/atoms/Box';
+import { HapticButton } from '../components/atoms/HapticButton';
 import { useFileReview } from '../contexts/FileReviewContext';
 import { useTheme } from '../theme/ThemeContext';
 import { Tokens } from '../theme/tokens';

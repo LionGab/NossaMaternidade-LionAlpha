@@ -34,8 +34,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ChatSuggestionChips } from '@/components/molecules/ChatSuggestionChips';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import type { DynamicChip } from '@/utils/buildUserContext';

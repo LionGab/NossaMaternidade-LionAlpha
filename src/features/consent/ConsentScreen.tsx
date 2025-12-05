@@ -13,11 +13,11 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Switch } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Card } from '@/components/primitives/Card';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Card } from '@/components/atoms/Card';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import type { ConsentType } from '@/core/security';
 import { useThemeColors } from '@/hooks/useTheme';
 import type { RootStackParamList } from '@/navigation/types';

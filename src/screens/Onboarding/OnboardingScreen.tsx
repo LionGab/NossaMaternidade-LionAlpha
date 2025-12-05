@@ -18,11 +18,11 @@ import { Heart, Sparkles, BellRing } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, Animated, TouchableOpacity, Alert } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Heading } from '@/components/primitives/Heading';
-import { ProgressBar } from '@/components/primitives/ProgressBar';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Heading } from '@/components/atoms/Heading';
+import { ProgressBar } from '@/components/atoms/ProgressBar';
+import { Text } from '@/components/atoms/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import { onboardingService, type OnboardingData } from '@/services/onboardingService';
 import { useTheme } from '@/theme';

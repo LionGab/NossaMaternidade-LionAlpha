@@ -13,11 +13,11 @@ import { View, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-n
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Input } from '../components/Input';
-import { Box } from '../components/primitives/Box';
-import { Button } from '../components/primitives/Button';
-import { HapticButton } from '../components/primitives/HapticButton';
-import { Heading } from '../components/primitives/Heading';
-import { Text } from '../components/primitives/Text';
+import { Box } from '../components/atoms/Box';
+import { Button } from '../components/atoms/Button';
+import { HapticButton } from '../components/atoms/HapticButton';
+import { Heading } from '../components/atoms/Heading';
+import { Text } from '../components/atoms/Text';
 import { useHaptics } from '../hooks/useHaptics';
 import type { RootStackParamList } from '../navigation/types';
 import { authService } from '../services/authService';

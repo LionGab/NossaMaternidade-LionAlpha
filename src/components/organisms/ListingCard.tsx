@@ -23,9 +23,9 @@ import { Heart, Star } from 'lucide-react-native';
 import React from 'react';
 import { ViewStyle, Pressable, View } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Text } from '@/components/atoms/Text';
 import { useResponsiveDimensions } from '@/hooks/useResponsiveDimensions';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';

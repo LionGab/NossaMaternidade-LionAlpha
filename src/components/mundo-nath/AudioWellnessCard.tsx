@@ -9,7 +9,7 @@ import { Play, Pause, Clock, Headphones, Sparkles, Lock } from 'lucide-react-nat
 import React, { memo } from 'react';
 import { View, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 
-import { Text } from '@/components/primitives/Text';
+import { Text } from '@/components/atoms/Text';
 import type { AudioWellnessItem, AudioCategory } from '@/data/audioWellness';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';

@@ -7,8 +7,8 @@
 import React, { useState } from 'react';
 import { ScrollView } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

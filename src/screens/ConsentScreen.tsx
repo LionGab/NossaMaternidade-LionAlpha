@@ -11,10 +11,10 @@ import { Shield, CheckCircle2, XCircle, Info, ChevronRight } from 'lucide-react-
 import React, { useState, useCallback } from 'react';
 import { ScrollView, Alert, Platform, View, StyleSheet } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import { useConsent, useAllConsentTerms } from '@/hooks/useConsent';
 import { useThemeColors } from '@/hooks/useTheme';
 import { consentService } from '@/services/consentService';

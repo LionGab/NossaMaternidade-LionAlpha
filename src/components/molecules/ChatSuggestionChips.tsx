@@ -23,7 +23,7 @@ import * as Haptics from 'expo-haptics';
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 
-import { Text } from '@/components/primitives/Text';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import type { DynamicChip } from '@/utils/buildUserContext';

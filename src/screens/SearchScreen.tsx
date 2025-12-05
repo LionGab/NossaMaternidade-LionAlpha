@@ -10,11 +10,11 @@ import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { FlatList, Keyboard, TextInput, Platform } from 'react-native';
 
 import { ListingCard, type ListingCardProps } from '@/components/organisms/ListingCard';
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { IconButton } from '@/components/primitives/IconButton';
-import { SkeletonCard } from '@/components/primitives/Skeleton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { IconButton } from '@/components/atoms/IconButton';
+import { SkeletonCard } from '@/components/atoms/Skeleton';
+import { Text } from '@/components/atoms/Text';
 import { ScreenLayout } from '@/components/templates/ScreenLayout';
 import type { RootStackParamList } from '@/navigation/types';
 import { feedService, type ContentItem } from '@/services/feedService';

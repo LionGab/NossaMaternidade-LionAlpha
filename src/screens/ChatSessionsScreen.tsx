@@ -41,10 +41,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { IconButton } from '@/components/primitives/IconButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { IconButton } from '@/components/atoms/IconButton';
+import { Text } from '@/components/atoms/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import { chatService, ChatConversation } from '@/services/chatService';
 import { useTheme } from '@/theme';

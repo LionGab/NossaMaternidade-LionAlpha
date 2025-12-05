@@ -39,8 +39,8 @@ export { ErrorState, type ErrorStateProps, type ErrorType } from './ErrorState';
 // GeminiApp-Inspired Components (New Design System)
 export { HeroHeader, type HeroHeaderProps } from './HeroHeader';
 export { GlassCard, type GlassCardProps, type GlassVariant } from './GlassCard';
-// ⚠️ MoodSelector foi movido para @/components/home/MoodSelector
-// Use: import { MoodSelector } from '@/components/home';
+// ⚠️ MoodSelector foi movido para @/components/features/home/MoodSelector
+// Use: import { MoodSelector } from '@/components/features/home';
 export { AIModePicker, type AIModePickerProps, type AIMode, AI_MODE_OPTIONS } from './AIModePicker';
 export {
   FloatingTabBar,
@@ -50,10 +50,10 @@ export {
 } from './FloatingTabBar';
 export { BabyTrackerCard, type BabyTrackerCardProps } from './BabyTrackerCard';
 
-// Primitive Components
-export { H1, H2, H3 } from './primitives/Heading';
-export { Text, Body, Caption } from './primitives/Text';
-export { Box } from './primitives/Box';
-export { Stack } from './primitives/Stack';
-export { Row } from './primitives/Row';
-export { Container } from './primitives/Container';
+// Atomic Components (formerly primitives)
+export { H1, H2, H3 } from './atoms/Heading';
+export { Text, Body, Caption } from './atoms/Text';
+export { Box } from './atoms/Box';
+export { Stack } from './atoms/Stack';
+export { Row } from './atoms/Row';
+export { Container } from './atoms/Container';

@@ -12,11 +12,11 @@ import { Star } from 'lucide-react-native';
 import React, { memo } from 'react';
 import { ViewStyle, ImageBackground, StyleSheet } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Heading } from '@/components/primitives/Heading';
-import { ProgressIndicator } from '@/components/primitives/ProgressIndicator';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Heading } from '@/components/atoms/Heading';
+import { ProgressIndicator } from '@/components/atoms/ProgressIndicator';
+import { Text } from '@/components/atoms/Text';
 import { useThemeColors, useTheme } from '@/theme';
 import { Spacing, Radius, Shadows, ColorTokens } from '@/theme/tokens';
 

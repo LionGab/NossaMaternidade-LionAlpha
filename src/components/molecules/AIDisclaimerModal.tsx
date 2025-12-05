@@ -10,10 +10,10 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 
 import { Modal } from '@/components/Modal';
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, Typography } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

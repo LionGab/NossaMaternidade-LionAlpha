@@ -12,9 +12,9 @@ import { Phone, Heart, AlertCircle, Shield, Stethoscope, Users } from 'lucide-re
 import React, { useCallback, useMemo } from 'react';
 import { Linking } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Text } from '@/components/atoms/Text';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';

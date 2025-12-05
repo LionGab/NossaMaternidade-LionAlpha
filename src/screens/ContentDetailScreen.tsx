@@ -18,10 +18,10 @@ import {
   Platform,
 } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Heading } from '@/components/primitives/Heading';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Heading } from '@/components/atoms/Heading';
+import { Text } from '@/components/atoms/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import { feedService, type ContentItem } from '@/services/feedService';
 import { useTheme } from '@/theme';

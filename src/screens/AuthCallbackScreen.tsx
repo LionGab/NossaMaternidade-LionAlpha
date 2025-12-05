@@ -14,9 +14,9 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Box } from '../components/primitives/Box';
-import { Heading } from '../components/primitives/Heading';
-import { Text } from '../components/primitives/Text';
+import { Box } from '../components/atoms/Box';
+import { Heading } from '../components/atoms/Heading';
+import { Text } from '../components/atoms/Text';
 import type { RootStackParamList } from '../navigation/types';
 import { profileService } from '../services/profileService';
 import { supabase } from '../services/supabase';

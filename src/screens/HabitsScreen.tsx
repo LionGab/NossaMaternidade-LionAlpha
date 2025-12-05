@@ -12,10 +12,10 @@ import { View, ScrollView, TouchableOpacity, Animated, Easing } from 'react-nati
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/Badge';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { ProgressBar } from '@/components/primitives/ProgressBar';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { ProgressBar } from '@/components/atoms/ProgressBar';
+import { Text } from '@/components/atoms/Text';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens, Spacing, Radius } from '@/theme/tokens';

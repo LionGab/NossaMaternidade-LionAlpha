@@ -18,9 +18,9 @@ import { Heart, Phone, AlertCircle } from 'lucide-react-native';
 import React, { useCallback } from 'react';
 import { View, Linking, StyleSheet } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

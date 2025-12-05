@@ -43,14 +43,14 @@ import Animated, {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
-import { VoiceMode } from '@/components/chat/VoiceMode';
+import { VoiceMode } from '@/components/features/chat/VoiceMode';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AIDisclaimerModal } from '@/components/molecules/AIDisclaimerModal';
 import { NathIAChatInput } from '@/components/nathia/NathIAChatInput';
-import { Box } from '@/components/primitives/Box';
-import { ChatBubble } from '@/components/primitives/ChatBubble';
-import { IconButton } from '@/components/primitives/IconButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { ChatBubble } from '@/components/atoms/ChatBubble';
+import { IconButton } from '@/components/atoms/IconButton';
+import { Text } from '@/components/atoms/Text';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 import { useWellness } from '../features/wellness';

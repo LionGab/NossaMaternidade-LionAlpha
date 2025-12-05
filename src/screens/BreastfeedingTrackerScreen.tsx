@@ -26,10 +26,10 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { ScrollView, TouchableOpacity, Alert, ActionSheetIOS, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { IconButton } from '@/components/primitives/IconButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { IconButton } from '@/components/atoms/IconButton';
+import { Text } from '@/components/atoms/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import {
   breastfeedingInsightsService,

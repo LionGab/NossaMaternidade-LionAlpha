@@ -15,9 +15,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 
 import { SafeAreaContainer } from '@/components/layout/SafeAreaContainer';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { Text } from '@/components/atoms/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme';
 import { Tokens } from '@/theme/tokens';

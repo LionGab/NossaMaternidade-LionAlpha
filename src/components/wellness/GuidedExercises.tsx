@@ -16,9 +16,9 @@ import { Wind, Eye, Heart, Brain, CheckCircle2, ChevronRight } from 'lucide-reac
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, Animated, Easing } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { HapticButton } from '@/components/primitives/HapticButton';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { HapticButton } from '@/components/atoms/HapticButton';
+import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';

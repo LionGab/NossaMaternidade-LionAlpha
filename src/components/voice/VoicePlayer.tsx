@@ -8,7 +8,7 @@ import { Play, Pause, VolumeX } from 'lucide-react-native';
 import React, { useRef, useEffect } from 'react';
 import { TouchableOpacity, Animated, Easing, View, ActivityIndicator } from 'react-native';
 
-import { Text } from '@/components/primitives/Text';
+import { Text } from '@/components/atoms/Text';
 import { useVoice, type VoiceType, type ScriptKey } from '@/hooks/useVoice';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';

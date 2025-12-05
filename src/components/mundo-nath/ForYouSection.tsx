@@ -12,8 +12,8 @@ import { Sparkles, Play, Clock, Eye, ChevronRight } from 'lucide-react-native';
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, TouchableOpacity, ActivityIndicator, Image, StyleSheet } from 'react-native';
 
-import { Box } from '@/components/primitives/Box';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Text } from '@/components/atoms/Text';
 import { useResponsiveDimensions } from '@/hooks/useResponsiveDimensions';
 import type { PersonalizedContent } from '@/services/contentRecommendationService';
 import { feedService } from '@/services/feedService';

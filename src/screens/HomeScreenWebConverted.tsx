@@ -20,10 +20,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
-import { SearchBarPill } from '@/components/primitives/SearchBarPill';
-import { Text } from '@/components/primitives/Text';
+import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
+import { SearchBarPill } from '@/components/atoms/SearchBarPill';
+import { Text } from '@/components/atoms/Text';
 import { ScreenLayout } from '@/components/templates/ScreenLayout';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import type { MainTabParamList, RootStackParamList } from '@/navigation/types';
