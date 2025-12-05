@@ -1,0 +1,39 @@
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: eslint-plugin-react-hooks@4.6.2
+npm error Found: eslint@9.39.1
+npm error node_modules/eslint
+npm error   peer eslint@"^6.0.0 || ^7.0.0 || >=8.0.0" from @eslint-community/eslint-utils@4.9.0
+npm error   node_modules/@eslint-community/eslint-utils
+npm error     @eslint-community/eslint-utils@"^4.7.0" from @typescript-eslint/utils@8.48.1
+npm error     node_modules/@typescript-eslint/utils
+npm error       @typescript-eslint/utils@"8.48.1" from @typescript-eslint/eslint-plugin@8.48.1
+npm error       node_modules/@typescript-eslint/eslint-plugin
+npm error         dev @typescript-eslint/eslint-plugin@"^8.48.1" from the root project
+npm error       1 more (@typescript-eslint/type-utils)
+npm error     @eslint-community/eslint-utils@"^4.8.0" from eslint@9.39.1
+npm error   peer eslint@"^8.57.0 || ^9.0.0" from @typescript-eslint/eslint-plugin@8.48.1
+npm error   node_modules/@typescript-eslint/eslint-plugin
+npm error     dev @typescript-eslint/eslint-plugin@"^8.48.1" from the root project
+npm error   9 more (@typescript-eslint/parser, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer eslint@"^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0" from eslint-plugin-react-hooks@4.6.2
+npm error node_modules/eslint-plugin-react-hooks
+npm error   dev eslint-plugin-react-hooks@"^4.6.2" from the root project
+npm error
+npm error Conflicting peer dependency: eslint@8.57.1
+npm error node_modules/eslint
+npm error   peer eslint@"^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0" from eslint-plugin-react-hooks@4.6.2
+npm error   node_modules/eslint-plugin-react-hooks
+npm error     dev eslint-plugin-react-hooks@"^4.6.2" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error C:\Users\Usuario\AppData\Local\npm-cache\_logs\2025-12-05T05_13_39_813Z-eresolve-report.txt
+npm error A complete log of this run can be found in: C:\Users\Usuario\AppData\Local\npm-cache\_logs\2025-12-05T05_13_39_813Z-debug-0.log

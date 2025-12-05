@@ -1,6 +1,10 @@
 {
-  "// Configurações otimizadas para Claude no Cursor - Nossa Maternidade": "Atualizado em 29/11/2025",
+  "// Configurações otimizadas para Claude no Cursor - Nossa Maternidade": "Atualizado em 4/12/2025",
+  "// Baseado em: Documentação oficial do Cursor + Context7 + Melhores práticas": "",
 
+  "// ========================================": "",
+  "// Configurações de AI/Modelo": "",
+  "// ========================================": "",
   "cursor.ai.model": "claude-sonnet-4.5",
   "cursor.ai.maxTokens": 8192,
   "cursor.ai.temperature": 0.4,
@@ -10,7 +14,59 @@
   "cursor.ai.preferClaude": true,
   "cursor.ai.fallbackModel": "claude-opus-4",
 
-  "// Configurações de arquivos": "",
+  "// ========================================": "",
+  "// Configurações de Chat": "",
+  "// ========================================": "",
+  "cursor.chat.alwaysSearchWeb": false,
+  "cursor.chat.addFadingAnimation": true,
+  "cursor.chat.defaultToNoContext": false,
+  "cursor.chat.autoScroll": true,
+  "cursor.chat.narrowScrollbar": false,
+  "cursor.chat.showHistory": true,
+
+  "// ========================================": "",
+  "// Configurações de Cursor Tab (Inline Suggestions)": "",
+  "// ========================================": "",
+  "cursor.tab.enabled": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.inlineSuggest.showToolbar": "always",
+  
+  "// YOLO MODE - Aceitacao Automatica (USE COM CUIDADO!)": "",
+  "// AVISO: Este modo aceita automaticamente sugestoes sem revisao manual.": "",
+  "// Recomendado apenas para desenvolvimento rapido e prototipacao.": "",
+  "// SEMPRE revise codigo antes de commit em producao!": "",
+  "cursor.tab.autoAccept": true,
+  "cursor.tab.autoAcceptDelay": 100,
+  "cursor.composer.autoApply": true,
+  "cursor.composer.autoApplyConfidence": 0.85,
+  "cursor.composer.skipReview": true,
+  "cursor.chat.autoAcceptEdits": false,
+
+  "// Agent Review - Revisao Automatica de Codigo": "",
+  "cursor.agent.review.enabled": true,
+  "cursor.agent.review.onCommit": true,
+  "cursor.agent.review.onSave": false,
+  "cursor.agent.review.level": "standard",
+  "cursor.agent.review.includeTests": true,
+  "cursor.agent.review.checkSecurity": true,
+  "cursor.agent.review.checkPerformance": true,
+  "cursor.agent.review.checkDesignSystem": true,
+  
+  "// Agent Tools - Auto-Run (Terminal, Browser)": "",
+  "cursor.agent.terminal.enabled": true,
+  "cursor.agent.terminal.sandbox": true,
+  "cursor.agent.terminal.allowlist": ["expo", "eas", "npm", "supabase", "npx", "node"],
+  "cursor.agent.browser.enabled": true,
+  "cursor.agent.browser.autoOpen": false,
+  
+  "// ========================================": "",
+  "// Configurações Gerais do Cursor": "",
+  "// ========================================": "",
+  "cursor.general.disableHttp2": true,
+
+  "// ========================================": "",
+  "// Configurações de Arquivos": "",
+  "// ========================================": "",
   "files.exclude": {
     "**/node_modules": true,
     "**/.expo": true,
@@ -20,7 +76,9 @@
     "**/.DS_Store": true
   },
 
-  "// Configurações de busca": "",
+  "// ========================================": "",
+  "// Configurações de Busca": "",
+  "// ========================================": "",
   "search.exclude": {
     "**/node_modules": true,
     "**/.expo": true,
@@ -29,12 +87,16 @@
     "**/coverage": true
   },
 
+  "// ========================================": "",
   "// Configurações de TypeScript": "",
+  "// ========================================": "",
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
 
-  "// Configurações de editor": "",
+  "// ========================================": "",
+  "// Configurações de Editor": "",
+  "// ========================================": "",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
@@ -42,13 +104,17 @@
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
-  "// Configurações específicas do projeto": "",
+  "// ========================================": "",
+  "// Configurações Específicas do Projeto": "",
+  "// ========================================": "",
   "files.associations": {
     "*.tsx": "typescriptreact",
     "*.ts": "typescript"
   },
 
-  "// Performance": "",
+  "// ========================================": "",
+  "// Performance (File Watchers)": "",
+  "// ========================================": "",
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.expo/**": true,

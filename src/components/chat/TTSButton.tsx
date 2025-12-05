@@ -42,7 +42,6 @@ export const TTSButton: React.FC<TTSButtonProps> = React.memo(
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const soundRef = React.useRef<Audio.Sound | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
 
     // Animação de pulso quando está tocando
     const pulseScale = useSharedValue(1);
@@ -81,7 +80,6 @@ export const TTSButton: React.FC<TTSButtonProps> = React.memo(
           await soundRef.current.stopAsync();
           await soundRef.current.unloadAsync();
           soundRef.current = null;
-          setIsPlaying(false);
           setTtsState('idle');
           setCurrentPlayingId(null);
           logger.info('[TTSButton] Áudio pausado', { messageId });
@@ -98,10 +96,8 @@ export const TTSButton: React.FC<TTSButtonProps> = React.memo(
           setCurrentPlayingId(messageId);
           const { sound } = await Audio.Sound.createAsync({ uri: audioUri }, { shouldPlay: true });
           soundRef.current = sound;
-          setIsPlaying(true);
           sound.setOnPlaybackStatusUpdate((status) => {
             if (status.isLoaded && status.didJustFinish) {
-              setIsPlaying(false);
               setTtsState('idle');
               setCurrentPlayingId(null);
             }
@@ -132,10 +128,8 @@ export const TTSButton: React.FC<TTSButtonProps> = React.memo(
             { shouldPlay: true }
           );
           soundRef.current = sound;
-          setIsPlaying(true);
           sound.setOnPlaybackStatusUpdate((status) => {
             if (status.isLoaded && status.didJustFinish) {
-              setIsPlaying(false);
               setTtsState('idle');
               setCurrentPlayingId(null);
             }
@@ -153,7 +147,7 @@ export const TTSButton: React.FC<TTSButtonProps> = React.memo(
         // Fallback: usar Web Speech API (se disponível)
         // Em React Native, isso não está disponível, então apenas mostrar erro
       }
-    }, [text, messageId, audioUri, ttsState, currentPlayingId, disabled, play, stop]);
+    }, [text, messageId, audioUri, ttsState, currentPlayingId, disabled]);
 
     const getButtonContent = () => {
       switch (ttsState) {

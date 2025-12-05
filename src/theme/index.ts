@@ -207,3 +207,11 @@ export {
   createAndroidCardStyle,
   default as Android,
 } from './adapters/android';
+
+// Web Design Colors (app-redesign-studio migration)
+export {
+  WebColors,
+  GradientConfigs,
+  withOpacity,
+  type WebColorsType,
+} from './webColors';

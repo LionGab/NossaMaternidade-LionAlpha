@@ -10,7 +10,7 @@
 
 import * as Haptics from 'expo-haptics';
 import { Trash2, Reply } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { View, PanResponder, TouchableOpacity } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -21,7 +21,6 @@ import Animated, {
   Extrapolate,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
 

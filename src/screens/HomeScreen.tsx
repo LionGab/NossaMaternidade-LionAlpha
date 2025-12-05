@@ -2,30 +2,31 @@
  * HomeScreen - Adaptado do design web para React Native
  *
  * Features:
- * - Header com BlurView (iOS) e elevation (Android)
+ * - Header com gradiente rosa-azul (60/40) igual ao design web
+ * - Saudação integrada no header
  * - SafeAreaInsets para iOS e Android
- * - Design tokens (sem hardcoded colors)
+ * - Design tokens + WebColors (sem hardcoded colors)
  * - Acessibilidade WCAG AAA
  * - Dark mode support
  *
- * @version 2.0.0
+ * @version 3.0.0 - Migração visual do design web
  */
 
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Heart, Search, AlertCircle, MessageCircle, Zap, Menu, Mic } from 'lucide-react-native';
-import React from 'react';
-import { ScrollView, TouchableOpacity, View, Platform } from 'react-native';
+import { Play, Heart, Search, AlertCircle, MessageCircle, Zap, Menu, Mic, Bookmark, BookmarkCheck } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { ScrollView, TouchableOpacity, View, Platform, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { DicaDoDiaCard } from '@/components/info/DicaDoDiaCard';
 import { SafeAreaContainer } from '@/components/layout/SafeAreaContainer';
 import { NeedsPrompt, type NeedValue } from '@/components/molecules/NeedsPrompt';
 import { Box } from '@/components/primitives/Box';
@@ -38,6 +39,7 @@ import { needsRewardsService } from '@/services/needsRewardsService';
 import { useTheme } from '@/theme';
 import { getPlatformShadow } from '@/theme/platform';
 import { Tokens, ColorTokens } from '@/theme/tokens';
+import { WebColors, GradientConfigs } from '@/theme/webColors';
 import { logger } from '@/utils/logger';
 
 type NavigationProp = CompositeNavigationProp<
@@ -129,74 +131,111 @@ const moods = [
 ];
 
 // Header com Gradiente Rosa-Azul 60/40 (Web Design)
+// Inclui: Avatar + Search + Theme + Saudação integrada
 const HeaderContent = (
   <Box
-    direction="row"
-    align="center"
-    gap="3"
     p="4"
     style={{
-      paddingTop: insets.top + Tokens.spacing['4'],
+      paddingTop: insets.top + Tokens.spacing['2'],
     }}
   >
-    {/* Avatar maior conforme web */}
-    <View
-      accessible={true}
-      accessibilityLabel="Avatar de Nathália Valente"
-      accessibilityRole="image"
-      accessibilityHint="Foto de perfil de Nathália Valente"
+    {/* Linha 1: Avatar + Search + Theme */}
+    <Box
+      direction="row"
+      align="center"
+      gap="3"
+      mb="3"
     >
-      <Avatar
-        size={56}
-        source={{ uri: 'https://i.imgur.com/jzb0IgO.jpg' }}
-        name="Nathália Valente"
-        fallback="NV"
-        borderWidth={3}
-        borderColor={ColorTokens.neutral[0]}
-        useGradientFallback
-      />
-    </View>
+      {/* Avatar maior conforme web (80-96px) */}
+      <View
+        accessible={true}
+        accessibilityLabel="Avatar de Nathália Valente"
+        accessibilityRole="image"
+        accessibilityHint="Foto de perfil de Nathália Valente"
+      >
+        <Avatar
+          size={72}
+          source={{ uri: 'https://i.imgur.com/jzb0IgO.jpg' }}
+          name="Nathália Valente"
+          fallback="NV"
+          borderWidth={3}
+          borderColor={`${WebColors.rosa.foreground}99`}
+          useGradientFallback
+          style={{
+            ...getPlatformShadow('xl'),
+          }}
+        />
+      </View>
 
-    {/* Search Input */}
-    <Box flex={1} direction="row" align="center">
-      <Box
-        style={{
-          position: 'absolute',
-          left: Tokens.spacing['3'],
-          zIndex: 1,
-        }}
-      >
-        <Search size={16} color={colors.text.tertiary} />
+      {/* Search Input - estilo web */}
+      <Box flex={1} direction="row" align="center">
+        <Box
+          style={{
+            position: 'absolute',
+            left: Tokens.spacing['3'],
+            zIndex: 1,
+          }}
+        >
+          <Search size={16} color={WebColors.text.secondary} />
+        </Box>
+        <TouchableOpacity
+          onPress={handleSearchPress}
+          style={{
+            flex: 1,
+            backgroundColor: `${WebColors.rosa.foreground}E6`,
+            borderRadius: Tokens.radius['2xl'],
+            paddingLeft: Tokens.spacing['10'],
+            paddingRight: Tokens.spacing['3'],
+            paddingVertical: Tokens.spacing['2.5'],
+            minHeight: Tokens.touchTargets.min,
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Buscar conteúdo"
+          accessibilityHint="Abre a tela de busca para encontrar conteúdo"
+        >
+          <Text variant="body" size="sm" style={{ color: WebColors.text.secondary }}>
+            Onde...
+          </Text>
+        </TouchableOpacity>
       </Box>
-      <TouchableOpacity
-        onPress={handleSearchPress}
-        style={{
-          flex: 1,
-          backgroundColor: `${ColorTokens.neutral[0]}E6`,
-          borderRadius: Tokens.radius['2xl'],
-          paddingLeft: Tokens.spacing['10'],
-          paddingRight: Tokens.spacing['3'],
-          paddingVertical: Tokens.spacing['2.5'],
-          minHeight: Tokens.touchTargets.min,
-        }}
-        accessibilityRole="button"
-        accessibilityLabel="Buscar conteúdo"
-        accessibilityHint="Abre a tela de busca para encontrar conteúdo"
-      >
-        <Text variant="body" size="sm" color="tertiary">
-          Onde...
-        </Text>
-      </TouchableOpacity>
+
+      {/* Theme Toggle */}
+      <ThemeToggle variant="ghost" />
     </Box>
 
-    {/* Theme Toggle */}
-    <ThemeToggle variant="ghost" />
+    {/* Linha 2: Saudação integrada no header (como web) */}
+    <Box>
+      <Text
+        variant="heading"
+        size="2xl"
+        weight="bold"
+        style={{
+          color: WebColors.rosa.foreground,
+          textShadowColor: 'rgba(0,0,0,0.2)',
+          textShadowOffset: { width: 0, height: 1 },
+          textShadowRadius: 2,
+          marginBottom: Tokens.spacing['1'],
+        }}
+      >
+        Olá, mãe
+      </Text>
+      <Text
+        variant="body"
+        size="sm"
+        style={{
+          color: `${WebColors.rosa.foreground}E6`,
+          fontWeight: '500',
+        }}
+      >
+        Respira um pouquinho. Estamos aqui por você.
+      </Text>
+    </Box>
   </Box>
 );
 
 return (
   <SafeAreaContainer edges={['top']} backgroundColor={colors.background.canvas}>
-    {/* Header Sticky com Blur */}
+    {/* Header Sticky com Gradiente Rosa-Azul (Web Design) */}
     <View
       style={{
         position: 'absolute',
@@ -204,64 +243,77 @@ return (
         left: 0,
         right: 0,
         zIndex: 40,
-        borderBottomWidth: 1,
-        borderBottomColor: colors.border.light,
+        overflow: 'hidden',
       }}
     >
-      {Platform.OS === 'ios' ? (
-        <BlurView
-          intensity={95}
-          tint={isDark ? 'dark' : 'light'}
-          style={{
-            backgroundColor: 'transparent',
-          }}
-        >
-          <LinearGradient
-            colors={[ColorTokens.primary[400], ColorTokens.secondary[400]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              opacity: 0.95,
-            }}
-          >
-            {HeaderContent}
-          </LinearGradient>
-        </BlurView>
-      ) : (
+      {/* Gradiente principal rosa-azul equilibrado */}
+      <LinearGradient
+        colors={WebColors.gradients.headerRosaAzul}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          opacity: 0.95,
+        }}
+      >
+        {/* Overlay escuro sutil de baixo para cima */}
         <LinearGradient
-          colors={[ColorTokens.primary[400], ColorTokens.secondary[400]]}
+          colors={['transparent', 'transparent', 'rgba(0,0,0,0.1)']}
           start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          end={{ x: 0, y: 1 }}
           style={{
-            opacity: 0.95,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
           }}
-        >
-          {HeaderContent}
-        </LinearGradient>
-      )}
+        />
+
+        {/* Efeito de brilho animado - Azul (canto direito) */}
+        <View
+          style={{
+            position: 'absolute',
+            top: -24,
+            right: -24,
+            width: 120,
+            height: 120,
+            borderRadius: 60,
+            backgroundColor: `${WebColors.azul.light}33`,
+            opacity: 0.6,
+          }}
+        />
+
+        {/* Efeito de brilho - Rosa (canto esquerdo inferior) */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: -20,
+            left: -20,
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            backgroundColor: `${WebColors.rosa.light}40`,
+            opacity: 0.5,
+          }}
+        />
+
+        {HeaderContent}
+      </LinearGradient>
     </View>
 
     {/* Content */}
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={{
-        paddingTop: insets.top + 80, // Header height + safe area
+        paddingTop: insets.top + 140, // Header height aumentado (avatar maior + saudação)
         paddingBottom: insets.bottom + 80, // Tab bar height
         paddingHorizontal: Tokens.spacing['4'],
       }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Greeting */}
-      <Box mb="6">
-        <Text variant="body" size="2xl" weight="bold" style={{ marginBottom: Tokens.spacing['1'] }}>
-          Olá, mãe
-        </Text>
-        <Text variant="body" size="sm" color="secondary">
-          Respira um pouquinho. Estamos aqui por você.
-        </Text>
-      </Box>
+      {/* Saudação agora está no header - espaço menor */}
 
-      {/* Sleep Card - Com gradiente azul (PRIMEIRO CARD após saudação) */}
+      {/* Sleep Card - Com gradiente azul (PRIMEIRO CARD após header) */}
       <TouchableOpacity
         onPress={handleSleepCardPress}
         activeOpacity={0.8}
@@ -273,17 +325,17 @@ return (
           borderRadius: Tokens.radius['3xl'],
           overflow: 'hidden',
           borderWidth: 2,
-          borderColor: `${ColorTokens.info[300]}80`,
-          backgroundColor: ColorTokens.info[100],
-          ...getPlatformShadow('md'),
+          borderColor: `${WebColors.azul.light}80`, // Azul light do web
+          backgroundColor: WebColors.azul.subtle,
+          ...getPlatformShadow('xl'),
         }}
       >
-        <View style={{ position: 'relative', width: '100%', height: 200 }}>
+        <View style={{ position: 'relative', width: '100%', height: 220 }}>
           <Image
             source={{ uri: 'https://i.imgur.com/w4rZvGG.jpg' }}
             style={{
               width: '100%',
-              height: 200,
+              height: 220,
             }}
             contentFit="cover"
             placeholder={{ blurhash: 'LGF5]+Yk^6#M@-5c,1J5@[or[Q6.' }}
@@ -292,11 +344,12 @@ return (
               logger.warn('Failed to load sleep card image', error);
             }}
           />
+          {/* Overlay gradiente azul suave (como web) */}
           <LinearGradient
             colors={[
               'transparent',
-              `${ColorTokens.info[600]}80`,
-              `${ColorTokens.info[600]}CC`,
+              `${WebColors.azul.main}66`, // 40%
+              `${WebColors.azul.hover}CC`, // 80%
             ]}
             style={{
               position: 'absolute',
@@ -318,7 +371,10 @@ return (
             <Badge
               variant="info"
               size="sm"
-              containerStyle={{ marginBottom: Tokens.spacing['2'] }}
+              containerStyle={{
+                marginBottom: Tokens.spacing['2'],
+                ...getPlatformShadow('sm'),
+              }}
             >
               🌙 Sono
             </Badge>
@@ -327,11 +383,26 @@ return (
               size="lg"
               weight="bold"
               color="inverse"
-              style={{ marginBottom: Tokens.spacing['1'] }}
+              style={{
+                marginBottom: Tokens.spacing['1'],
+                textShadowColor: 'rgba(0,0,0,0.3)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 2,
+              }}
             >
               Como você dormiu hoje?
             </Text>
-            <Text variant="body" size="sm" color="inverse" style={{ opacity: 0.9 }}>
+            <Text
+              variant="body"
+              size="sm"
+              color="inverse"
+              style={{
+                opacity: 0.9,
+                textShadowColor: 'rgba(0,0,0,0.2)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 1,
+              }}
+            >
               Registre seu descanso e cuide de você
             </Text>
           </View>
@@ -475,7 +546,7 @@ return (
         </Box>
       </Box>
 
-      {/* Chat with NathIA - Design Aprimorado */}
+      {/* Chat with NathIA - Design Web (from-rose-400 via-pink-400 to-purple-500) */}
       <TouchableOpacity
         onPress={handleNathIAPress}
         activeOpacity={0.8}
@@ -487,160 +558,263 @@ return (
           borderRadius: Tokens.radius['3xl'],
           overflow: 'hidden',
           borderWidth: 2,
-          borderColor: `${ColorTokens.primary[300]}50`,
+          borderColor: `${WebColors.rosa.light}80`,
           ...getPlatformShadow('xl'),
         }}
       >
+        {/* Gradiente NathIA do web design */}
         <LinearGradient
-          colors={[ColorTokens.primary[400], ColorTokens.secondary[400], ColorTokens.secondary[500]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          colors={WebColors.gradients.nathIA}
+          start={GradientConfigs.nathIA.start}
+          end={GradientConfigs.nathIA.end}
           style={{
-            padding: Tokens.spacing['6'],
+            padding: Tokens.spacing['5'],
+            position: 'relative',
           }}
         >
-          {/* Header com Avatar e Badge */}
+          {/* Padrão de pontos decorativos (como web) */}
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              opacity: 0.1,
+            }}
+          />
+
+          {/* Efeito de brilho superior */}
+          <View
+            style={{
+              position: 'absolute',
+              top: -20,
+              left: '50%',
+              marginLeft: -60,
+              width: 120,
+              height: 120,
+              borderRadius: 60,
+              backgroundColor: `${WebColors.rosa.foreground}26`, // 15%
+            }}
+          />
+
+          {/* Efeito de brilho inferior */}
+          <View
+            style={{
+              position: 'absolute',
+              bottom: -18,
+              left: '50%',
+              marginLeft: -54,
+              width: 108,
+              height: 108,
+              borderRadius: 54,
+              backgroundColor: `${WebColors.lilas.main}33`, // 20%
+            }}
+          />
+          {/* Header com Avatar e Badge (estilo web) */}
           <Box direction="row" align="center" justify="space-between" mb="4">
             <Box direction="row" align="center" gap="3" flex={1}>
               <View style={{ position: 'relative' }}>
                 <Avatar
-                  size={56}
+                  size={52}
                   source={{ uri: 'https://i.imgur.com/oB9ewPG.jpg' }}
                   name="NathIA"
                   fallback="N"
                   borderWidth={2}
-                  borderColor={`${ColorTokens.neutral[0]}80`}
+                  borderColor={`${WebColors.rosa.foreground}80`}
                   useGradientFallback
+                  style={{
+                    ...getPlatformShadow('xl'),
+                  }}
                 />
-                {/* Indicador Online */}
+                {/* Indicador Online - Verde sucesso (como web) */}
                 <View
                   style={{
                     position: 'absolute',
                     bottom: 0,
                     right: 0,
-                    width: 14,
-                    height: 14,
-                    borderRadius: 7,
-                    backgroundColor: ColorTokens.success[500],
+                    width: 12,
+                    height: 12,
+                    borderRadius: 6,
+                    backgroundColor: WebColors.status.success,
                     borderWidth: 2,
-                    borderColor: ColorTokens.neutral[0],
+                    borderColor: WebColors.rosa.foreground,
+                    ...getPlatformShadow('sm'),
                   }}
                 />
               </View>
               <Box flex={1}>
                 <Text
-                  variant="body"
+                  variant="heading"
                   size="xl"
                   weight="bold"
-                  color="inverse"
-                  style={{ marginBottom: Tokens.spacing['1'] }}
+                  style={{
+                    color: WebColors.rosa.foreground,
+                    textShadowColor: 'rgba(0,0,0,0.2)',
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
+                    marginBottom: Tokens.spacing['1'],
+                  }}
                 >
                   Converse com a NathIA
                 </Text>
-                <Badge
-                  variant="success"
-                  size="sm"
-                  containerStyle={{
-                    backgroundColor: `${ColorTokens.success[500]}33`,
+                {/* Badge ONLINE com gradiente verde */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    alignSelf: 'flex-start',
+                    backgroundColor: `${WebColors.status.success}4D`, // 30%
+                    paddingHorizontal: Tokens.spacing['2'],
+                    paddingVertical: Tokens.spacing['0.5'],
+                    borderRadius: Tokens.radius.full,
                     borderWidth: 1,
-                    borderColor: `${ColorTokens.neutral[0]}50`,
+                    borderColor: `${WebColors.status.success}80`,
                   }}
                 >
-                  <MessageCircle size={10} color={ColorTokens.neutral[0]} />
-                  <Text variant="caption" size="xs" color="inverse" style={{ marginLeft: 4 }}>
+                  <MessageCircle size={10} color={WebColors.rosa.foreground} />
+                  <Text
+                    variant="caption"
+                    size="xs"
+                    weight="semibold"
+                    style={{
+                      color: WebColors.rosa.foreground,
+                      marginLeft: 4,
+                    }}
+                  >
                     ONLINE
                   </Text>
-                </Badge>
+                </View>
               </Box>
             </Box>
-            {/* Botão de Microfone */}
+            {/* Botão de Microfone (estilo web) */}
             <IconButton
-              icon={<Mic size={20} color={ColorTokens.neutral[0]} />}
+              icon={<Mic size={16} color={WebColors.rosa.foreground} />}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 navigation.navigate('Chat');
               }}
               accessibilityLabel="Iniciar gravação de voz"
               variant="ghost"
-              size="md"
+              size="sm"
               style={{
-                backgroundColor: `${ColorTokens.neutral[0]}20`,
+                backgroundColor: `${WebColors.rosa.foreground}1A`, // 10%
+                borderWidth: 1,
+                borderColor: `${WebColors.rosa.foreground}33`, // 20%
+                borderRadius: Tokens.radius.lg,
+                width: 36,
+                height: 36,
               }}
             />
           </Box>
 
-          {/* Descrição */}
+          {/* Descrição centralizada (estilo web) */}
           <Text
             variant="body"
             size="sm"
-            color="inverse"
-            style={{ opacity: 0.95, marginBottom: Tokens.spacing['4'], textAlign: 'center' }}
+            style={{
+              color: `${WebColors.rosa.foreground}F2`, // 95%
+              marginBottom: Tokens.spacing['4'],
+              textAlign: 'center',
+              fontWeight: '500',
+            }}
           >
             Apoio imediato, sem julgamentos. Estou aqui para você 💖
           </Text>
 
-          {/* Badges Rápido e 24/7 */}
+          {/* Badges Rápido e 24/7 (estilo web - backdrop-blur simulado) */}
           <Box direction="row" align="center" justify="center" gap="2" mb="4">
-            <Badge
-              variant="default"
-              size="sm"
-              containerStyle={{
-                backgroundColor: `${ColorTokens.neutral[0]}33`,
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: `${WebColors.rosa.foreground}33`, // 20%
+                paddingHorizontal: Tokens.spacing['3'],
+                paddingVertical: Tokens.spacing['1.5'],
+                borderRadius: Tokens.radius.full,
                 borderWidth: 1,
-                borderColor: `${ColorTokens.neutral[0]}50`,
+                borderColor: `${WebColors.rosa.foreground}4D`, // 30%
+                ...getPlatformShadow('md'),
               }}
             >
-              <Zap size={12} color={ColorTokens.neutral[0]} />
-              <Text variant="caption" size="xs" color="inverse" style={{ marginLeft: 4 }}>
+              <Zap size={14} color={WebColors.rosa.foreground} />
+              <Text
+                variant="caption"
+                size="xs"
+                weight="semibold"
+                style={{ color: WebColors.rosa.foreground, marginLeft: 6 }}
+              >
                 Rápido
               </Text>
-            </Badge>
-            <Badge
-              variant="default"
-              size="sm"
-              containerStyle={{
-                backgroundColor: `${ColorTokens.neutral[0]}40`,
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: `${WebColors.rosa.foreground}40`, // 25%
+                paddingHorizontal: Tokens.spacing['3'],
+                paddingVertical: Tokens.spacing['1.5'],
+                borderRadius: Tokens.radius.full,
                 borderWidth: 1,
-                borderColor: `${ColorTokens.neutral[0]}60`,
+                borderColor: `${WebColors.rosa.foreground}66`, // 40%
+                ...getPlatformShadow('lg'),
               }}
             >
-              <MessageCircle size={12} color={ColorTokens.neutral[0]} />
-              <Text variant="caption" size="xs" color="inverse" style={{ marginLeft: 4 }}>
+              <MessageCircle size={14} color={WebColors.rosa.foreground} />
+              <Text
+                variant="caption"
+                size="xs"
+                weight="semibold"
+                style={{ color: WebColors.rosa.foreground, marginLeft: 6 }}
+              >
                 24/7
               </Text>
-            </Badge>
+            </View>
           </Box>
 
-          {/* Botões de ação */}
+          {/* Botões de ação (estilo web) */}
           <Box direction="row" gap="2">
+            {/* Botão Histórico - estilo ghost */}
             <Button
               title="Histórico"
               onPress={() => navigation.navigate('ChatSessions')}
               variant="outline"
               size="md"
-              leftIcon={<Menu size={16} color={ColorTokens.neutral[0]} />}
+              leftIcon={<Menu size={16} color={WebColors.rosa.foreground} />}
               style={{
                 flex: 1,
-                backgroundColor: `${ColorTokens.neutral[0]}20`,
-                borderColor: `${ColorTokens.neutral[0]}40`,
+                backgroundColor: `${WebColors.rosa.foreground}1A`, // 10%
+                borderColor: `${WebColors.rosa.foreground}33`, // 20%
+                borderRadius: Tokens.radius.xl,
+              }}
+              textStyle={{
+                color: WebColors.rosa.foreground,
+                fontWeight: '600',
               }}
             />
+            {/* Botão principal - branco com shimmer effect */}
             <Button
               title="Quero conversar"
               onPress={handleNathIAPress}
               variant="secondary"
               size="md"
-              leftIcon={<Heart size={16} color={ColorTokens.primary[500]} />}
+              leftIcon={<Heart size={16} color={WebColors.rosa.main} fill={WebColors.rosa.main} />}
               style={{
                 flex: 2,
-                backgroundColor: ColorTokens.neutral[0],
+                backgroundColor: WebColors.rosa.foreground,
+                borderRadius: Tokens.radius.xl,
+                ...getPlatformShadow('xl'),
+              }}
+              textStyle={{
+                color: WebColors.rosa.main,
+                fontWeight: '700',
               }}
             />
           </Box>
         </LinearGradient>
       </TouchableOpacity>
 
-        {/* SOS Mãe - Suporte Emergencial */}
+        {/* SOS Mãe - Suporte Emergencial (estilo web) */}
         <TouchableOpacity
           onPress={handleSOSMaePress}
           activeOpacity={0.8}
@@ -652,11 +826,11 @@ return (
             borderRadius: Tokens.radius['3xl'],
             overflow: 'hidden',
             minHeight: Tokens.touchTargets.min,
-            ...getPlatformShadow('md'),
+            ...getPlatformShadow('xl'),
           }}
         >
           <LinearGradient
-            colors={[ColorTokens.error[500], ColorTokens.error[600]]}
+            colors={[WebColors.status.destructive, '#B91C1C']} // red-600 to red-700
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -666,29 +840,44 @@ return (
               minHeight: 140,
             }}
           >
-            <Box
+            <View
               style={{
                 width: 56,
                 height: 56,
                 borderRadius: Tokens.radius.full,
-                backgroundColor: `${ColorTokens.neutral[0]}33`,
+                backgroundColor: `${WebColors.rosa.foreground}33`,
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginBottom: Tokens.spacing['4'],
+                ...getPlatformShadow('md'),
               }}
             >
-              <AlertCircle size={28} color={ColorTokens.neutral[0]} />
-            </Box>
+              <AlertCircle size={28} color={WebColors.rosa.foreground} />
+            </View>
             <Text
-              variant="body"
+              variant="heading"
               size="lg"
               weight="bold"
-              color="inverse"
-              style={{ textAlign: 'center', marginBottom: Tokens.spacing['2'] }}
+              style={{
+                color: WebColors.rosa.foreground,
+                textAlign: 'center',
+                marginBottom: Tokens.spacing['2'],
+                textShadowColor: 'rgba(0,0,0,0.3)',
+                textShadowOffset: { width: 0, height: 1 },
+                textShadowRadius: 2,
+              }}
             >
               SOS Mãe
             </Text>
-            <Text variant="body" size="sm" color="inverse" style={{ opacity: 0.9, textAlign: 'center' }}>
+            <Text
+              variant="body"
+              size="sm"
+              style={{
+                color: `${WebColors.rosa.foreground}E6`,
+                opacity: 0.9,
+                textAlign: 'center',
+              }}
+            >
               Suporte emergencial 24/7. Estamos aqui por você.
             </Text>
           </LinearGradient>

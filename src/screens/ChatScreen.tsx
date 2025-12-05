@@ -36,9 +36,7 @@ import Animated, {
   withSpring,
   interpolate,
   FadeIn,
-  FadeInDown,
   FadeOut,
-  Layout,
 } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -1059,8 +1057,8 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
               <TouchableOpacity
                 onPress={async () => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  const { Linking } = await import('expo-linking');
-                  await Linking.openURL('tel:192');
+                  const ExpoLinking = await import('expo-linking');
+                  await ExpoLinking.openURL('tel:192');
                 }}
                 style={{
                   backgroundColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[200],

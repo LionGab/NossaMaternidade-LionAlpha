@@ -13,6 +13,7 @@ export type RootStackParamList = {
   ContentDetail: { contentId: string }; // 🆕 Tela de detalhes de conteúdo (Week 1)
   ChatSessions: undefined; // 💬 Modal de histórico de conversas
   SOSMae: undefined; // 🆘 SOS Mãe - suporte emergencial
+  DesculpaHoje: undefined; // 💙 Desculpa Hoje - validação de culpa materna
   PrivacyPolicy: undefined;
   TermsOfService: undefined;
   Settings: undefined;

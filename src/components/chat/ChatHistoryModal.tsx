@@ -9,7 +9,7 @@
  */
 
 import * as Haptics from 'expo-haptics';
-import { X, Trash2, MessageCircle } from 'lucide-react-native';
+import { X, MessageCircle } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import { Modal, View, TouchableOpacity, FlatList, Alert, ActivityIndicator } from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';

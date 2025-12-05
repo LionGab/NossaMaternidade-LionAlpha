@@ -19,7 +19,6 @@ import {
   Plus,
   MessageCircle,
   Clock,
-  Trash2,
   ChevronRight,
 } from 'lucide-react-native';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -34,21 +33,17 @@ import {
 import Animated, {
   FadeIn,
   FadeInDown,
-  FadeOut,
   Layout,
 } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
-import { Badge } from '@/components/Badge';
-import { Box } from '@/components/primitives/Box';
-import { Button } from '@/components/primitives/Button';
 import { IconButton } from '@/components/primitives/IconButton';
 import { Text } from '@/components/primitives/Text';
 import type { RootStackParamList } from '@/navigation/types';
 import { chatService, ChatConversation } from '@/services/chatService';
 import { useTheme } from '@/theme';
-import { Tokens, ColorTokens, Spacing, Radius } from '@/theme/tokens';
+import { ColorTokens, Spacing, Radius } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
 
 const AVATAR_URL = 'https://i.imgur.com/oB9ewPG.jpg';
@@ -80,12 +75,11 @@ interface SessionItemProps {
   conversation: ChatConversation;
   onPress: () => void;
   onDelete: () => void;
-  isDark: boolean;
   colors: ReturnType<typeof useTheme>['colors'];
 }
 
 const SessionItem = React.memo(
-  ({ conversation, onPress, onDelete, isDark, colors }: SessionItemProps) => {
+  ({ conversation, onPress, onDelete, colors }: SessionItemProps) => {
     const preview = conversation.last_message?.content || 'Nova conversa';
     const truncatedPreview =
       preview.length > 60 ? `${preview.slice(0, 60)}...` : preview;
@@ -333,7 +327,6 @@ export default function ChatSessionsScreen() {
         conversation={item}
         onPress={() => handleOpenConversation(item.id)}
         onDelete={() => handleDeleteConversation(item.id)}
-        isDark={isDark}
         colors={colors}
       />
     ),

@@ -76,3 +76,6 @@ export {
   type EmpatheticMoodOptionV2,
 } from './EmpatheticMoodChipsV2';
 export { EmpatheticHighlightsV2, type EmpatheticHighlightsV2Props } from './EmpatheticHighlightsV2';
+
+// ⭐ NEW: Web-style Components (v5.0 - Migration from app-redesign-studio)
+export { MoodCheckSection, type MoodType as MoodCheckType } from './MoodCheckSection';

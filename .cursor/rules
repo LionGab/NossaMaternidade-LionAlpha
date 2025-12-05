@@ -68,15 +68,189 @@ O `CONTEXTO.md` serve como "Cérebro Externo" - memória permanente do projeto. 
 - ✅ Flexbox para layout responsivo
 - ✅ Testar em múltiplos tamanhos de tela
 
+## 📝 Padrões de Código e Estrutura (TypeScript + React Native + Expo)
+
+### Estilo e Estrutura de Código
+
+- ✅ Escrever código TypeScript conciso e técnico com exemplos precisos
+- ✅ Usar padrões funcionais e declarativos; evitar classes
+- ✅ Preferir iteração e modularização sobre duplicação de código
+- ✅ Usar nomes de variáveis descritivos com verbos auxiliares (ex: `isLoading`, `hasError`, `canSubmit`)
+- ✅ Estrutura de arquivos: componente exportado, subcomponentes, helpers, conteúdo estático, tipos
+- ✅ Seguir documentação oficial do Expo: https://docs.expo.dev/
+
+### Convenções de Nomenclatura
+
+- ✅ Diretórios: lowercase com hífens (ex: `components/auth-wizard`, `screens/chat-screen`)
+- ✅ Arquivos: PascalCase para componentes (`HomeScreen.tsx`), camelCase para utilities (`logger.ts`)
+- ✅ Preferir exports nomeados para componentes (não default exports)
+- ✅ Services: `*Service.ts` (ex: `chatService.ts`, `emotionService.ts`)
+- ✅ Hooks: `use*` (ex: `useEmotionTracking.ts`, `useHabits.ts`)
+
+### TypeScript
+
+- ✅ **SEMPRE** usar TypeScript strict mode (`strict: true` no tsconfig.json)
+- ✅ **ZERO** `any` types - usar `unknown` + type guards quando necessário
+- ✅ Preferir `interface` sobre `type` para objetos
+- ✅ Evitar `enum` - usar maps/const objects ao invés
+- ✅ Usar componentes funcionais com interfaces TypeScript
+- ✅ Tipagem explícita em props e valores retornados
+- ❌ NUNCA usar `@ts-ignore` ou `@ts-expect-error` sem justificativa explícita em comentário
+
+### Sintaxe e Formatação
+
+- ✅ Usar palavra-chave `function` para funções puras
+- ✅ Evitar chaves desnecessárias em condicionais simples; usar sintaxe concisa
+- ✅ Usar JSX declarativo
+- ✅ Usar Prettier para formatação consistente (configurado no projeto)
+- ✅ Componentes funcionais sempre (nunca class components)
+
+### UI e Estilização (Adaptado ao Design System)
+
+- ✅ **SEMPRE** usar componentes primitivos de `src/components/primitives/` (Box, Text, Button, etc.)
+- ✅ **SEMPRE** usar design tokens de `src/theme/tokens.ts` (cores, espaçamento, tipografia)
+- ✅ **SEMPRE** usar `useThemeColors()` para cores theme-aware (suporta dark mode)
+- ✅ Implementar design responsivo com Flexbox e `useWindowDimensions` do Expo para ajustes de tela
+- ✅ **NÃO** usar styled-components - usar NativeWind (Tailwind para React Native) quando necessário
+- ✅ Implementar dark mode usando `useColorScheme` do Expo + theme context
+- ✅ Garantir alta acessibilidade (a11y) usando props nativas do React Native:
+  - `accessibilityLabel` em todos componentes interativos
+  - `accessibilityHint` quando necessário
+  - `accessibilityRole` apropriado
+  - Suporte a Dynamic Type (`allowFontScaling`)
+- ✅ Usar `react-native-reanimated` e `react-native-gesture-handler` para animações e gestos performáticos
+- ❌ **NUNCA** valores hardcoded de cor, espaçamento ou tipografia
+- ❌ **NUNCA** usar `StyleSheet.create` diretamente (usar tokens ou NativeWind)
+
+### Gerenciamento de Safe Area
+
+- ✅ Usar `SafeAreaProvider` de `react-native-safe-area-context` para gerenciar safe areas globalmente
+- ✅ Envolver componentes de topo com `SafeAreaView` para lidar com notch, status bar e outros insets
+- ✅ Usar `SafeAreaScrollView` para conteúdo scrollável garantindo respeito aos limites de safe area
+- ❌ Evitar hardcoding de padding/margins para safe areas - confiar em SafeAreaView e hooks de contexto
+
+### Otimização de Performance
+
+- ✅ Minimizar uso de `useState` e `useEffect`; preferir Context e reducers para gerenciamento de estado
+- ✅ Usar `AppLoading` e `SplashScreen` do Expo para experiência otimizada de inicialização
+- ✅ Otimizar imagens: usar formato WebP onde suportado, incluir dados de tamanho, implementar lazy loading com `expo-image`
+- ✅ Implementar code splitting e lazy loading para componentes não-críticos com `React.Suspense` e dynamic imports
+- ✅ Profile e monitorar performance usando ferramentas built-in do React Native e debugging do Expo
+- ✅ Evitar re-renders desnecessários usando `memo()`, `useMemo` e `useCallback` apropriadamente
+- ✅ **SEMPRE** usar `FlatList` para listas (nunca `ScrollView` com `map`)
+- ✅ Implementar `getItemLayout` em FlatList quando possível
+
+### Navegação
+
+- ✅ Usar `react-navigation` (v7+) para roteamento e navegação
+- ✅ Seguir boas práticas para stack, tab e drawer navigators
+- ✅ Aproveitar deep linking e universal links para melhor engajamento e fluxo de navegação
+- ✅ Usar rotas dinâmicas com `expo-router` quando aplicável (se migrado)
+
+### Gerenciamento de Estado
+
+- ✅ Usar React Context e `useReducer` para gerenciar estado global
+- ✅ **SEMPRE** usar React Query (TanStack Query) para data fetching e caching
+- ✅ Evitar chamadas excessivas de API - confiar no cache do React Query
+- ✅ Para gerenciamento de estado complexo, considerar Zustand ou Redux Toolkit (se necessário)
+- ✅ Lidar com parâmetros de busca de URL usando `expo-linking`
+- ✅ Services em `src/services/` devem retornar `{ data, error }` pattern
+
+### Tratamento de Erros e Validação
+
+- ✅ Usar **Zod** para validação runtime e tratamento de erros
+- ✅ Implementar logging de erros adequado usando `logger` de `src/utils/logger.ts` (integra com Sentry)
+- ✅ Priorizar tratamento de erros e edge cases:
+  - Lidar com erros no início de funções
+  - Usar early returns para condições de erro (evitar ifs aninhados profundos)
+  - Evitar statements `else` desnecessários; usar padrão if-return
+  - Implementar error boundaries globais para capturar erros inesperados
+- ✅ Usar `expo-error-reporter` ou Sentry para logging e report de erros em produção
+- ✅ **NUNCA** usar `console.log` - sempre usar `logger.info()`, `logger.error()`, etc.
+
+### Testes
+
+- ✅ Escrever testes unitários usando Jest e React Native Testing Library
+- ✅ Implementar testes de integração para fluxos críticos de usuário usando Detox (quando aplicável)
+- ✅ Usar ferramentas de teste do Expo para rodar testes em diferentes ambientes
+- ✅ Considerar snapshot testing para componentes para garantir consistência de UI
+- ✅ **Toda função precisa de unit test** em `__tests__/`
+- ✅ Coverage mínimo: 40% MVP, 60% Phase 2, 80% final
+- ✅ Testar services primeiro (IA, Supabase, etc) com mocks
+
+### Segurança
+
+- ✅ Sanitizar inputs de usuário para prevenir ataques XSS
+- ✅ Usar `react-native-encrypted-storage` ou `expo-secure-store` para armazenamento seguro de dados sensíveis
+- ✅ Garantir comunicação segura com APIs usando HTTPS e autenticação adequada
+- ✅ Seguir guidelines de segurança do Expo: https://docs.expo.dev/guides/security/
+- ✅ **SEMPRE** RLS policies no Supabase (LGPD compliance)
+- ✅ Validar todas entradas de usuário com Zod
+
+### Internacionalização (i18n)
+
+- ✅ Usar `expo-localization` para internacionalização e localização
+- ✅ Suportar múltiplos idiomas e layouts RTL (se necessário)
+- ✅ Garantir escalabilidade de texto e ajustes de fonte para acessibilidade
+- ✅ Textos em português brasileiro (pt-BR) como padrão
+
+### Convenções Principais do Projeto
+
+1. ✅ Confiar no managed workflow do Expo para desenvolvimento e deploy simplificados
+2. ✅ Priorizar Mobile Web Vitals (Load Time, Jank, Responsiveness)
+3. ✅ Usar `expo-constants` para gerenciar variáveis de ambiente e configuração
+4. ✅ Usar `expo-permissions` para lidar com permissões de dispositivo graciosamente
+5. ✅ Implementar `expo-updates` para over-the-air (OTA) updates
+6. ✅ Seguir boas práticas do Expo para deploy e publicação: https://docs.expo.dev/distribution/introduction/
+7. ✅ Garantir compatibilidade com iOS e Android testando extensivamente em ambas plataformas
+8. ✅ **SEMPRE** usar componentes primitivos do design system
+9. ✅ **SEMPRE** usar design tokens (nunca valores hardcoded)
+10. ✅ **SEMPRE** implementar dark mode
+
+### Documentação de API
+
+- ✅ Referenciar documentação oficial do Expo: https://docs.expo.dev/
+- ✅ Consultar documentação do Supabase: https://supabase.com/docs
+- ✅ Consultar documentação do React Navigation: https://reactnavigation.org/
+
 ## Validação Antes de Commit
 
 Antes de aceitar mudanças, sempre valide:
-1. Tokens de design usados corretamente?
-2. Dark mode implementado?
-3. Acessibilidade WCAG AAA?
-4. Componentes primitivos usados?
-5. Performance otimizada?
-6. Responsividade testada?
+
+### Design System
+1. ✅ Tokens de design usados corretamente? (cores, espaçamento, tipografia)
+2. ✅ Dark mode implementado e testado?
+3. ✅ Acessibilidade WCAG AAA? (contraste, touch targets, labels)
+4. ✅ Componentes primitivos usados? (não View/Text direto)
+5. ✅ Nenhum valor hardcoded? (cores, espaçamento, tamanhos)
+
+### Código e TypeScript
+6. ✅ TypeScript strict mode? (`npm run type-check` → 0 errors)
+7. ✅ Zero `any` types? (usar `unknown` + type guards)
+8. ✅ ESLint sem erros críticos? (`npm run lint`)
+9. ✅ Nenhum `console.log`? (usar `logger`)
+
+### Arquitetura
+10. ✅ Services retornam `{ data, error }` pattern?
+11. ✅ React Query usado para data fetching?
+12. ✅ Componentes são funcionais e apresentacionais?
+13. ✅ Lógica de negócio em services (não em componentes)?
+
+### Performance e UX
+14. ✅ Performance otimizada? (FlatList, memo, useMemo, useCallback)
+15. ✅ Responsividade testada? (múltiplos tamanhos de tela)
+16. ✅ Safe areas tratadas? (SafeAreaView, SafeAreaProvider)
+17. ✅ Loading e error states implementados?
+
+### Testes e Qualidade
+18. ✅ Testes unitários para lógica de negócio?
+19. ✅ Coverage mínimo atingido? (40% MVP, 60% Phase 2, 80% final)
+20. ✅ Validação de inputs com Zod?
+
+### Segurança e Compliance
+21. ✅ RLS policies no Supabase? (LGPD compliance)
+22. ✅ Inputs sanitizados? (prevenção XSS)
+23. ✅ Dados sensíveis em storage seguro?
 
 ## Referências Obrigatórias
 
@@ -128,3 +302,17 @@ Antes de aceitar mudanças, sempre valide:
 ## Lembrete Constante
 
 Este é um projeto MOBILE (iOS/Android), não web. Todo código deve ser React Native nativo.
+
+---
+
+## 📚 Nota sobre Integração de Regras
+
+As regras acima foram adaptadas e integradas ao contexto específico do projeto **Nossa Maternidade**:
+- ✅ Adaptadas para React Native + Expo (não web)
+- ✅ Integradas com o design system específico (`src/theme/tokens.ts`)
+- ✅ Alinhadas com TypeScript strict mode e zero `any`
+- ✅ Compatíveis com arquitetura existente (Services, Hooks, Components)
+- ✅ Respeitam padrões de Supabase + IA multi-provider
+- ✅ Mantêm foco em componentes primitivos do projeto
+
+**Referência:** Regras baseadas em melhores práticas de TypeScript, React Native, Expo e Mobile UI development, adaptadas ao contexto do projeto.

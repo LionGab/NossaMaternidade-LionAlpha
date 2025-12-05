@@ -28,6 +28,7 @@ const ProfileScreen = React.lazy(() => import('../screens/ProfileScreen'));
 const ContentDetailScreen = React.lazy(() => import('../screens/ContentDetailScreen'));
 const ChatSessionsScreen = React.lazy(() => import('../screens/ChatSessionsScreen'));
 const SOSMaeScreen = React.lazy(() => import('../screens/SOSMaeScreen'));
+const DesculpaHojeScreen = React.lazy(() => import('../screens/DesculpaHojeScreen'));
 const DesignSystemScreen = React.lazy(() => import('../screens/DesignSystemScreen'));
 const DesignMetricsDashboard = React.lazy(() => import('../screens/DesignMetricsDashboard'));
 const SearchScreen = React.lazy(() => import('../screens/SearchScreen'));
@@ -232,6 +233,16 @@ export const StackNavigator = () => {
         }}
       >
         {(props) => <LazyScreen component={SOSMaeScreen} {...props} />}
+      </Stack.Screen>
+      {/* Desculpa Hoje - Validação de culpa materna */}
+      <Stack.Screen
+        name="DesculpaHoje"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      >
+        {(props) => <LazyScreen component={DesculpaHojeScreen} {...props} />}
       </Stack.Screen>
       <Stack.Screen
         name="PrivacyPolicy"

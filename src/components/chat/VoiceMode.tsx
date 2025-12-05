@@ -29,6 +29,7 @@ import Animated, {
   SlideOutDown,
 } from 'react-native-reanimated';
 
+import { AudioWaveformLarge } from '@/components/chat/AudioWaveform';
 import { Box } from '@/components/primitives/Box';
 import { Text } from '@/components/primitives/Text';
 import { useVoiceRecording, formatRecordingTime } from '@/hooks/useVoiceRecording';
@@ -50,108 +51,7 @@ const { width: SCREEN_WIDTH, height: _SCREEN_HEIGHT } = Dimensions.get('window')
 const Spacing = Tokens.spacing;
 const Radius = Tokens.radius;
 
-// 12 barras de waveform criadas manualmente como shared values
-
-// ======================
-// COMPONENTE: WaveformVisualizer
-// ======================
-
-interface WaveformVisualizerProps {
-  amplitude: number;
-  isRecording: boolean;
-}
-
-const WaveformVisualizer = React.memo(({ amplitude, isRecording }: WaveformVisualizerProps) => {
-  const { colors, isDark } = useTheme();
-
-  // Shared values para cada barra (criados no nível do componente)
-  const bar0 = useSharedValue(0.2);
-  const bar1 = useSharedValue(0.2);
-  const bar2 = useSharedValue(0.2);
-  const bar3 = useSharedValue(0.2);
-  const bar4 = useSharedValue(0.2);
-  const bar5 = useSharedValue(0.2);
-  const bar6 = useSharedValue(0.2);
-  const bar7 = useSharedValue(0.2);
-  const bar8 = useSharedValue(0.2);
-  const bar9 = useSharedValue(0.2);
-  const bar10 = useSharedValue(0.2);
-  const bar11 = useSharedValue(0.2);
-
-  const barAnimations = useRef([
-    bar0,
-    bar1,
-    bar2,
-    bar3,
-    bar4,
-    bar5,
-    bar6,
-    bar7,
-    bar8,
-    bar9,
-    bar10,
-    bar11,
-  ]).current;
-
-  // Atualizar barras baseado na amplitude
-  useEffect(() => {
-    if (isRecording) {
-      barAnimations.forEach((anim, index) => {
-        const delay = index * 15;
-        const variation = Math.sin(index * 0.3) * 0.3;
-        const targetHeight = 0.2 + amplitude * 0.8 * (0.5 + variation + Math.random() * 0.5);
-
-        setTimeout(() => {
-          anim.value = withSpring(targetHeight, {
-            damping: 12,
-            stiffness: 150,
-          });
-        }, delay);
-      });
-    } else {
-      barAnimations.forEach((anim) => {
-        anim.value = withTiming(0.2, { duration: 300 });
-      });
-    }
-  }, [amplitude, isRecording, barAnimations]);
-
-  return (
-    <View style={styles.waveformContainer}>
-      {barAnimations.map((anim, index) => (
-        <WaveBar
-          key={index}
-          animation={anim}
-          index={index}
-          color={isDark ? colors.primary.light : colors.primary.main}
-        />
-      ))}
-    </View>
-  );
-});
-
-WaveformVisualizer.displayName = 'WaveformVisualizer';
-
-// Componente de barra individual
-const WaveBar = React.memo(
-  ({
-    animation,
-    index: _index,
-    color,
-  }: {
-    animation: { value: number };
-    index: number;
-    color: string;
-  }) => {
-    const animatedStyle = useAnimatedStyle(() => ({
-      height: interpolate(animation.value, [0, 1], [8, 60], Extrapolate.CLAMP),
-      opacity: interpolate(animation.value, [0.2, 0.5, 1], [0.4, 0.7, 1], Extrapolate.CLAMP),
-    }));
-
-    return <Animated.View style={[styles.waveBar, { backgroundColor: color }, animatedStyle]} />;
-  }
-);
-
-WaveBar.displayName = 'WaveBar';
+// Waveform agora usa o componente migrado AudioWaveformLarge
 
 // ======================
 // COMPONENTE PRINCIPAL
@@ -360,8 +260,10 @@ export function VoiceMode({ visible, onClose, onSend, autoTranscribe = true }: V
             )}
           </View>
 
-          {/* Waveform */}
-          <WaveformVisualizer amplitude={amplitude} isRecording={isRecording} />
+          {/* Waveform - Usando componente migrado */}
+          <AudioWaveformLarge
+            state={isRecording ? 'recording' : recordedUri && isPlayingPreview ? 'playing' : 'idle'}
+          />
 
           {/* Duration */}
           <Text size="3xl" weight="bold" color="primary" style={styles.duration}>
@@ -527,20 +429,6 @@ const styles = StyleSheet.create({
   transcribedTextContainer: {
     maxWidth: 300,
     paddingHorizontal: Spacing['4'],
-  },
-  waveformContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 80,
-    width: SCREEN_WIDTH - 80,
-    gap: 3,
-    marginVertical: Spacing['6'],
-  },
-  waveBar: {
-    width: 4,
-    borderRadius: 2,
-    minHeight: 8,
   },
   duration: {
     marginBottom: Spacing['8'],

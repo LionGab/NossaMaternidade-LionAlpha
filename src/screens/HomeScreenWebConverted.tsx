@@ -13,19 +13,21 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Moon, Sun, Play, Heart } from 'lucide-react-native';
+import { Moon, Sun, Play, Heart, Lightbulb, Info } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
 import { Badge } from '@/components/Badge';
+import { DesculpaHojeCard } from '@/components/guilt/DesculpaHojeCard';
 import { Box } from '@/components/primitives/Box';
 import { Button } from '@/components/primitives/Button';
 import { SearchBarPill } from '@/components/primitives/SearchBarPill';
 import { Text } from '@/components/primitives/Text';
 import { ScreenLayout } from '@/components/templates/ScreenLayout';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useGuilt } from '@/hooks/useGuilt';
 import type { MainTabParamList, RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
@@ -41,6 +43,7 @@ export default function HomeScreenWebConverted() {
   const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const [isDayTime] = useState(false);
+  const { stats: guiltStats } = useGuilt({ autoFetchStats: true });
 
   // Handlers
   const handleSearchPress = () => {
@@ -255,6 +258,63 @@ export default function HomeScreenWebConverted() {
               </Box>
             </View>
           </TouchableOpacity>
+
+          {/* Dica do Dia - Card Azul Informativo */}
+          <Box
+            bg="card"
+            rounded="3xl"
+            p="4"
+            mb="6"
+            style={{
+              borderWidth: 1,
+              borderColor: colors.border.light,
+              ...Tokens.shadows.card,
+            }}
+          >
+            <Box direction="row" gap="3">
+              <Box
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: Tokens.radius.xl,
+                  backgroundColor: `${ColorTokens.info[500]}1A`,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Lightbulb size={24} color={ColorTokens.info[600]} />
+              </Box>
+              <Box flex={1}>
+                <Box direction="row" align="center" gap="2" mb="1.5">
+                  <Text size="md" weight="bold" style={{ color: ColorTokens.info[700] }}>
+                    Dica do dia
+                  </Text>
+                  <Badge variant="info" size="sm">
+                    Novo
+                  </Badge>
+                </Box>
+                <Text size="sm" color="secondary" style={{ marginBottom: Tokens.spacing['3'] }}>
+                  Respire fundo por 30 segundos. Isso ajuda a acalmar o sistema nervoso e traz clareza mental.
+                </Text>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  title="Saiba mais"
+                  leftIcon={<Info size={14} color={ColorTokens.info[600]} />}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    navigation.navigate('Ritual');
+                  }}
+                  style={{
+                    alignSelf: 'flex-start',
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Desculpa Hoje Card */}
+          <DesculpaHojeCard streakDays={guiltStats?.streakDays} />
 
           {/* Featured Content */}
           <Box>

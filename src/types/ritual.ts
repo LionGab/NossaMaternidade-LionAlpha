@@ -19,6 +19,13 @@ export type RitualStepType =
   | 'visualization'
   | 'closing';
 
+export type RitualPhase =
+  | 'idle'
+  | 'preparation'
+  | 'running'
+  | 'completed'
+  | 'cancelled';
+
 export type AnimationType =
   | 'gradient'
   | 'pulse'
