@@ -19,8 +19,8 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Heart, Search, AlertCircle, Lightbulb, Info, MessageCircle, Zap, Menu, Mic } from 'lucide-react-native';
-import React, { useState } from 'react';
+import { Play, Heart, Search, AlertCircle, MessageCircle, Zap, Menu, Mic } from 'lucide-react-native';
+import React from 'react';
 import { ScrollView, TouchableOpacity, View, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -261,58 +261,7 @@ return (
         </Text>
       </Box>
 
-      {/* Dica do Dia - Card Azul Informativo */}
-      <Box
-        bg="card"
-        rounded="3xl"
-        p="5"
-        shadow="md"
-        borderWidth={1}
-        borderColor="light"
-        mb="6"
-        style={{
-          backgroundColor: ColorTokens.info[50],
-          borderColor: `${ColorTokens.info[300]}50`,
-        }}
-      >
-        <Box direction="row" gap="3" align="flex-start">
-          <Box
-            style={{
-              padding: Tokens.spacing['2'],
-              borderRadius: Tokens.radius.xl,
-              backgroundColor: ColorTokens.info[100],
-            }}
-          >
-            <Lightbulb size={24} color={ColorTokens.info[600]} />
-          </Box>
-          <Box flex={1}>
-            <Box direction="row" align="center" gap="2" mb="2">
-              <Text variant="body" size="md" weight="bold" style={{ color: ColorTokens.info[700] }}>
-                Dica do dia
-              </Text>
-              <Badge variant="info" size="sm">
-                Novo
-              </Badge>
-            </Box>
-            <Text variant="body" size="sm" color="secondary" style={{ marginBottom: Tokens.spacing['3'] }}>
-              Respire fundo por 30 segundos. Isso ajuda a acalmar o sistema nervoso e traz clareza mental.
-            </Text>
-            <Button
-              title="Saiba mais"
-              onPress={() => navigation.navigate('Ritual')}
-              variant="outline"
-              size="sm"
-              leftIcon={<Info size={14} color={ColorTokens.info[600]} />}
-              style={{
-                borderColor: ColorTokens.info[300],
-                backgroundColor: 'transparent',
-              }}
-            />
-          </Box>
-        </Box>
-      </Box>
-
-      {/* Sleep Card - Com gradiente azul */}
+      {/* Sleep Card - Com gradiente azul (PRIMEIRO CARD após saudação) */}
       <TouchableOpacity
         onPress={handleSleepCardPress}
         activeOpacity={0.8}
@@ -325,51 +274,68 @@ return (
           overflow: 'hidden',
           borderWidth: 2,
           borderColor: `${ColorTokens.info[300]}80`,
+          backgroundColor: ColorTokens.info[100],
           ...getPlatformShadow('md'),
         }}
       >
-        <Image
-          source={{ uri: 'https://i.imgur.com/w4rZvGG.jpg' }}
-          style={{
-            width: '100%',
-            height: 200,
-          }}
-          contentFit="cover"
-        />
-        <LinearGradient
-          colors={[
-            'transparent',
-            `${ColorTokens.info[600]}80`,
-            `${ColorTokens.info[600]}CC`,
-          ]}
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            padding: Tokens.spacing['5'],
-          }}
-        >
-          <Badge
-            variant="info"
-            size="sm"
-            containerStyle={{ marginBottom: Tokens.spacing['2'] }}
+        <View style={{ position: 'relative', width: '100%', height: 200 }}>
+          <Image
+            source={{ uri: 'https://i.imgur.com/w4rZvGG.jpg' }}
+            style={{
+              width: '100%',
+              height: 200,
+            }}
+            contentFit="cover"
+            placeholder={{ blurhash: 'LGF5]+Yk^6#M@-5c,1J5@[or[Q6.' }}
+            transition={200}
+            onError={(error) => {
+              logger.warn('Failed to load sleep card image', error);
+            }}
+          />
+          <LinearGradient
+            colors={[
+              'transparent',
+              `${ColorTokens.info[600]}80`,
+              `${ColorTokens.info[600]}CC`,
+            ]}
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 0,
+            }}
+          />
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: Tokens.spacing['5'],
+            }}
           >
-            🌙 Sono
-          </Badge>
-          <Text
-            variant="body"
-            size="lg"
-            weight="bold"
-            color="inverse"
-            style={{ marginBottom: Tokens.spacing['1'] }}
-          >
-            Como você dormiu hoje?
-          </Text>
-          <Text variant="body" size="sm" color="inverse" style={{ opacity: 0.9 }}>
-            Registre seu descanso e cuide de você
-          </Text>
-        </LinearGradient>
+            <Badge
+              variant="info"
+              size="sm"
+              containerStyle={{ marginBottom: Tokens.spacing['2'] }}
+            >
+              🌙 Sono
+            </Badge>
+            <Text
+              variant="body"
+              size="lg"
+              weight="bold"
+              color="inverse"
+              style={{ marginBottom: Tokens.spacing['1'] }}
+            >
+              Como você dormiu hoje?
+            </Text>
+            <Text variant="body" size="sm" color="inverse" style={{ opacity: 0.9 }}>
+              Registre seu descanso e cuide de você
+            </Text>
+          </View>
+        </View>
       </TouchableOpacity>
 
       {/* Featured Content */}
@@ -668,10 +634,6 @@ return (
               style={{
                 flex: 2,
                 backgroundColor: ColorTokens.neutral[0],
-              }}
-              textStyle={{
-                color: ColorTokens.primary[500],
-                fontWeight: 'bold',
               }}
             />
           </Box>

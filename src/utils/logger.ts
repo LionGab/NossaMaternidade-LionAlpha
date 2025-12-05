@@ -87,15 +87,16 @@ class Logger {
   }
 
   /**
-   * Log informativo (apenas em desenvolvimento)
+   * Log informativo
+   * - Em desenvolvimento: mostra no console
+   * - Em produção: adiciona breadcrumb no Sentry (sem console)
    */
   info(message: string, context?: LogContext): void {
-    if (!this.isDev) return;
-    // eslint-disable-next-line no-console
-    console.info(this.formatMessage('info', message, context));
-
-    // Em produção, adiciona breadcrumb no Sentry
-    if (!this.isDev) {
+    if (this.isDev) {
+      // eslint-disable-next-line no-console
+      console.info(this.formatMessage('info', message, context));
+    } else {
+      // Em produção, adiciona breadcrumb no Sentry
       Sentry.addBreadcrumb({
         message,
         level: 'info',

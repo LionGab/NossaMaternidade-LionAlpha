@@ -44,14 +44,16 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { Avatar } from '@/components/Avatar';
 import { VoiceMode } from '@/components/chat/VoiceMode';
+import { ChatHistoryModal } from '@/components/chat/ChatHistoryModal';
+import { SwipeableMessage } from '@/components/chat/SwipeableMessage';
+import { TTSButton } from '@/components/chat/TTSButton';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AIDisclaimerModal } from '@/components/molecules/AIDisclaimerModal';
 import { NathIAChatInput } from '@/components/nathia/NathIAChatInput';
 import { Box } from '@/components/primitives/Box';
-import { ChatBubble } from '@/components/primitives/ChatBubble';
 import { IconButton } from '@/components/primitives/IconButton';
 import { Text } from '@/components/primitives/Text';
-import { ThemeToggle } from '@/components/ThemeToggle';
+// ThemeToggle removido - não utilizado nesta tela
 
 import { useWellness } from '../features/wellness';
 import { useHasConsent } from '../hooks/useConsent';
@@ -112,19 +114,27 @@ interface MessageBubbleProps {
   isLatest: boolean;
 }
 
-const MessageBubble = React.memo(({ message, isLatest }: MessageBubbleProps) => {
+const MessageBubble = React.memo(({ message, isLatest, onDelete, onReply }: MessageBubbleProps & { onDelete?: () => void; onReply?: () => void }) => {
   const bubbleRole: 'user' | 'assistant' = message.role === 'user' ? 'user' : 'assistant';
 
   return (
-    <Animated.View entering={FadeInDown.duration(300).springify()} layout={Layout.springify()}>
-      <ChatBubble
+    <View>
+      <SwipeableMessage
         role={bubbleRole}
         content={message.content}
         timestamp={message.created_at}
         avatar={bubbleRole === 'assistant' ? AVATAR_URL : undefined}
         isLatest={isLatest}
+        onDelete={bubbleRole === 'user' ? onDelete : undefined}
+        onReply={bubbleRole === 'assistant' ? onReply : undefined}
       />
-    </Animated.View>
+      {/* TTS Button para mensagens da NathIA */}
+      {bubbleRole === 'assistant' && (
+        <Box mt="2" pt="2" style={{ borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.1)', paddingLeft: Tokens.spacing['4'] }}>
+          <TTSButton text={message.content} messageId={message.id} />
+        </Box>
+      )}
+    </View>
   );
 });
 
@@ -300,6 +310,7 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [showVoiceMode, setShowVoiceMode] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [dynamicChips, setDynamicChips] = useState<DynamicChip[]>(DEFAULT_CHIPS);
   const [isScreenReaderEnabled, setIsScreenReaderEnabled] = useState(false);
   const [isCrisisMode, setIsCrisisMode] = useState(false); // Modo de crise - trava chat livre
@@ -332,11 +343,7 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
     }
   }, [profile]);
 
-  useEffect(() => {
-    checkDisclaimerStatus();
-    checkCrisisState();
-    initializeChat();
-  }, [initializeChat]);
+  // Movido para depois da declaração de initializeChat (linha ~430)
 
   // Verificar estado de crise persistido (segurança crítica)
   const checkCrisisState = async () => {
@@ -403,15 +410,16 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
     }
   };
 
-  const initializeChat = useCallback(async () => {
+  const initializeChat = useCallback(async (conversationIdParam?: string) => {
     setIsLoading(true);
 
     try {
-      // Se veio sessionId da rota, usar ela
-      if (sessionIdFromRoute) {
-        logger.info('[ChatScreen] Carregando sessão específica', { sessionId: sessionIdFromRoute });
-        setConversationId(sessionIdFromRoute);
-        const msgs = await chatService.getMessages(sessionIdFromRoute);
+      // Se veio sessionId da rota ou parâmetro, usar ela
+      const targetId = conversationIdParam || sessionIdFromRoute;
+      if (targetId) {
+        logger.info('[ChatScreen] Carregando sessão específica', { sessionId: targetId });
+        setConversationId(targetId);
+        const msgs = await chatService.getMessages(targetId);
         setMessages(msgs);
       } else {
         // Caso contrário, carregar última conversa
@@ -430,6 +438,13 @@ export default function ChatScreen({ route }: { route: RouteProp<MainTabParamLis
       setIsLoading(false);
     }
   }, [sessionIdFromRoute]);
+
+  // Effect para inicializar o chat (após declaração de initializeChat)
+  useEffect(() => {
+    checkDisclaimerStatus();
+    checkCrisisState();
+    initializeChat();
+  }, [initializeChat]);
 
   // Verificar consentimento para IA
   const { hasConsent: hasAIConsent, isLoading: isLoadingConsent } = useHasConsent('ai_processing');
@@ -663,6 +678,17 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
           autoTranscribe={true}
         />
 
+        {/* Chat History Modal */}
+        <ChatHistoryModal
+          visible={showHistoryModal}
+          onClose={() => setShowHistoryModal(false)}
+          onOpenConversation={async (conversationId) => {
+            // Recarregar mensagens da conversa selecionada
+            await initializeChat(conversationId);
+            setShowHistoryModal(false);
+          }}
+        />
+
         {/* Disclaimer fixo no topo */}
         <Box
           p="2"
@@ -696,7 +722,11 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
           ]}
         >
           <LinearGradient
-            colors={isDark ? ColorTokens.nathIA.gradient.dark : ColorTokens.nathIA.gradient.light}
+            colors={
+              isDark
+                ? [ColorTokens.primaryPink[600], ColorTokens.primary[600], ColorTokens.secondary[600]]
+                : [ColorTokens.primaryPink[400], ColorTokens.primary[400], ColorTokens.secondary[400]]
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
@@ -792,7 +822,7 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                   }
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    navigation.navigate('ChatSessions');
+                    setShowHistoryModal(true);
                   }}
                   accessibilityLabel="Histórico de conversas"
                   variant="ghost"
@@ -1027,11 +1057,10 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {
+                onPress={async () => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  import('react-native').then(({ Linking }) => {
-                    Linking.openURL('tel:192');
-                  });
+                  const { Linking } = await import('expo-linking');
+                  await Linking.openURL('tel:192');
                 }}
                 style={{
                   backgroundColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[200],
