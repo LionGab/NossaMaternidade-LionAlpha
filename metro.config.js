@@ -19,6 +19,14 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     };
   }
 
+  // Mock react-native-reanimated no web
+  if (platform === 'web' && moduleName === 'react-native-reanimated') {
+    return {
+      type: 'sourceFile',
+      filePath: path.resolve(__dirname, 'web-reanimated-mock.js'),
+    };
+  }
+
   // Usar resolver padrão para outros casos
   if (defaultResolver) {
     return defaultResolver(context, moduleName, platform);

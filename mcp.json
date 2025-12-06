@@ -49,7 +49,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade"
       ]
     },
     "git": {
@@ -57,7 +57,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-git",
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade"
       ]
     },
     "brave-search": {
@@ -70,31 +70,31 @@
     "design-tokens": {
       "command": "node",
       "args": [
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/design-tokens-runner.js"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade/src/mcp/runners/design-tokens-runner.js"
       ]
     },
     "code-quality": {
       "command": "node",
       "args": [
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/code-quality-runner.js"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade/src/mcp/runners/code-quality-runner.js"
       ]
     },
     "accessibility": {
       "command": "node",
       "args": [
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/accessibility-runner.js"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade/src/mcp/runners/accessibility-runner.js"
       ]
     },
     "mobile-optimization": {
       "command": "node",
       "args": [
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/mobile-optimization-runner.js"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade/src/mcp/runners/mobile-optimization-runner.js"
       ]
     },
     "prompt-testing": {
       "command": "node",
       "args": [
-        "C:/Users/User/Downloads/NM-gl/NossaMaternidade-LionAlpha/src/mcp/runners/prompt-testing-runner.js"
+        "C:/Users/Usuario/Documents/NossaMaternidade/NossaMaternidade/src/mcp/runners/prompt-testing-runner.js"
       ]
     },
     "basicmemory": {

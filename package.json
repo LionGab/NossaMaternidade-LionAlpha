@@ -32,7 +32,7 @@
     "update:prod": "eas update --branch production",
     "prebuild": "expo prebuild --clean",
     "type-check": "tsc --noEmit",
-    "test": "node --max-old-space-size=4096 node_modules/.bin/jest",
+    "test": "node --max-old-space-size=4096 node_modules/jest/bin/jest.js",
     "test:dev": "node --max-old-space-size=4096 node_modules/.bin/jest --coverage --coverageThreshold='{}'",
     "test:ci": "node --max-old-space-size=4096 node_modules/.bin/jest --ci --coverage --passWithNoTests --maxWorkers=2 --runInBand --reporters=default",
     "test:watch": "node --max-old-space-size=4096 node_modules/.bin/jest --watch",
