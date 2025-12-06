@@ -15,28 +15,46 @@ jest.mock('@sentry/react-native', () => ({
   Scope: jest.fn(),
 }));
 
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => {
-  const storage = {};
-  return {
-    __esModule: true,
-    default: {
-      getItem: jest.fn((key) => Promise.resolve(storage[key] || null)),
-      setItem: jest.fn((key, value) => {
-        storage[key] = value;
-        return Promise.resolve();
-      }),
-      removeItem: jest.fn((key) => {
-        delete storage[key];
-        return Promise.resolve();
-      }),
-      clear: jest.fn(() => {
-        Object.keys(storage).forEach((key) => delete storage[key]);
-        return Promise.resolve();
-      }),
-    },
-  };
-});
+// Mock AsyncStorage - implementação persistente
+// Usa Map() para armazenar dados entre chamadas (não é afetado por resetMocks)
+// IMPORTANTE: Nome deve começar com "mock" para Jest permitir uso em jest.mock()
+const mockAsyncStorageMap = new Map();
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  default: {
+    setItem: jest.fn((key, value) => {
+      mockAsyncStorageMap.set(key, value);
+      return Promise.resolve();
+    }),
+    getItem: jest.fn((key) => {
+      return Promise.resolve(mockAsyncStorageMap.get(key) || null);
+    }),
+    removeItem: jest.fn((key) => {
+      mockAsyncStorageMap.delete(key);
+      return Promise.resolve();
+    }),
+    clear: jest.fn(() => {
+      mockAsyncStorageMap.clear();
+      return Promise.resolve();
+    }),
+    getAllKeys: jest.fn(() => {
+      return Promise.resolve(Array.from(mockAsyncStorageMap.keys()));
+    }),
+    multiGet: jest.fn((keys) => {
+      return Promise.resolve(
+        keys.map((key) => [key, mockAsyncStorageMap.get(key) || null])
+      );
+    }),
+    multiSet: jest.fn((pairs) => {
+      pairs.forEach(([key, value]) => mockAsyncStorageMap.set(key, value));
+      return Promise.resolve();
+    }),
+    multiRemove: jest.fn((keys) => {
+      keys.forEach((key) => mockAsyncStorageMap.delete(key));
+      return Promise.resolve();
+    }),
+  },
+}));
 
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({

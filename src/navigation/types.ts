@@ -39,8 +39,18 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined;
   MaesValentes: undefined;
-  Chat: { sessionId?: string } | undefined;
-  MundoNath: undefined;
+  Chat:
+    | {
+        sessionId?: string;
+        comfortMessage?: string;
+        context?: 'sleep' | 'story' | 'welcome';
+        emotion?: string;
+        emotionLabel?: string;
+        startRecording?: boolean;
+        showHistory?: boolean;
+      }
+    | undefined;
+  MundoNath: { specialContent?: boolean } | undefined;
   Habitos: undefined;
 };
 

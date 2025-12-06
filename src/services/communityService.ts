@@ -312,6 +312,17 @@ class CommunityService {
           .eq('user_id', userId);
 
         if (error) {
+          // Se tabela não existe, avisar mas não quebrar
+          if (error.code === 'PGRST204' || error.code === 'PGRST205') {
+            logger.warn('Tabela community_likes não existe - operação ignorada', {
+              service: 'CommunityService',
+              action: 'togglePostLike',
+              operation: 'unlike',
+              hint: 'Execute: npx supabase db push',
+            });
+            return false;
+          }
+
           logger.error('Erro ao remover like do post', error, {
             service: 'CommunityService',
             action: 'togglePostLike',
@@ -333,6 +344,17 @@ class CommunityService {
         });
 
         if (error) {
+          // Se tabela não existe, avisar mas não quebrar
+          if (error.code === 'PGRST204' || error.code === 'PGRST205') {
+            logger.warn('Tabela community_likes não existe - operação ignorada', {
+              service: 'CommunityService',
+              action: 'togglePostLike',
+              operation: 'like',
+              hint: 'Execute: npx supabase db push',
+            });
+            return false;
+          }
+
           logger.error('Erro ao adicionar like ao post', error, {
             service: 'CommunityService',
             action: 'togglePostLike',
@@ -369,8 +391,25 @@ class CommunityService {
         .eq('user_id', userId)
         .single();
 
+      // Se tabela não existe (migration não aplicada), retornar false silenciosamente
+      if (error && (error.code === 'PGRST204' || error.code === 'PGRST205')) {
+        logger.warn('Tabela community_likes não existe (migrations não aplicadas)', {
+          service: 'CommunityService',
+          action: 'isPostLikedByUser',
+          errorCode: error.code,
+          hint: 'Execute: npx supabase db push',
+        });
+        return false;
+      }
+
       return !error && data != null;
     } catch (error) {
+      logger.error('Erro ao verificar like do post', error, {
+        service: 'CommunityService',
+        action: 'isPostLikedByUser',
+        postId,
+        userId,
+      });
       return false;
     }
   }
@@ -542,7 +581,19 @@ class CommunityService {
           .eq('comment_id', commentId)
           .eq('user_id', userId);
 
-        if (error) return false;
+        if (error) {
+          // Se tabela não existe, avisar mas não quebrar
+          if (error.code === 'PGRST204' || error.code === 'PGRST205') {
+            logger.warn('Tabela community_likes não existe - operação ignorada', {
+              service: 'CommunityService',
+              action: 'toggleCommentLike',
+              operation: 'unlike',
+              hint: 'Execute: npx supabase db push',
+            });
+            return false;
+          }
+          return false;
+        }
 
         await this.updateCommentLikesCount(commentId, -1);
         return false;
@@ -552,7 +603,19 @@ class CommunityService {
           comment_id: commentId,
         });
 
-        if (error) return false;
+        if (error) {
+          // Se tabela não existe, avisar mas não quebrar
+          if (error.code === 'PGRST204' || error.code === 'PGRST205') {
+            logger.warn('Tabela community_likes não existe - operação ignorada', {
+              service: 'CommunityService',
+              action: 'toggleCommentLike',
+              operation: 'like',
+              hint: 'Execute: npx supabase db push',
+            });
+            return false;
+          }
+          return false;
+        }
 
         await this.updateCommentLikesCount(commentId, 1);
         return true;
@@ -579,8 +642,25 @@ class CommunityService {
         .eq('user_id', userId)
         .single();
 
+      // Se tabela não existe (migration não aplicada), retornar false silenciosamente
+      if (error && (error.code === 'PGRST204' || error.code === 'PGRST205')) {
+        logger.warn('Tabela community_likes não existe (migrations não aplicadas)', {
+          service: 'CommunityService',
+          action: 'isCommentLikedByUser',
+          errorCode: error.code,
+          hint: 'Execute: npx supabase db push',
+        });
+        return false;
+      }
+
       return !error && data != null;
     } catch (error) {
+      logger.error('Erro ao verificar like do comentário', error, {
+        service: 'CommunityService',
+        action: 'isCommentLikedByUser',
+        commentId,
+        userId,
+      });
       return false;
     }
   }
