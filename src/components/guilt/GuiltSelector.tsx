@@ -16,7 +16,6 @@ import {
   TextInput,
   ScrollView,
   Pressable,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -34,7 +33,7 @@ export interface GuiltSelectorProps {
 }
 
 export function GuiltSelector({ onGuiltSelected, mostCommonToday }: GuiltSelectorProps) {
-  const { isDark, colors } = useTheme();
+  const { isDark } = useTheme();
   const [selectedGuilt, setSelectedGuilt] = useState<GuiltType | null>(null);
   const [customText, setCustomText] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -113,7 +112,7 @@ export function GuiltSelector({ onGuiltSelected, mostCommonToday }: GuiltSelecto
 
         {/* Opções preset */}
         <Box gap="2" mb="4">
-          {GUILT_PRESETS.map((preset, index) => {
+          {GUILT_PRESETS.map((preset, _index) => {
             const isSelected = selectedGuilt === preset.type;
             const isMostCommon = mostCommonToday === preset.type;
 
@@ -278,7 +277,7 @@ export function GuiltSelector({ onGuiltSelected, mostCommonToday }: GuiltSelecto
                   : ColorTokens.neutral[200],
                 color: isDark ? ColorTokens.neutral[100] : ColorTokens.neutral[900],
                 fontSize: Tokens.typography.sizes.md,
-                fontFamily: Tokens.typography.families.body,
+                fontFamily: Tokens.typography.fonts.body,
                 textAlignVertical: 'top',
               }}
               accessibilityLabel="Campo de texto para descrever sua culpa"

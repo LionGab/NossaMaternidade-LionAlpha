@@ -9,12 +9,12 @@
 import { CheckCircle2 } from 'lucide-react-native';
 import React from 'react';
 import { View } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, withTiming as _withTiming } from 'react-native-reanimated';
 
 import { Box } from '@/components/atoms/Box';
 import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
-import { Tokens, ColorTokens } from '@/theme/tokens';
+import { Tokens as _Tokens, ColorTokens } from '@/theme/tokens';
 import type { RitualStep } from '@/types/ritual';
 
 interface RitualProgressProps {
@@ -28,25 +28,25 @@ export function RitualProgress({
   steps,
   currentStepIndex,
   progress,
-  timeRemaining,
+  timeRemaining: _timeRemaining,
 }: RitualProgressProps) {
   const { colors, isDark } = useTheme();
 
-  const stepProgress = (index: number) => {
-    if (index < currentStepIndex) return 100; // Completo
-    if (index === currentStepIndex) {
-      const step = steps[index];
-      if (!step) return 0;
-      // Calcular progresso baseado no tempo restante
-      if (timeRemaining !== undefined) {
-        const elapsed = step.duration - timeRemaining;
-        return Math.max(0, Math.min(100, (elapsed / step.duration) * 100));
-      }
-      // Fallback: usar progresso geral
-      return (progress / steps.length) * 100;
-    }
-    return 0; // Não iniciado
-  };
+  // const _stepProgress = (index: number) => {
+  //   if (index < currentStepIndex) return 100; // Completo
+  //   if (index === currentStepIndex) {
+  //     const step = steps[index];
+  //     if (!step) return 0;
+  //     // Calcular progresso baseado no tempo restante
+  //     if (timeRemaining !== undefined) {
+  //       const elapsed = step.duration - timeRemaining;
+  //       return Math.max(0, Math.min(100, (elapsed / step.duration) * 100));
+  //     }
+  //     // Fallback: usar progresso geral
+  //     return (progress / steps.length) * 100;
+  //   }
+  //   return 0; // Não iniciado
+  // };
 
   const progressAnimatedStyle = useAnimatedStyle(() => ({
     width: `${progress}%`,
@@ -89,7 +89,7 @@ export function RitualProgress({
         {steps.map((step, index) => {
           const isCompleted = index < currentStepIndex;
           const isCurrent = index === currentStepIndex;
-          const stepProg = stepProgress(index);
+          // const _stepProg = stepProgress(index);
 
           return (
             <Box key={step.id} flex={1} align="center" gap="2">
@@ -129,7 +129,6 @@ export function RitualProgress({
                         borderRadius: 24,
                         borderWidth: 2,
                         borderColor: colors.primary.main,
-                        clipPath: `inset(0 ${100 - stepProg}% 0 0)`,
                       },
                     ]}
                   />

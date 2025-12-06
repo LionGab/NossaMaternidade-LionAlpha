@@ -28,13 +28,14 @@ interface EmotionCheckInProps {
   description?: string;
 }
 
-const EMOTION_COLORS: Record<EmotionValue, string[]> = {
-  '😴': [ColorTokens.secondary[400], ColorTokens.secondary[600]],
-  '😢': [ColorTokens.secondary[400], ColorTokens.primary[500]],
-  '😰': [ColorTokens.warning[400], ColorTokens.warning[500]],
-  '😊': [ColorTokens.secondary[400], ColorTokens.secondary[500]],
-  '🥰': [ColorTokens.secondary[400], ColorTokens.secondary[500]],
-};
+// Unused but kept for future use
+// const _EMOTION_COLORS: Record<EmotionValue, readonly [string, string]> = {
+  // '😴': [ColorTokens.secondary[400], ColorTokens.secondary[600]] as const,
+  // '😢': [ColorTokens.secondary[400], ColorTokens.primary[500]] as const,
+  // '😰': [ColorTokens.warning[400], ColorTokens.warning[500]] as const,
+  // '😊': [ColorTokens.secondary[400], ColorTokens.secondary[500]] as const,
+  // '🥰': [ColorTokens.secondary[400], ColorTokens.secondary[500]] as const,
+// };
 
 export function EmotionCheckIn({
   onComplete,
@@ -138,7 +139,7 @@ export function EmotionCheckIn({
                 align="center"
                 color="secondary"
                 style={{
-                  lineHeight: Tokens.typography.lineHeights.relaxed,
+                  lineHeight: Tokens.typography.lineHeights.lg,
                   maxWidth: 300,
                 }}
               >
@@ -198,28 +199,11 @@ export function EmotionCheckIn({
                         }),
                       }}
                       leftIcon={
-                        <Text size="4xl" style={{ marginBottom: Tokens.spacing['1'] }}>
+                        <Text size="3xl" style={{ marginBottom: Tokens.spacing['1'] }}>
                           {option.value}
                         </Text>
                       }
-                      textStyle={{
-                        fontSize: Tokens.typography.fontSize.sm,
-                        fontWeight: isSelected ? '600' : '500',
-                        color: isSelected ? ColorTokens.neutral[0] : colors.text.primary,
-                      }}
-                    >
-                      {isSelected && (
-                        <LinearGradient
-                          colors={EMOTION_COLORS[option.value]}
-                          start={{ x: 0, y: 0 }}
-                          end={{ x: 1, y: 1 }}
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                          }}
-                        />
-                      )}
-                    </Button>
+                    />
                   </Animated.View>
                 );
               })}
@@ -252,8 +236,8 @@ export function EmotionCheckIn({
                     borderColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[300],
                     borderWidth: 1,
                     color: isDark ? ColorTokens.neutral[100] : ColorTokens.neutral[800],
-                    fontFamily: Tokens.typography.body.fontFamily,
-                    fontSize: Tokens.typography.body.fontSize.md,
+                    fontFamily: Tokens.typography.fonts.body,
+                    fontSize: Tokens.typography.sizes.md,
                     textAlignVertical: 'top',
                   }}
                   accessibilityLabel="Campo de texto para notas opcionais"

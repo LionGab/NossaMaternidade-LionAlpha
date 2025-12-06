@@ -7,10 +7,10 @@
  * Adaptado para React Native com design system atual.
  */
 
-import { BookOpen, Sparkles, Clock, ChevronRight, Heart } from 'lucide-react-native';
+import { BookOpen as _BookOpen, Sparkles, Clock, ChevronRight, Heart as _Heart } from 'lucide-react-native';
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View as _View, TouchableOpacity, StyleSheet } from 'react-native';
+import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
 import { Badge } from '@/components/Badge';
@@ -103,7 +103,8 @@ export function DailySpecialCard({
           </Box>
           <Box flex={1} gap="1">
             <Badge
-              variant="outline"
+              variant="primary"
+              outlined={true}
               containerStyle={{
                 backgroundColor: categoryConfig.bg,
                 borderColor: categoryConfig.text,
@@ -147,7 +148,7 @@ export function DailySpecialCard({
       accessibilityLabel={`${content.title}. ${content.type === 'article' ? 'Artigo' : 'Conteúdo'}. ${content.duration || ''}`}
       accessibilityHint="Toque para ver este conteúdo especial"
     >
-      <Box direction="row" align="start" gap="4">
+      <Box direction="row" align="flex-start" gap="4">
         <Box
           align="center"
           justify="center"
@@ -163,7 +164,8 @@ export function DailySpecialCard({
         </Box>
         <Box flex={1} gap="2">
           <Badge
-            variant="outline"
+            variant="primary"
+            outlined={true}
             containerStyle={{
               backgroundColor: categoryConfig.bg,
               borderColor: categoryConfig.text,

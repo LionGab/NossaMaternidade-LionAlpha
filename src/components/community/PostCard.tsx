@@ -9,7 +9,7 @@
 
 import { MoreVertical, Heart, MessageCircle } from 'lucide-react-native';
 import React from 'react';
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 
@@ -17,7 +17,7 @@ import { Avatar } from '@/components/Avatar';
 import { Box } from '@/components/atoms/Box';
 import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
-import { Tokens, ColorTokens } from '@/theme/tokens';
+import { Tokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
 import type { CommunityPost } from '@/services/communityService';
 
@@ -73,7 +73,7 @@ export function PostCard({
   onComment,
   onMenu,
 }: PostCardProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const displayName = post.author?.full_name || 'Mãe Valente';
   const initials = getInitials(displayName);

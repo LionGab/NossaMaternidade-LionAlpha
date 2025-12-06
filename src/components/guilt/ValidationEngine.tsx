@@ -154,7 +154,7 @@ export function ValidationEngine({
               size="sm"
               style={{
                 textAlign: 'center',
-                lineHeight: Tokens.typography.lineHeights.relaxed,
+                lineHeight: Tokens.typography.lineHeights.lg,
                 color: isDark ? ColorTokens.neutral[100] : ColorTokens.neutral[900],
               }}
             >
@@ -244,7 +244,7 @@ export function ValidationEngine({
             }}
           >
             <Box align="center" gap="3">
-              <Text size="5xl">{badge.icon}</Text>
+              <Text size="3xl">{badge.icon}</Text>
               <Text
                 size="xl"
                 weight="bold"

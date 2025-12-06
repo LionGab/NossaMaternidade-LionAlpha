@@ -14,11 +14,9 @@ import {
   Heart,
   Coffee,
   BookOpen,
-  Loader2,
 } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import {
-  View,
   TextInput,
   TouchableOpacity,
   ScrollView,
@@ -149,7 +147,7 @@ export function CreateHabitModal({
               <Text size="sm" weight="medium" color="secondary">
                 Sugestões rápidas
               </Text>
-              <Box direction="row" flexWrap="wrap" gap="2">
+              <Box direction="row" gap="2">
                 {HABIT_SUGGESTIONS.map((suggestion) => {
                   const Icon = suggestion.icon;
                   const isSelected = name === suggestion.name;
@@ -251,7 +249,7 @@ export function CreateHabitModal({
               <Text size="sm" weight="medium" color="secondary">
                 Frequência
               </Text>
-              <Box direction="row" flexWrap="wrap" gap="2">
+              <Box direction="row" gap="2">
                 {FREQUENCY_OPTIONS.map((option) => {
                   const isSelected = frequency === option.value;
 

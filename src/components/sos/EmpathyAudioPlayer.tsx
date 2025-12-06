@@ -18,7 +18,7 @@ import { Button } from '@/components/atoms/Button';
 import { Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
-import { logger } from '@/utils/logger';
+import { logger as _logger } from '@/utils/logger';
 import type { SentimentType } from '@/types/sos';
 
 interface EmpathyAudioPlayerProps {
@@ -53,7 +53,7 @@ export function EmpathyAudioPlayer({
 }: EmpathyAudioPlayerProps) {
   const { colors, isDark } = useTheme();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [volume, _setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const soundRef = useRef<Audio.Sound | null>(null);
 
@@ -157,7 +157,7 @@ export function EmpathyAudioPlayer({
             <Text
               size="sm"
               style={{
-                lineHeight: Tokens.typography.lineHeights.relaxed,
+                lineHeight: Tokens.typography.lineHeights.lg,
                 color: colors.text.primary,
               }}
             >

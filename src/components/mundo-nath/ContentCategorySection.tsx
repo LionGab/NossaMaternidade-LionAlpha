@@ -7,7 +7,7 @@
  * Adaptado para React Native com design system atual.
  */
 
-import { Sparkles, ChevronRight, Clock, Eye } from 'lucide-react-native';
+import { Sparkles as _Sparkles, ChevronRight, Clock, Eye } from 'lucide-react-native';
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';

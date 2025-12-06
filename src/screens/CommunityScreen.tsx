@@ -9,23 +9,21 @@
 
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Plus, Users, Grid, Sparkles, Loader2 } from 'lucide-react-native';
+import { Image as _Image } from 'expo-image';
+import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
+import { Plus, Users, Grid, Sparkles as _Sparkles, Loader2 as _Loader2 } from 'lucide-react-native';
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   View,
-  FlatList,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
-import { Badge } from '@/components/Badge';
+import { Badge as _Badge } from '@/components/Badge';
 import { CreatePostModal, PostCard } from '@/components/community';
 import { Box } from '@/components/atoms/Box';
 import { Text } from '@/components/atoms/Text';
@@ -37,7 +35,6 @@ import { triggerPlatformHaptic } from '@/theme/platform';
 import {
   ColorTokens,
   Tokens,
-  Shadows,
   Spacing,
   Radius,
 } from '@/theme/tokens';
@@ -56,7 +53,7 @@ export default function CommunityScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [likingPostId, setLikingPostId] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
+  const [_page, _setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
   const filters: FilterType[] = ['Todos', 'Dicas', 'Desabafos', 'Dúvidas', 'Humor'];
@@ -77,7 +74,7 @@ export default function CommunityScreen() {
       }
 
       setHasMore(newPosts.length === 20);
-      setPage(pageNum);
+      _setPage(pageNum);
     } catch (error) {
       logger.error('[CommunityScreen] Erro ao carregar posts', error);
     } finally {
@@ -98,11 +95,11 @@ export default function CommunityScreen() {
   }, [loadPosts]);
 
   // Load more
-  const handleLoadMore = useCallback(() => {
-    if (!loading && hasMore && !refreshing) {
-      loadPosts(page + 1, false);
-    }
-  }, [loading, hasMore, refreshing, page, loadPosts]);
+  // const __handleLoadMore = useCallback(() => {
+  //   if (!loading && hasMore && !refreshing) {
+  //     loadPosts(page + 1, false);
+  //   }
+  // }, [loading, hasMore, refreshing, page, loadPosts]);
 
   const handleFilterPress = (filter: FilterType) => {
     triggerPlatformHaptic('selection');

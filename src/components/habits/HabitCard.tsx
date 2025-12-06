@@ -6,7 +6,7 @@
  * Adaptado para React Native com design system atual.
  */
 
-import { CheckCircle2, Circle, Trophy, TrendingUp, Loader2 } from 'lucide-react-native';
+import { CheckCircle2, Circle, Trophy, TrendingUp } from 'lucide-react-native';
 import React from 'react';
 import { TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -14,7 +14,6 @@ import * as Haptics from 'expo-haptics';
 import { Badge } from '@/components/Badge';
 import { Box } from '@/components/atoms/Box';
 import { Text } from '@/components/atoms/Text';
-import { ProgressBar } from '@/components/atoms/ProgressBar';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
@@ -94,7 +93,7 @@ export function HabitCard({
   onToggleComplete,
   onPress,
 }: HabitCardProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const config = getHabitConfig(habit);
   const completed = habit.today_completed || false;
   const displayName = habit.custom_name || habit.habit?.name || 'Hábito';
@@ -186,7 +185,8 @@ export function HabitCard({
               )}
             </Box>
             <Badge
-              variant="outline"
+              variant="primary"
+              outlined={true}
               containerStyle={{
                 backgroundColor: config.bgColor,
                 borderColor: config.borderColor,

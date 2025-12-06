@@ -14,7 +14,7 @@ import Animated, {
   withRepeat,
   withTiming,
   Easing,
-  interpolate,
+  interpolate as _interpolate,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -262,7 +262,7 @@ export function RitualAnimations({
     }, [progress]);
 
     const animatedStyle = useAnimatedStyle(() => {
-      const currentHue = hue.value;
+      // const _currentHue = hue.value;
       return {
         opacity: 0.3,
       };

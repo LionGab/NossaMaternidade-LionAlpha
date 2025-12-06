@@ -9,19 +9,18 @@
 
 import { AlertCircle } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet as _StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
-  withSequence,
   Easing,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
-import { Text } from '@/components/atoms/Text';
+import { Text as _Text } from '@/components/atoms/Text';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { useNavigation } from '@react-navigation/native';
@@ -35,9 +34,9 @@ interface SOSMaeFloatingButtonProps {
 }
 
 export function SOSMaeFloatingButton({ style }: SOSMaeFloatingButtonProps) {
-  const { colors, isDark } = useTheme();
+  const { isDark } = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  const [isPressed, setIsPressed] = useState(false);
+  const [_isPressed, _setIsPressed] = useState(false);
 
   const scale = useSharedValue(1);
   const pulseScale = useSharedValue(1);
@@ -69,12 +68,12 @@ export function SOSMaeFloatingButton({ style }: SOSMaeFloatingButtonProps) {
   };
 
   const handlePressIn = () => {
-    setIsPressed(true);
+    _setIsPressed(true);
     scale.value = withTiming(0.95, { duration: 100 });
   };
 
   const handlePressOut = () => {
-    setIsPressed(false);
+    _setIsPressed(false);
     scale.value = withTiming(1, { duration: 100 });
   };
 

@@ -12,7 +12,7 @@ import { Heart, Loader2 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { View, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import Animated, { FadeIn, SlideInUp } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient as _LinearGradient } from 'expo-linear-gradient';
 
 import { Box } from '@/components/atoms/Box';
 import { Button } from '@/components/atoms/Button';
@@ -27,7 +27,7 @@ interface SentimentAnalyzerProps {
 }
 
 export function SentimentAnalyzer({ onSentimentSelected }: SentimentAnalyzerProps) {
-  const { colors, isDark } = useTheme();
+  const { colors: _colors, isDark } = useTheme();
   const [selectedSentiment, setSelectedSentiment] = useState<SentimentType | null>(null);
   const [customText, setCustomText] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -153,24 +153,7 @@ export function SentimentAnalyzer({ onSentimentSelected }: SentimentAnalyzerProp
                       {option.emoji}
                     </Text>
                   }
-                  textStyle={{
-                    fontSize: Tokens.typography.fontSize.sm,
-                    fontWeight: isSelected ? '600' : '500',
-                    color: isSelected ? ColorTokens.neutral[0] : colors.text.primary,
-                  }}
-                >
-                  {isSelected && (
-                    <LinearGradient
-                      colors={[option.color, `${option.color}CC`]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                      }}
-                    />
-                  )}
-                </Button>
+                />
               </Animated.View>
             );
           })}
@@ -210,8 +193,8 @@ export function SentimentAnalyzer({ onSentimentSelected }: SentimentAnalyzerProp
                     borderColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[300],
                     borderWidth: 1,
                     color: isDark ? ColorTokens.neutral[100] : ColorTokens.neutral[800],
-                    fontFamily: Tokens.typography.body.fontFamily,
-                    fontSize: Tokens.typography.body.fontSize.md,
+                    fontFamily: Tokens.typography.fonts.body,
+                    fontSize: Tokens.typography.sizes.md,
                     textAlignVertical: 'top',
                   }}
                   accessibilityLabel="Campo de texto para descrever sentimento"

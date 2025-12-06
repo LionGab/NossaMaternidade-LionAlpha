@@ -10,7 +10,7 @@
 
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView as _ScrollView } from 'react-native';
 
 import { Box } from '@/components/atoms/Box';
 import { Text } from '@/components/atoms/Text';
@@ -109,7 +109,7 @@ export function BadgeUnlocker({ badges, totalThisWeek }: BadgeUnlockerProps) {
                   size="xs"
                   color="tertiary"
                   style={{
-                    lineHeight: Tokens.typography.lineHeights.normal,
+                    lineHeight: Tokens.typography.lineHeights.md,
                   }}
                 >
                   {badge.description}

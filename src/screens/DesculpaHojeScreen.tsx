@@ -14,13 +14,12 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, Share2, CheckCircle2, Heart } from 'lucide-react-native';
+import { ArrowLeft, Share2, CheckCircle2, Heart as _Heart } from 'lucide-react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
   SafeAreaView,
-  Platform,
   TouchableOpacity,
   Share,
 } from 'react-native';
@@ -249,7 +248,7 @@ export default function DesculpaHojeScreen() {
               color="secondary"
               align="center"
               style={{
-                lineHeight: Tokens.typography.lineHeights.relaxed,
+                lineHeight: Tokens.typography.lineHeights.lg,
               }}
             >
               Isso é o que importa.

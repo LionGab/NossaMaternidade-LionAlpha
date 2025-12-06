@@ -56,7 +56,7 @@ import type { AmbientSoundConfig } from '@/types/ritual';
 type RitualPhase = 'preparation' | 'running' | 'completion';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export default function RitualScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
 
@@ -378,7 +378,7 @@ export default function RitualScreen() {
                     </Text>
                     <Box direction="row" align="center" justify="space-between">
                       <Box align="center">
-                        <Text size="4xl">{emotionBefore.emotion}</Text>
+                        <Text size="3xl">{emotionBefore.emotion}</Text>
                         <Text size="xs" color="tertiary">
                           Antes
                         </Text>
@@ -393,7 +393,7 @@ export default function RitualScreen() {
                         }}
                       />
                       <Box align="center">
-                        <Text size="4xl">{emotionAfter.emotion}</Text>
+                        <Text size="3xl">{emotionAfter.emotion}</Text>
                         <Text size="xs" color="tertiary">
                           Depois
                         </Text>
@@ -451,7 +451,6 @@ export default function RitualScreen() {
   // ============================================
   // RENDER: RUNNING PHASE
   // ============================================
-  const { isDark } = useTheme();
 
   return (
     <SafeAreaView
@@ -499,7 +498,7 @@ export default function RitualScreen() {
           <ArrowLeft size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Box flex={1}>
-          <Text size="base" weight="bold" style={{ color: colors.primary.main }}>
+          <Text size="md" weight="bold" style={{ color: colors.primary.main }}>
             Momento de Autocuidado
           </Text>
           <Text size="xs" color="tertiary">
@@ -594,7 +593,7 @@ export default function RitualScreen() {
               >
                 {currentStep?.title}
               </Text>
-              <Text size="lg" align="center" color="secondary" style={{ lineHeight: Tokens.typography.lineHeights.relaxed }}>
+              <Text size="lg" align="center" color="secondary" style={{ lineHeight: Tokens.typography.lineHeights.lg }}>
                 {currentStep?.description}
               </Text>
             </Box>
@@ -632,7 +631,7 @@ export default function RitualScreen() {
                   align="center"
                   style={{
                     color: colors.text.primary,
-                    lineHeight: Tokens.typography.lineHeights.relaxed,
+                    lineHeight: Tokens.typography.lineHeights.lg,
                   }}
                 >
                   {currentStep?.content}
@@ -668,7 +667,6 @@ export default function RitualScreen() {
                       borderRadius: 64,
                       borderWidth: 4,
                       borderColor: colors.primary.main,
-                      clipPath: `inset(0 ${((currentStep.duration - timeRemaining) / currentStep.duration) * 100}% 0 0)`,
                     }}
                   />
                   <Text size="3xl" weight="bold" style={{ color: colors.text.primary }}>

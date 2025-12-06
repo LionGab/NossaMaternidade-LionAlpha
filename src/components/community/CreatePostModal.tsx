@@ -9,14 +9,11 @@
 
 import * as Haptics from 'expo-haptics';
 import {
-  MessageCircle,
   Send,
   Heart,
   Sparkles,
   HelpCircle,
   Laugh,
-  X,
-  Loader2,
 } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import {
@@ -178,7 +175,7 @@ export function CreatePostModal({ visible, onClose, onCreatePost }: CreatePostMo
               <Text size="sm" weight="medium" color="secondary">
                 Categoria (opcional)
               </Text>
-              <Box direction="row" flexWrap="wrap" gap="2">
+              <Box direction="row" gap="2">
                 {CATEGORIES.map((cat) => {
                   const Icon = cat.icon;
                   const isSelected = category === cat.value;
@@ -351,7 +348,8 @@ export function CreatePostModal({ visible, onClose, onCreatePost }: CreatePostMo
                   </Box>
                   {selectedCategory && (
                     <Badge
-                      variant="outline"
+                      variant="primary"
+                      outlined={true}
                       containerStyle={{
                         backgroundColor: `${selectedCategory.color}20`,
                         borderColor: selectedCategory.color,

@@ -35,7 +35,7 @@ export function AudioGuide({
 }: AudioGuideProps) {
   const { colors, isDark } = useTheme();
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1);
+  const [volume, _setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -125,7 +125,7 @@ export function AudioGuide({
           borderRadius: Tokens.radius['2xl'],
         }}
       >
-        <Text size="md" align="center" style={{ lineHeight: Tokens.typography.lineHeights.relaxed }}>
+        <Text size="md" align="center" style={{ lineHeight: Tokens.typography.lineHeights.lg }}>
           {fallbackText}
         </Text>
       </Box>
@@ -234,7 +234,7 @@ export function AudioGuide({
             borderTopColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[200],
           }}
         >
-          <Text size="sm" align="center" color="secondary" style={{ lineHeight: Tokens.typography.lineHeights.relaxed }}>
+          <Text size="sm" align="center" color="secondary" style={{ lineHeight: Tokens.typography.lineHeights.lg }}>
             {fallbackText}
           </Text>
         </Box>
