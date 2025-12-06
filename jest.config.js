@@ -1,6 +1,6 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
+  preset: 'react-native',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
@@ -12,12 +12,13 @@ module.exports = {
           jsx: 'react',
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
+          skipLibCheck: true,
         },
       },
     ],
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(@supabase|expo|@expo|@react-native|react-native|@react-navigation|expo-file-system|expo-constants|expo-secure-store|@react-native-async-storage)/)',
+    '/node_modules/(?!(@supabase|expo|@expo|@react-native|react-native|@react-navigation|expo-file-system|expo-constants|expo-secure-store|expo-haptics|expo-modules-core|@react-native-async-storage)/)',
   ],
   collectCoverageFrom: [
     'src/services/**/*.{ts,tsx}',

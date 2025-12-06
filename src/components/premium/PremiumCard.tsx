@@ -146,6 +146,8 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
     if (animations.length > 0) {
       Animated.parallel(animations).start();
     }
+    // fadeAnim, scale, translateX e translateY são refs estáveis (useRef), não precisam estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated, animationType, delay]);
 
   const handlePressIn = () => {

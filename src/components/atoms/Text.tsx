@@ -44,6 +44,8 @@ export interface CustomTextProps extends Omit<RNTextProps, 'style'> {
   strikethrough?: boolean;
   children: React.ReactNode;
   style?: TextStyle;
+  /** Texto de fallback quando children é null/undefined */
+  fallbackText?: string;
 }
 
 const variantStyles: Record<TextVariant, TextStyle> = {
@@ -103,6 +105,7 @@ export const Text = React.memo(function Text({
   children,
   style,
   allowFontScaling = true,
+  fallbackText,
   ...props
 }: CustomTextProps & { allowFontScaling?: boolean }) {
   // ⭐ Chamar todos os hooks INCONDICIONALMENTE (React Rules of Hooks)
@@ -160,6 +163,9 @@ export const Text = React.memo(function Text({
     colorMap,
   ]);
 
+  // Determinar conteúdo a renderizar (suporte a fallbackText)
+  const content = children ?? fallbackText ?? '';
+
   // ⭐ MODO 1: className fornecido → usar NativeWind (prioridade)
   if (className) {
     return (
@@ -171,7 +177,7 @@ export const Text = React.memo(function Text({
         accessibilityRole="text"
         {...props}
       >
-        {children}
+        {content}
       </RNText>
     );
   }
@@ -185,7 +191,7 @@ export const Text = React.memo(function Text({
       accessibilityRole="text"
       {...props}
     >
-      {children}
+      {content}
     </RNText>
   );
 });

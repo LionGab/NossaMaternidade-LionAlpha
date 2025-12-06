@@ -128,6 +128,51 @@ class HabitsService {
   }
 
   /**
+   * Criar hábito customizado (cria na tabela habits e adiciona ao usuário)
+   */
+  async createHabit(habitData: {
+    name: string;
+    description?: string;
+    frequency?: 'daily' | 'weekly' | 'monthly';
+    category?: string;
+  }): Promise<UserHabit | null> {
+    try {
+      const userId = await this.getCurrentUserId();
+      if (!userId) return null;
+
+      // Primeiro, criar o hábito na tabela habits
+      const { data: habit, error: habitError } = await supabase
+        .from('habits')
+        .insert({
+          name: habitData.name,
+          description: habitData.description,
+          frequency: habitData.frequency || 'daily',
+          category: habitData.category,
+        })
+        .select()
+        .single();
+
+      if (habitError || !habit) {
+        logger.error('Erro ao criar hábito', habitError, {
+          service: 'HabitsService',
+          action: 'createHabit',
+          userId,
+        });
+        return null;
+      }
+
+      // Depois, adicionar ao usuário
+      return await this.addHabitToUser(habit.id, 1);
+    } catch (error) {
+      logger.error('Erro inesperado ao criar hábito', error, {
+        service: 'HabitsService',
+        action: 'createHabit',
+      });
+      return null;
+    }
+  }
+
+  /**
    * Adicionar hábito ao usuário
    */
   async addHabitToUser(habitId: string, customTarget = 1): Promise<UserHabit | null> {

@@ -77,7 +77,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       let button = getByTestId('button');
-      expect(button.props.disabled).toBe(true); // loading seta disabled
+      expect(button.props.accessibilityState?.disabled).toBe(true); // loading seta disabled
 
       rerender(
         <Button
@@ -90,7 +90,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       button = getByTestId('button');
-      expect(button.props.disabled).toBe(true);
+      expect(button.props.accessibilityState?.disabled).toBe(true);
     });
   });
 
@@ -99,7 +99,7 @@ describe('Button Component - Hybrid Pattern', () => {
       const { getByTestId } = renderWithTheme(
         <Button
           testID="button"
-          title="Primário"
+          title="Primário" // cspell:ignore
           onPress={() => {}}
           variant="primary"
         />
@@ -108,7 +108,7 @@ describe('Button Component - Hybrid Pattern', () => {
       const button = getByTestId('button');
       expect(button).toBeTruthy();
       // Variant aplicado via style interno
-      expect(button.props.variant).toBe('primary');
+      expect(button.props['data-variant']).toBe('primary');
     });
 
     it('deve aplicar size quando className não fornecido', () => {
@@ -122,7 +122,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       const button = getByTestId('button');
-      expect(button.props.size).toBe('lg');
+      expect(button.props['data-size']).toBe('lg');
     });
 
     it('deve manter compatibilidade com código legado', () => {
@@ -138,9 +138,9 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       const button = getByTestId('button');
-      expect(button.props.variant).toBe('outline');
-      expect(button.props.size).toBe('md');
-      expect(button.props.fullWidth).toBe(true);
+      expect(button.props['data-variant']).toBe('outline');
+      expect(button.props['data-size']).toBe('md');
+      expect(button.props['data-fullwidth']).toBe(true);
     });
   });
 
@@ -191,7 +191,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       let button = getByTestId('button');
-      expect(button.props.disabled).toBe(true);
+      expect(button.props.accessibilityState?.disabled).toBe(true);
 
       // Teste com props semânticas
       rerender(
@@ -205,7 +205,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       button = getByTestId('button');
-      expect(button.props.disabled).toBe(true);
+      expect(button.props.accessibilityState?.disabled).toBe(true);
     });
 
     it('deve funcionar disabled em ambos os modos', () => {
@@ -220,7 +220,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       let button = getByTestId('button');
-      expect(button.props.disabled).toBe(true);
+      expect(button.props.accessibilityState?.disabled).toBe(true);
 
       rerender(
         <Button
@@ -233,7 +233,7 @@ describe('Button Component - Hybrid Pattern', () => {
       );
 
       button = getByTestId('button');
-      expect(button.props.disabled).toBe(true);
+      expect(button.props.accessibilityState?.disabled).toBe(true);
     });
   });
 

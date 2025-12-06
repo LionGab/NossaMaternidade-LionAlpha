@@ -52,6 +52,10 @@ export const useToast = () => {
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  const hide = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
   const show = useCallback((options: ToastOptions) => {
     const id = Date.now().toString();
     const toast: Toast = {
@@ -70,11 +74,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }, []);
-
-  const hide = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  }, [hide]);
 
   return (
     <ToastContext.Provider value={{ show, hide }}>
@@ -96,6 +96,8 @@ const ToastItem: React.FC<{ toast: Toast; onDismiss: () => void }> = ({ toast, o
   React.useEffect(() => {
     translateY.value = withSpring(0);
     opacity.value = withTiming(1);
+    // translateY e opacity são useSharedValue (estáveis), não precisam estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dismiss = () => {

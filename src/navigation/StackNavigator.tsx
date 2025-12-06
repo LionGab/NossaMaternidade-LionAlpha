@@ -20,6 +20,7 @@ const OnboardingScreen = React.lazy(() => import('../screens/Onboarding/Onboardi
 const ConsentScreen = React.lazy(() => import('../screens/ConsentScreen'));
 const RitualScreen = React.lazy(() => import('../screens/RitualScreen'));
 const DiaryScreen = React.lazy(() => import('../screens/DiaryScreen'));
+const DesculpaHojeScreen = React.lazy(() => import('../screens/DesculpaHojeScreen'));
 const PrivacyPolicyScreen = React.lazy(() => import('../screens/PrivacyPolicyScreen'));
 const TermsOfServiceScreen = React.lazy(() => import('../screens/TermsOfServiceScreen'));
 const SettingsScreen = React.lazy(() => import('../screens/SettingsScreen'));
@@ -203,6 +204,15 @@ export const StackNavigator = () => {
         }}
       >
         {(props) => <LazyScreen component={DiaryScreen} {...props} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="DesculpaHoje"
+        options={{
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      >
+        {(props) => <LazyScreen component={DesculpaHojeScreen} {...props} />}
       </Stack.Screen>
       <Stack.Screen
         name="ContentDetail"

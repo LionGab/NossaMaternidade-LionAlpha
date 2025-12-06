@@ -112,7 +112,9 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
         useNativeDriver: false,
       }).start();
     }
-  }, [progress, indeterminate]);
+    // progressAnim é ref estável (useRef), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progress, indeterminate, checkMilestones]);
 
   // Animação indeterminada
   useEffect(() => {
@@ -129,6 +131,8 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       return () => loop.stop();
     }
     return undefined;
+    // indeterminateAnim é ref estável (useRef), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indeterminate]);
 
   // Renderizar indicador linear

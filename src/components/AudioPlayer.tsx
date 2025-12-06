@@ -96,12 +96,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       pulseAnim.setValue(1);
       return undefined;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     // progressAnim e pulseAnim são refs estáveis (useRef), não precisam estar nas dependências
     // onEnd é callback opcional - incluí-lo causaria re-execução desnecessária do efeito
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // progressAnim e pulseAnim são refs estáveis (useRef), não precisam estar nas dependências
-    // onEnd é callback opcional - incluí-lo causaria re-execução desnecessária do efeito
   }, [isPlaying, durationMs]);
 
   const playPause = () => {

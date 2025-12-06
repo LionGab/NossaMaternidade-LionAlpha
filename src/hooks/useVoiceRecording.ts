@@ -136,6 +136,7 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
   const durationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const amplitudeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isMountedRef = useRef(true);
+  const stopRecordingRef = useRef<(() => Promise<string | null>) | null>(null);
 
   // Cleanup ao desmontar
   useEffect(() => {
@@ -254,12 +255,13 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
       }
 
       // Timer para duração
+      // Usar ref para evitar dependência circular
       durationIntervalRef.current = setInterval(() => {
         if (isMountedRef.current) {
           setRecordingDuration((prev) => {
             if (prev >= maxDuration) {
               // Auto-stop quando atingir máximo
-              stopRecording();
+              stopRecordingRef.current?.();
               return prev;
             }
             return prev + 1;
@@ -353,6 +355,11 @@ export function useVoiceRecording(options: UseVoiceRecordingOptions = {}): UseVo
       return null;
     }
   }, [hapticFeedback, onRecordingComplete, onError]);
+
+  // Atualizar ref quando stopRecording mudar
+  useEffect(() => {
+    stopRecordingRef.current = stopRecording;
+  }, [stopRecording]);
 
   const cancelRecording = useCallback(async (): Promise<void> => {
     try {

@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MainTabParamList } from './types';
 // 🚀 LAZY LOADING: Screens principais carregadas sob demanda
-const HomeScreen = React.lazy(() => import('../screens/HomeScreenWebConverted'));
+const HomeScreen = React.lazy(() => import('../screens/HomeScreen'));
 const CommunityScreen = React.lazy(() => import('../screens/CommunityScreen'));
 const ChatScreen = React.lazy(() => import('../screens/ChatScreen'));
 const MundoNathScreen = React.lazy(() => import('../screens/MundoNathScreen'));

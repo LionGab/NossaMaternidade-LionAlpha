@@ -106,6 +106,8 @@ export const Radio: React.FC<RadioProps> = ({
 
   React.useEffect(() => {
     innerScale.value = withTiming(checked ? 1 : 0, { duration: 200 });
+    // innerScale é useSharedValue (estável), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checked]);
 
   const animatedOuterStyle = useAnimatedStyle(() => ({

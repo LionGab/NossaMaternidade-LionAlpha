@@ -81,17 +81,21 @@ export const usePerformanceMonitor = (
 
   // Log métricas quando componente desmonta
   useEffect(() => {
+    // Capturar valores dos refs para uso no cleanup
+    const renderTimesSnapshot = renderTimes.current;
+    const renderCountSnapshot = renderCount.current;
+
     return () => {
       if (autoLog) {
         const avgRenderTime =
-          renderTimes.current.length > 0
-            ? renderTimes.current.reduce((a, b) => a + b, 0) / renderTimes.current.length
+          renderTimesSnapshot.length > 0
+            ? renderTimesSnapshot.reduce((a, b) => a + b, 0) / renderTimesSnapshot.length
             : 0;
 
-        const totalRenderTime = renderTimes.current.reduce((a, b) => a + b, 0);
+        const totalRenderTime = renderTimesSnapshot.reduce((a, b) => a + b, 0);
 
         logger.info(
-          `[Performance] ${screenName} - Renders: ${renderCount.current}, ` +
+          `[Performance] ${screenName} - Renders: ${renderCountSnapshot}, ` +
             `Avg: ${avgRenderTime.toFixed(2)}ms, Total: ${totalRenderTime.toFixed(2)}ms`
         );
       }

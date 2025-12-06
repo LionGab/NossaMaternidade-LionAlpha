@@ -35,6 +35,66 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 @hooks/*      → ./src/hooks/*
 ```
 
+### Scripts NPM - Exemplos Práticos
+
+**Desenvolvimento Diário:**
+```bash
+npm start                          # Metro bundler + Expo
+npx expo start -c                  # Clear cache (quando há problemas)
+npm run ios                        # iOS Simulator
+npm run android                    # Android Emulator
+```
+
+**Qualidade de Código:**
+```bash
+npm run validate                   # Validação completa (type-check + lint + design + env)
+npm run type-check                 # Apenas TypeScript
+npm run lint                       # Apenas ESLint
+npm run lint:fix                   # ESLint auto-fix
+npm run validate:design            # Apenas design tokens
+```
+
+**Build e Deploy:**
+```bash
+npm run diagnose:production        # Relatório completo de prontidão para produção
+npm run build:dev                  # EAS build (development profile)
+npm run build:android              # Android APK/AAB (produção)
+npm run build:ios                  # iOS IPA (produção)
+npm run build:production           # Ambas plataformas (produção)
+npm run validate:android           # Verifica config Android antes do build
+```
+
+**Utilitários:**
+```bash
+npm run verify:cursor              # Verifica config Cursor
+npm run verify:autonomous          # Verifica modo autônomo
+npm run validate:env               # Verifica .env
+npm run test:connection            # Testa conexões Supabase
+npm run test:gemini-edge           # Testa Gemini edge function
+npm run deploy:gemini              # Deploy Gemini edge function
+```
+
+---
+
+## ⚠️ Mobile-Only Platform
+
+**CRÍTICO:** Este é um projeto React Native (iOS/Android), **NÃO web**.
+
+### O que usar:
+- ✅ Componentes React Native nativos (View, Text, TouchableOpacity, FlatList)
+- ✅ `expo-image` para imagens (não `<img>`)
+- ✅ `expo-router` ou React Navigation para navegação (não react-router)
+- ✅ `StyleSheet.create` ou NativeWind para estilos
+- ✅ `onPress` para eventos de toque (não `onClick`)
+
+### O que NUNCA usar:
+- ❌ Tags HTML (`div`, `span`, `button`, `img`, `a`)
+- ❌ Eventos web (`onClick`, `onSubmit`, `onChange` direto)
+- ❌ CSS classes sem NativeWind
+- ❌ `window`, `document`, ou outras APIs web
+
+**Lembre-se:** Se você ver código com `div` ou `onClick`, está errado para este projeto.
+
 ---
 
 ## Critical Rules
@@ -105,6 +165,100 @@ Tokens.radius.lg; // 12
 
 // Touch targets (WCAG AAA)
 Tokens.touchTargets.min; // 44pt
+```
+
+### Hybrid Component Pattern
+
+Alguns componentes suportam dois modos de estilização (migração gradual):
+
+```typescript
+// Modo 1: className + textClassName (PREFERIDO - NativeWind v4)
+<Button
+  title="Clique aqui"
+  onPress={handlePress}
+  className="bg-primary rounded-xl px-6 py-3"
+  textClassName="text-white font-bold text-lg"
+/>
+
+// Modo 2: Props semânticas (LEGADO - compatibilidade)
+<Button
+  title="Clique aqui"
+  onPress={handlePress}
+  variant="primary"
+  size="lg"
+/>
+
+// Prioridade: className > Props
+// Se ambos fornecidos, className vence
+<Button
+  title="Híbrido"
+  onPress={handlePress}
+  className="bg-success"  // ← Este será usado
+  variant="primary"        // ← Ignorado para estilos
+/>
+```
+
+**Componentes híbridos:**
+- [Button.tsx](src/components/atoms/Button.tsx) - Suporta ambos os modos
+- [Text.tsx](src/components/atoms/Text.tsx) - className ou variant/size
+- Outros componentes atoms migrados gradualmente
+
+**Quando usar cada modo:**
+- **className:** Novo código, flexibilidade total, Tailwind completo
+- **Props:** Código legado, compatibilidade, refatoração gradual
+
+**Testes:** Todos componentes híbridos têm `*.hybrid.test.tsx` testando ambos os modos.
+
+### Error Handling Pattern
+
+**Services** retornam `{ data, error }` para tratamento consistente:
+
+```typescript
+// ✅ CORRETO: Service com error handling
+async function getProfile(userId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select()
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    logger.error('getProfile failed', error);
+    return { data: null, error: error as Error };
+  }
+}
+
+// No componente/screen
+const { data, error } = await profileService.getProfile(userId);
+if (error) {
+  logger.error('Failed to load profile', error);
+  // Mostrar erro ao usuário
+  return;
+}
+// usar data...
+```
+
+**Components:** Use ErrorBoundary para erros React:
+
+```typescript
+// App.tsx
+<ErrorBoundary>
+  <YourApp />
+</ErrorBoundary>
+```
+
+**Logging centralizado:**
+
+```typescript
+import { logger } from '@/utils/logger';
+
+logger.debug('Dev only info');           // Dev only
+logger.info('User action', { userId });  // Info geral
+logger.warn('Problema menor', error);    // → Sentry
+logger.error('Falha crítica', error);    // → Sentry
 ```
 
 ---
@@ -200,39 +354,172 @@ src/
 
 ---
 
+## Testing
+
+### Estrutura de Testes
+
+```
+__tests__/
+├── components/
+│   ├── Button.hybrid.test.tsx    # Testes híbridos (ambos os modos)
+│   └── Text.hybrid.test.tsx
+└── helpers/
+    ├── testWrapper.tsx           # Provider wrapper para testes
+    └── supabase.mock.ts         # Mocks do Supabase
+```
+
+### Comandos de Teste
+
+```bash
+# Rodar todos os testes
+npm test
+
+# Modo watch (desenvolvimento)
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+
+# Teste específico
+npx jest __tests__/components/Button.hybrid.test.tsx
+
+# CI mode (usado em GitHub Actions)
+npm run test:ci
+
+# Dev mode (sem coverage threshold)
+npm run test:dev
+```
+
+### Padrão de Teste
+
+**Híbridos:** `*.hybrid.test.tsx` para componentes que suportam className + props semânticas
+
+```typescript
+import { render, fireEvent } from '@testing-library/react-native';
+import { Button } from '@/components/atoms/Button';
+import { TestWrapper } from '../helpers/testWrapper';
+
+const renderWithTheme = (component: React.ReactElement) => {
+  return render(component, { wrapper: TestWrapper });
+};
+
+describe('Button - Hybrid Pattern', () => {
+  it('deve aplicar className quando fornecido', () => {
+    const { getByTestId } = renderWithTheme(
+      <Button
+        testID="button"
+        title="Clique"
+        onPress={() => {}}
+        className="bg-primary rounded-xl px-6"
+      />
+    );
+
+    expect(getByTestId('button').props.className).toBe('bg-primary rounded-xl px-6');
+  });
+
+  it('deve aplicar variant quando className não fornecido', () => {
+    const { getByTestId } = renderWithTheme(
+      <Button
+        testID="button"
+        title="Clique"
+        onPress={() => {}}
+        variant="primary"
+      />
+    );
+
+    expect(getByTestId('button').props['data-variant']).toBe('primary');
+  });
+});
+```
+
+**TestWrapper:** Sempre usar para testes que precisam de tema:
+
+```typescript
+import { TestWrapper } from '../helpers/testWrapper';
+
+// Wrapper fornece ThemeContext mockado
+const { getByText } = render(<MyComponent />, { wrapper: TestWrapper });
+```
+
+**Mocks obrigatórios:**
+- Supabase: `__tests__/helpers/supabase.mock.ts`
+- AsyncStorage: Mockado automaticamente pelo Jest
+- APIs externas: Sempre mockar (não fazer chamadas reais)
+
+**Coverage mínimo:**
+- MVP: 40%
+- Phase 2: 60%
+- Produção: 80%
+
+---
+
+## Pre-commit Validation
+
+O projeto usa **Husky** para validação automática antes de commit.
+
+**Verificações automáticas:**
+1. Design tokens: `npm run validate:design`
+2. TypeScript: `npm run type-check`
+3. ESLint: `npm run lint`
+
+**Setup dos hooks:**
+```bash
+npm run setup:hooks  # Configura hooks Git (executado automaticamente no npm install)
+```
+
+**Bypass (use com cuidado):**
+```bash
+git commit --no-verify -m "WIP: teste rápido"
+```
+
+**⚠️ Importante:** Sempre deixe hooks ativos. Eles previnem erros antes de ir pro repositório.
+
+---
+
 ## Before Commit
 
+**Validação completa (recomendado):**
+```bash
+npm run validate  # type-check + lint + design + env
+```
+
+**Validação mínima:**
 ```bash
 npm run lint && npm run type-check && npm test
 ```
 
 **Before Build/Deploy:**
-
 ```bash
-npm run diagnose:production
+npm run diagnose:production  # Relatório completo de prontidão
 ```
 
 **Conventional Commits (português):**
-
 ```bash
 feat: adiciona funcionalidade X
 fix: corrige crash ao abrir perfil
 refactor: extrai lógica de autenticação
+test: adiciona testes para Button
+docs: atualiza CLAUDE.md
 ```
 
 ---
 
 ## Key Documentation
 
-| Arquivo                                   | Conteúdo                                |
-| ----------------------------------------- | --------------------------------------- |
-| `CONTEXTO.md`                             | Estado atual, métricas, próximos passos |
-| `docs/design/`                            | Design System (fonte única da verdade)  |
-| `docs/PRODUCTION_READINESS_DIAGNOSTIC.md` | Guia do diagnóstico de produção         |
-| `.claude/skill-rules.json`                | Auto-ativação de skills por contexto    |
-| `.claude/autonomous-prompts.md`           | Prompts prontos para modo autônomo 2h   |
-| `.claude/QUICK_START_AUTONOMOUS.md`       | Quick start modo autônomo (2 min)       |
-| `docs/CURSOR_AUTONOMOUS_MODE.md`          | Guia completo modo autônomo             |
+| Arquivo                                   | Conteúdo                                     |
+| ----------------------------------------- | -------------------------------------------- |
+| `CONTEXTO.md`                             | Estado atual, métricas, próximos passos      |
+| `README.md`                               | Visão geral, setup, estrutura do projeto     |
+| `docs/HYBRID_PATTERN.md`                  | Padrão híbrido de componentes                |
+| `docs/HYBRID_MIGRATION_STATUS.md`         | Status da migração para padrão híbrido       |
+| `docs/design/`                            | Design System (fonte única da verdade)       |
+| `docs/PRODUCTION_READINESS_DIAGNOSTIC.md` | Guia do diagnóstico de produção              |
+| `.claude/skill-rules.json`                | Auto-ativação de skills por contexto         |
+| `.claude/autonomous-prompts.md`           | Prompts prontos para modo autônomo 2h        |
+| `.claude/QUICK_START_AUTONOMOUS.md`       | Quick start modo autônomo (2 min)            |
+| `docs/CURSOR_AUTONOMOUS_MODE.md`          | Guia completo modo autônomo                  |
+| `__tests__/helpers/testWrapper.tsx`       | Helper para testes com ThemeContext mockado  |
+| `__tests__/helpers/supabase.mock.ts`      | Mocks do Supabase para testes                |
 
 ---
 
@@ -383,4 +670,144 @@ Git fornece um log do que foi feito e checkpoints que podem ser restaurados:
 
 ---
 
-_Última atualização: 4 de dezembro de 2025_
+## Common Pitfalls (Armadilhas Comuns)
+
+### 1. Usar HTML tags em vez de React Native
+
+❌ **ERRADO:**
+```typescript
+<div className="container">
+  <p onClick={handleClick}>Texto</p>
+</div>
+```
+
+✅ **CORRETO:**
+```typescript
+<View className="container">
+  <Text onPress={handleClick}>Texto</Text>
+</View>
+```
+
+### 2. Esquecer TestWrapper em testes
+
+❌ **ERRADO:**
+```typescript
+render(<Button title="Test" onPress={() => {}} />);
+// Erro: ThemeContext não disponível
+```
+
+✅ **CORRETO:**
+```typescript
+render(<Button title="Test" onPress={() => {}} />, { wrapper: TestWrapper });
+```
+
+### 3. Usar console.log em vez de logger
+
+❌ **ERRADO:**
+```typescript
+console.log('User logged in', userId);
+```
+
+✅ **CORRETO:**
+```typescript
+logger.info('User logged in', { userId });
+```
+
+### 4. Cores hardcoded em vez de tokens
+
+❌ **ERRADO:**
+```typescript
+<View style={{ backgroundColor: '#FFFFFF' }}>
+```
+
+✅ **CORRETO:**
+```typescript
+const colors = useThemeColors();
+<View style={{ backgroundColor: colors.background.canvas }}>
+```
+
+### 5. ScrollView com map em vez de FlatList
+
+❌ **ERRADO:**
+```typescript
+<ScrollView>
+  {items.map(item => <Item key={item.id} {...item} />)}
+</ScrollView>
+```
+
+✅ **CORRETO:**
+```typescript
+<FlatList
+  data={items}
+  renderItem={({ item }) => <Item {...item} />}
+  keyExtractor={(item) => item.id}
+/>
+```
+
+### 6. Services sem error handling
+
+❌ **ERRADO:**
+```typescript
+async function getProfile(userId: string) {
+  const data = await supabase.from('profiles').select().eq('id', userId).single();
+  return data; // E se der erro?
+}
+```
+
+✅ **CORRETO:**
+```typescript
+async function getProfile(userId: string) {
+  try {
+    const { data, error } = await supabase.from('profiles').select().eq('id', userId).single();
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    logger.error('getProfile failed', error);
+    return { data: null, error: error as Error };
+  }
+}
+```
+
+### 7. Esquecer acessibilidade
+
+❌ **ERRADO:**
+```typescript
+<TouchableOpacity onPress={handlePress}>
+  <Text>Botão</Text>
+</TouchableOpacity>
+```
+
+✅ **CORRETO:**
+```typescript
+<TouchableOpacity
+  onPress={handlePress}
+  accessibilityLabel="Botão de ação principal"
+  accessibilityRole="button"
+  accessibilityHint="Clique para continuar"
+>
+  <Text>Botão</Text>
+</TouchableOpacity>
+```
+
+### 8. Touch targets muito pequenos
+
+❌ **ERRADO:**
+```typescript
+<TouchableOpacity style={{ width: 20, height: 20 }}>
+  <Icon name="close" size={16} />
+</TouchableOpacity>
+```
+
+✅ **CORRETO:**
+```typescript
+<TouchableOpacity
+  style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'center' }}
+  accessibilityLabel="Fechar"
+>
+  <Icon name="close" size={16} />
+</TouchableOpacity>
+```
+
+---
+
+_Última atualização: 5 de dezembro de 2025_

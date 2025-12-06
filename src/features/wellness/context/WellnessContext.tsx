@@ -363,45 +363,109 @@ export function WellnessProvider({ children }: WellnessProviderProps) {
 
   const todayCheckIn = useMemo((): CheckInData | null => {
     const today = new Date().toISOString().split('T')[0];
-    return checkIns.find((c) => c.date === today) || null;
+    // Filtrar check-ins válidos antes de buscar
+    const validCheckIns = checkIns.filter((c) => {
+      try {
+        const d = new Date(c.date);
+        return !isNaN(d.getTime()) && c.id && c.mood !== undefined;
+      } catch {
+        return false;
+      }
+    });
+    return validCheckIns.find((c) => c.date === today) || null;
+  }, [checkIns]);
+
+  // Filtrar check-ins válidos para uso em cálculos
+  const validCheckIns = useMemo((): CheckInData[] => {
+    return checkIns.filter((c) => {
+      try {
+        const d = new Date(c.date);
+        if (isNaN(d.getTime())) return false; // Data inválida
+        if (!c.id) return false; // ID obrigatório
+        if (c.mood === undefined) return false; // Campos críticos devem existir
+        return true;
+      } catch {
+        return false; // Erro ao processar
+      }
+    });
   }, [checkIns]);
 
   const currentStreak = useMemo((): number => {
-    if (checkIns.length === 0) return 0;
+    if (validCheckIns.length === 0) return 0;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+
+    // Filtrar check-ins válidos (datas válidas e não futuras)
+    const filteredCheckIns = validCheckIns.filter((c) => {
+      try {
+        const d = new Date(c.date);
+        if (isNaN(d.getTime())) return false; // Data inválida
+        const dateStr = d.toISOString().split('T')[0];
+        return dateStr <= todayStr; // Não pode ser futuro
+      } catch {
+        return false; // Data inválida
+      }
+    });
+
+    if (filteredCheckIns.length === 0) return 0;
 
     // Extrair datas ÚNICAS primeiro (evita contar duplicados)
     const uniqueDates = [
       ...new Set(
-        checkIns.map((c) => {
+        filteredCheckIns.map((c) => {
           const d = new Date(c.date);
           // Normalizar para formato YYYY-MM-DD
           return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         })
       ),
-    ].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    ]
+      .map((dateStr) => {
+        const d = new Date(dateStr);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      })
+      .filter((d) => !isNaN(d.getTime()) && d <= today) // Filtrar datas inválidas e futuras
+      .sort((a, b) => b.getTime() - a.getTime()); // Ordenar decrescente
+
+    if (uniqueDates.length === 0) return 0;
 
     let streak = 0;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    let lastDate = today;
+    let lastDate: Date | null = null;
 
-    for (const dateStr of uniqueDates) {
-      const checkDate = new Date(dateStr);
-      checkDate.setHours(0, 0, 0, 0);
-
+    for (const checkDate of uniqueDates) {
+      if (lastDate === null) {
+        // Primeiro dia encontrado
+        // Verificar se é hoje ou ontem para começar o streak
+        const diffDays = Math.floor((today.getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (diffDays <= 1) {
+          streak = 1;
+          lastDate = checkDate;
+        } else {
+          // Gap maior que 1 dia desde hoje, não há streak
+          break;
+        }
+      } else {
+        // Verificar se é consecutivo
       const diffDays = Math.floor(
         (lastDate.getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      if (diffDays <= 1) {
+        if (diffDays === 1) {
+          // Consecutivo, continuar streak
         streak++;
         lastDate = checkDate;
-      } else {
+        } else if (diffDays > 1) {
+          // Gap maior que 1 dia, quebrar streak
         break;
+        }
+        // Se diffDays === 0, é o mesmo dia (não deveria acontecer após Set, mas por segurança)
       }
     }
+
     return streak;
-  }, [checkIns]);
+  }, [validCheckIns]);
 
   // Placeholder para Release B
   const weeklyInsight: WeeklyInsight | null = null;
@@ -419,7 +483,7 @@ export function WellnessProvider({ children }: WellnessProviderProps) {
       onboardingIncomplete,
       currentOnboardingStep,
       todayCheckIn,
-      checkIns,
+      checkIns: validCheckIns,
       currentStreak,
       weeklyInsight,
       hasConsent,
@@ -443,7 +507,7 @@ export function WellnessProvider({ children }: WellnessProviderProps) {
       onboardingIncomplete,
       currentOnboardingStep,
       todayCheckIn,
-      checkIns,
+      validCheckIns,
       currentStreak,
       weeklyInsight,
       hasConsent,

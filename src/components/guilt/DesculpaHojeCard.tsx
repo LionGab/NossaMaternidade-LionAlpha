@@ -9,6 +9,8 @@
  * - Design tokens mobile
  */
 
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Heart, Sparkles } from 'lucide-react-native';
@@ -18,9 +20,12 @@ import { TouchableOpacity, View } from 'react-native';
 import { Box } from '@/components/atoms/Box';
 import { Button } from '@/components/atoms/Button';
 import { Text } from '@/components/atoms/Text';
+import type { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export interface DesculpaHojeCardProps {
   streakDays?: number | null;
@@ -28,12 +33,12 @@ export interface DesculpaHojeCardProps {
 
 export function DesculpaHojeCard({ streakDays }: DesculpaHojeCardProps) {
   const { isDark } = useTheme();
+  const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
     logger.info('DesculpaHojeCard pressed', { streakDays });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // TODO: Navegar para tela de desculpa quando implementada
-    // navigation.navigate('DesculpaHoje');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    navigation.navigate('DesculpaHoje');
   };
 
   return (

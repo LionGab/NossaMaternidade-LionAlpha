@@ -10,6 +10,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Ritual: { ritual?: string; autoStart?: boolean; message?: string } | undefined; // 🧘 Ritual com params opcionais
   Diary: undefined;
+  DesculpaHoje: undefined; // 💗 Reflexão sobre arrependimentos
   ContentDetail: { contentId: string }; // 🆕 Tela de detalhes de conteúdo (Week 1)
   ChatSessions: undefined; // 💬 Modal de histórico de conversas
   SOSMae: undefined; // 🆘 SOS Mãe - suporte emergencial

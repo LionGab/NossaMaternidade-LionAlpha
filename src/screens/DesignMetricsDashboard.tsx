@@ -239,11 +239,6 @@ export default function DesignMetricsDashboard() {
   const [metrics, setMetrics] = useState<DesignMetric[]>([]);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
 
-  // Load initial metrics
-  useEffect(() => {
-    loadMetrics();
-  }, []);
-
   const loadMetrics = useCallback(async () => {
     try {
       // Em produção, carregar de API ou executar validações
@@ -300,6 +295,11 @@ export default function DesignMetricsDashboard() {
       logger.error('[DesignMetricsDashboard] Erro ao carregar métricas', error);
     }
   }, []);
+
+  // Load initial metrics
+  useEffect(() => {
+    loadMetrics();
+  }, [loadMetrics]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

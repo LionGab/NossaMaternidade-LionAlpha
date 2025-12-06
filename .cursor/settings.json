@@ -56,15 +56,18 @@
     "**/build/**": true
   },
 
-  "// Configurações de modo autônomo": "",
+  "// Configurações de modo autônomo - YOLO MODE": "",
   "cursor.ai.autonomousMode": {
     "enabled": true,
     "maxDuration": 7200,
     "autoSave": true,
     "checkpointInterval": 300,
     "maxIterations": 100,
-    "errorRetryLimit": 3,
-    "progressTracking": true
+    "errorRetryLimit": 5,
+    "progressTracking": true,
+    "yoloMode": true,
+    "autoAcceptChanges": true,
+    "skipConfirmations": true
   },
 
   "// Configurações de contexto para modo autônomo": "",
@@ -79,5 +82,19 @@
       "CONTEXTO.md",
       ".cursor/rules"
     ]
-  }
+  },
+
+  "// Configurações de exibição de tokens e métricas": "",
+  "cursor.ai.showTokenUsage": true,
+  "cursor.ai.showTokenCount": true,
+  "cursor.ai.displayMetrics": true,
+  "cursor.ai.showUsageStats": true,
+  "cursor.ai.enableTokenTracking": true,
+  "cursor.ai.showCostEstimate": true,
+  
+  "// Configurações de UI para métricas": "",
+  "cursor.chat.showTokenCount": true,
+  "cursor.chat.showUsageMetrics": true,
+  "cursor.chat.displayTokenInfo": true,
+  "cursor.chat.showCostTracking": true
 }

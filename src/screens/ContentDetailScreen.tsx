@@ -7,7 +7,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, Play, Clock, Eye, Heart, Share2 } from 'lucide-react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   ActivityIndicator,
@@ -45,11 +45,7 @@ export default function ContentDetailScreen() {
   const [content, setContent] = useState<ContentItem | null>(null);
   const [isLiked, setIsLiked] = useState(false);
 
-  useEffect(() => {
-    loadContent();
-  }, [contentId]);
-
-  const loadContent = async () => {
+  const loadContent = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -73,7 +69,11 @@ export default function ContentDetailScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [contentId]);
+
+  useEffect(() => {
+    loadContent();
+  }, [loadContent]);
 
   const handleLike = async () => {
     const newLikeState = !isLiked;

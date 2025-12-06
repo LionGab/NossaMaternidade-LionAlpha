@@ -94,6 +94,8 @@ export const PremiumInput: React.FC<PremiumInputProps> = ({
         useNativeDriver: false,
       }).start();
     }
+    // borderAnim e labelAnim são refs estáveis (useRef), não precisam estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused, value, animated]);
 
   useEffect(() => {
@@ -125,6 +127,8 @@ export const PremiumInput: React.FC<PremiumInputProps> = ({
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     }
+    // shakeAnim é ref estável (useRef), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error, animated, hapticFeedback]);
 
   const handleFocus = () => {

@@ -1,7 +1,7 @@
 /**
  * MundoNathScreen - Tela de conteúdo exclusivo da Nathália
- * Design baseado no Content.tsx do app-redesign-studio
- * Com animações suaves de entrada
+ * Design baseado no Content.tsx do app-redesign-studio-ab40635e/src/pages/Content.tsx
+ * Refatorado para usar componentes separados de src/components/mundo-nath/
  */
 
 import { useNavigation } from '@react-navigation/native';
@@ -9,9 +9,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { Play, ChevronRight, Clock } from 'lucide-react-native';
+import { Play, Sparkles } from 'lucide-react-native';
 import React, { useRef, useEffect } from 'react';
-import { View, ScrollView, TouchableOpacity, Animated, Easing } from 'react-native';
+import { View, ScrollView, Animated, Easing } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/Avatar';
@@ -20,10 +20,16 @@ import { Box } from '@/components/atoms/Box';
 import { Button } from '@/components/atoms/Button';
 import { Text } from '@/components/atoms/Text';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  FeaturedVideo,
+  ContentCategorySection,
+  ForYouSection,
+} from '@/components/mundo-nath';
 import type { RootStackParamList } from '@/navigation/types';
 import { useTheme } from '@/theme';
 import { Tokens, ColorTokens, Spacing, Radius } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
+import type { ContentItem } from '@/types/content';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -80,14 +86,38 @@ function useStaggeredAnimations(itemCount: number, baseDelay = 100) {
   return animations;
 }
 
+// Mock data para conteúdo
+const MOCK_CONTENT_ITEMS: ContentItem[] = [
+  {
+    id: 'content-1',
+    title: 'Como lidar com os primeiros dias',
+    description:
+      'Dicas práticas para atravessar os momentos mais desafiadores da maternidade inicial.',
+    type: 'article',
+    category: 'pos_parto',
+    duration: '5 min',
+    views: 1234,
+  },
+  {
+    id: 'content-2',
+    title: 'Meditação para noites difíceis',
+    description:
+      'Um momento de paz para quando tudo parecer demais. Respire fundo e se permita sentir.',
+    type: 'audio',
+    category: 'saude_mental',
+    duration: '8 min',
+    views: 987,
+  },
+];
+
 export default function MundoNathScreen() {
   const { colors, isDark } = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const insets = useSafeAreaInsets();
   const SUNRISE_GRADIENT = getSunriseGradient(isDark);
 
-  // Animações: header (0), featured card (1), section header (2), content item 1 (3), content item 2 (4)
-  const animations = useStaggeredAnimations(5, 120);
+  // Animações: header (0), featured card (1), featured video (2), section header (3)
+  const animations = useStaggeredAnimations(4, 120);
 
   // Animação do avatar (scale + fade)
   const avatarScale = useRef(new Animated.Value(0)).current;
@@ -115,7 +145,17 @@ export default function MundoNathScreen() {
   const handleContentPress = (itemId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     logger.info('Content pressed', { itemId, screen: 'MundoNathScreen' });
-    navigation.navigate('ContentDetail', { contentId: itemId });
+    // TODO: Navegar para tela de detalhes quando disponível
+    // navigation.navigate('ContentDetail', { contentId: itemId });
+  };
+
+  const handleRitualPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    navigation.navigate('Ritual');
+  };
+
+  const handleVideoPlay = () => {
+    logger.info('Featured video played', { screen: 'MundoNathScreen' });
   };
 
   return (
@@ -182,17 +222,15 @@ export default function MundoNathScreen() {
               }}
             >
               <Text
-                size="3xl"
-                weight="bold"
+                className="text-3xl font-bold mb-2"
                 style={{
                   color: ColorTokens.neutral[900],
-                  marginBottom: Spacing['2'],
                 }}
               >
                 Mundo Naty
               </Text>
               <Text
-                size="sm"
+                className="text-sm"
                 style={{
                   color: ColorTokens.neutral[700],
                 }}
@@ -204,7 +242,7 @@ export default function MundoNathScreen() {
         </View>
 
         {/* Content */}
-        <Box px="4" style={{ gap: Spacing['6'], marginTop: -Spacing['6'] }}>
+        <Box className="px-4" style={{ gap: Spacing['6'], marginTop: -Spacing['6'] }}>
           {/* Featured Card - Ritual de 3 Minutos - Animado */}
           <Animated.View
             style={{
@@ -235,8 +273,7 @@ export default function MundoNathScreen() {
               </Badge>
 
               <Text
-                size="2xl"
-                weight="bold"
+                className="text-2xl font-bold"
                 style={{
                   color: ColorTokens.neutral[0],
                   lineHeight: 28,
@@ -246,7 +283,7 @@ export default function MundoNathScreen() {
               </Text>
 
               <Text
-                size="sm"
+                className="text-sm"
                 style={{
                   color: `${ColorTokens.neutral[0]}E6`, // 90% opacity
                 }}
@@ -262,259 +299,62 @@ export default function MundoNathScreen() {
                 }}
               >
                 <Button
-                  variant="primary"
-                  size="lg"
                   title="Começar Agora"
-                  onPress={() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    handleContentPress('ritual-3min');
-                  }}
+                  onPress={handleRitualPress}
                   leftIcon={<Play size={16} color={colors.primary.main} />}
-                  style={{
-                    flex: 1,
-                    backgroundColor: ColorTokens.neutral[0],
-                    borderRadius: Radius.xl,
-                  }}
+                  className="flex-1 bg-white rounded-xl px-6 py-3"
+                  textClassName="text-primary font-semibold text-lg"
                 />
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: Spacing['1'],
-                    paddingHorizontal: Spacing['3'],
-                    paddingVertical: Spacing['2'],
-                    borderRadius: Radius.xl,
-                    backgroundColor: ColorTokens.overlay.light,
-                  }}
-                >
-                  <Clock size={16} color={`${ColorTokens.neutral[0]}CC`} />
-                  <Text
-                    size="sm"
-                    style={{
-                      color: `${ColorTokens.neutral[0]}CC`,
-                    }}
-                  >
-                    3 min
-                  </Text>
-                </View>
               </View>
             </LinearGradient>
           </Animated.View>
 
-          {/* Seção: Para Você - Animado */}
+          {/* Vídeo Especial em Destaque - Animado */}
           <Animated.View
             style={{
               opacity: animations[2].opacity,
               transform: [{ translateY: animations[2].translateY }],
             }}
           >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: Spacing['4'],
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: Spacing['2'],
-                }}
-              >
-                <Text style={{ fontSize: 20 }}>❄️</Text>
-                <Text size="lg" weight="bold" color="primary">
-                  Para Você
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  logger.info('See all pressed', { screen: 'MundoNathScreen' });
-                }}
-                activeOpacity={0.7}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Ver mais conteúdo"
-                accessibilityHint="Mostra todos os conteúdos da seção Para Você"
-              >
-                <Text size="sm" color="primary">
-                  Ver mais
-                </Text>
-                <ChevronRight size={16} color={colors.primary.main} style={{ marginLeft: 4 }} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ gap: Spacing['3'] }}>
-              {/* Content Item 1 - TEXTO - Animado */}
-              <Animated.View
-                style={{
-                  backgroundColor: colors.background.card,
-                  borderRadius: Radius['3xl'],
-                  overflow: 'hidden',
-                  borderWidth: 1,
-                  borderColor: colors.border.light,
-                  ...Tokens.shadows.card,
-                  opacity: animations[3].opacity,
-                  transform: [{ translateY: animations[3].translateY }],
-                }}
-              >
-                <View
-                  style={{
-                    height: 192,
-                    position: 'relative',
-                  }}
-                >
-                  <LinearGradient
-                    colors={[
-                      `${ColorTokens.accent.purple}33`, // accent/20
-                      `${ColorTokens.secondary[500]}33`, // secondary/20
-                    ]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Badge
-                      variant="secondary"
-                      containerStyle={{
-                        position: 'absolute',
-                        top: Spacing['3'],
-                        left: Spacing['3'],
-                      }}
-                    >
-                      TEXTO
-                    </Badge>
-
-                    <View
-                      style={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 40,
-                        backgroundColor: `${ColorTokens.neutral[0]}66`, // background/40
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Text style={{ fontSize: 40 }}>🦆</Text>
-                    </View>
-                  </LinearGradient>
-                </View>
-
-                <View style={{ padding: Spacing['4'] }}>
-                  <Text size="md" weight="semibold" style={{ marginBottom: Spacing['2'] }}>
-                    Como lidar com os primeiros dias
-                  </Text>
-                  <Text size="sm" color="secondary" style={{ marginBottom: Spacing['3'] }}>
-                    Dicas práticas para atravessar os momentos mais desafiadores da maternidade
-                    inicial.
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: Spacing['2'],
-                    }}
-                  >
-                    <Clock size={12} color={colors.text.tertiary} />
-                    <Text size="xs" color="tertiary">
-                      5 min de leitura
-                    </Text>
-                  </View>
-                </View>
-              </Animated.View>
-
-              {/* Content Item 2 - ÁUDIO - Animado */}
-              <Animated.View
-                style={{
-                  backgroundColor: colors.background.card,
-                  borderRadius: Radius['3xl'],
-                  overflow: 'hidden',
-                  borderWidth: 1,
-                  borderColor: colors.border.light,
-                  ...Tokens.shadows.card,
-                  opacity: animations[4].opacity,
-                  transform: [{ translateY: animations[4].translateY }],
-                }}
-              >
-                <View
-                  style={{
-                    height: 192,
-                    position: 'relative',
-                  }}
-                >
-                  <LinearGradient
-                    colors={[
-                      `${ColorTokens.primary[500]}33`, // primary/20
-                      `${ColorTokens.success[500]}33`, // success/20
-                    ]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Badge
-                      variant="primary"
-                      containerStyle={{
-                        position: 'absolute',
-                        top: Spacing['3'],
-                        left: Spacing['3'],
-                      }}
-                    >
-                      ÁUDIO
-                    </Badge>
-
-                    <View
-                      style={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 40,
-                        backgroundColor: `${ColorTokens.neutral[0]}66`, // background/40
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Play size={32} color={colors.primary.main} />
-                    </View>
-                  </LinearGradient>
-                </View>
-
-                <View style={{ padding: Spacing['4'] }}>
-                  <Text size="md" weight="semibold" style={{ marginBottom: Spacing['2'] }}>
-                    Meditação para noites difíceis
-                  </Text>
-                  <Text size="sm" color="secondary" style={{ marginBottom: Spacing['3'] }}>
-                    Um momento de paz para quando tudo parecer demais. Respire fundo e se permita
-                    sentir.
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: Spacing['2'],
-                    }}
-                  >
-                    <Clock size={12} color={colors.text.tertiary} />
-                    <Text size="xs" color="tertiary">
-                      8 min
-                    </Text>
-                  </View>
-                </View>
-              </Animated.View>
-            </View>
+            <FeaturedVideo
+              videoId="riVUidsF2qo"
+              title="O Vídeo que Marcou o Coração de Muitas Mães"
+              description="Um conteúdo que tocou profundamente milhares de mães. Uma experiência emocional única e transformadora."
+              viewsCount={10000}
+              rating={4.9}
+              duration={15}
+              onPlay={handleVideoPlay}
+            />
           </Animated.View>
+
+          {/* Seção: Para Você - Usando ContentCategorySection - Animado */}
+          <Animated.View
+            style={{
+              opacity: animations[3].opacity,
+              transform: [{ translateY: animations[3].translateY }],
+            }}
+          >
+            <ContentCategorySection
+              title="Para Você"
+              subtitle="Conteúdo selecionado especialmente"
+              icon={<Sparkles size={20} color={colors.primary.main} />}
+              items={MOCK_CONTENT_ITEMS}
+              onItemPress={(item) => handleContentPress(item.id)}
+              onSeeAllPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                logger.info('See all pressed', { screen: 'MundoNathScreen' });
+              }}
+            />
+          </Animated.View>
+
+          {/* Seção: ForYouSection (personalizada com IA) */}
+          <ForYouSection
+            onItemPress={(item) => handleContentPress(item.id)}
+            onSeeAllPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              logger.info('See all personalized pressed', { screen: 'MundoNathScreen' });
+            }}
+          />
         </Box>
       </ScrollView>
     </SafeAreaView>

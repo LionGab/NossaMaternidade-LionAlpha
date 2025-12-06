@@ -10,34 +10,34 @@ module.exports = {
         // Baseado no design do site de produção
         // ========================================
 
-        // Primary - Ocean Blue System
+        // Primary - Rosa Magenta (Screenshots reference - alinhado com Tokens.ts)
         primary: {
-          50: '#F0F8FF', // Lightest sky
-          100: '#E6F0FA', // Sky - backgrounds light
-          200: '#BAD4FF', // Light blue
-          300: '#7CACFF', // Mid blue
-          400: '#004E9A', // Ocean Blue (MAIN)
-          500: '#00427D', // Mid ocean
-          600: '#003768', // Dark ocean
-          700: '#002C54', // Navy
-          800: '#002244', // Deep Navy (hover)
-          900: '#001A36', // Darkest navy
-          DEFAULT: '#004E9A',
+          50: '#FCE4EC', // Lightest pink
+          100: '#F8BBD9', // Very light pink
+          200: '#F48FB1', // Soft pink
+          300: '#F06292', // Light pink
+          400: '#EC407A', // Mid-light pink
+          500: '#E91E63', // Rosa Magenta MAIN ⭐ (screenshots + Tokens.ts)
+          600: '#D81B60', // Deep pink
+          700: '#C2185B', // Darker pink
+          800: '#AD1457', // Dark pink
+          900: '#880E4F', // Darkest pink
+          DEFAULT: '#E91E63', // ⭐ Rosa Magenta (alinhado)
         },
 
-        // Secondary - Coral System
+        // Secondary - Roxo Vibrante (Screenshots reference - alinhado com Tokens.ts)
         secondary: {
-          50: '#FEF2F2', // Very light coral
-          100: '#FEE2E2', // Light coral
-          200: '#FECACA', // Soft coral
-          300: '#FCA5A5', // Mid coral
-          400: '#D93025', // Coral (MAIN)
-          500: '#B91C1C', // Deep coral
-          600: '#991B1B', // Dark coral
-          700: '#7F1D1D', // Darker coral
-          800: '#6B1818', // Almost dark
-          900: '#5A1313', // Darkest coral
-          DEFAULT: '#D93025',
+          50: '#F3E5F5', // Lightest purple
+          100: '#E1BEE7', // Very light purple
+          200: '#CE93D8', // Soft purple
+          300: '#BA68C8', // Light purple
+          400: '#AB47BC', // Mid purple
+          500: '#9C27B0', // Roxo Vibrante MAIN ⭐ (screenshots + Tokens.ts)
+          600: '#8E24AA', // Deep purple
+          700: '#7B1FA2', // Darker purple
+          800: '#6A1B9A', // Almost dark
+          900: '#4A148C', // Darkest purple
+          DEFAULT: '#9C27B0', // ⭐ Roxo Vibrante (alinhado)
         },
 
         // Mint/Success System

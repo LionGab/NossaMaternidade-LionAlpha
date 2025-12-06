@@ -185,7 +185,7 @@ export function useVoice(options: UseVoiceOptions = {}): UseVoiceReturn {
 
       await speak(text, effectiveVoiceType);
     },
-    [speak, defaultVoiceType]
+    [speak, defaultVoiceType, isConfigured]
   );
 
   const stop = useCallback(async (): Promise<void> => {

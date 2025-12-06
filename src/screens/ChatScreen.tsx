@@ -29,6 +29,7 @@ import {
   AccessibilityInfo,
   Keyboard,
   Alert,
+  Linking,
 } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -48,6 +49,7 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AIDisclaimerModal } from '@/components/molecules/AIDisclaimerModal';
 import { NathIAChatInput } from '@/components/nathia/NathIAChatInput';
 import { Box } from '@/components/atoms/Box';
+import { Button } from '@/components/atoms/Button';
 import { ChatBubble } from '@/components/atoms/ChatBubble';
 import { IconButton } from '@/components/atoms/IconButton';
 import { Text } from '@/components/atoms/Text';
@@ -665,20 +667,18 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
 
         {/* Disclaimer fixo no topo */}
         <Box
-          p="2"
+          className="px-2 py-2 border-b"
           style={{
             backgroundColor: isDark
               ? `${ColorTokens.warning[900]}33`
               : `${ColorTokens.warning[100]}CC`,
-            borderBottomWidth: 1,
             borderBottomColor: colors.border.medium,
             paddingTop: insets.top,
           }}
         >
           <Text
-            size="xs"
+            className="text-xs text-center"
             style={{
-              textAlign: 'center',
               color: isDark ? ColorTokens.warning[300] : ColorTokens.warning[800],
             }}
           >
@@ -736,11 +736,10 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                   }}
                 />
 
-                <View style={{ flex: 1 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing['1'] }}>
+                <Box className="flex-1">
+                  <Box className="flex-row items-center gap-1">
                     <Text
-                      size="md"
-                      weight="bold"
+                      className="text-base font-bold"
                       style={{ color: isDark ? ColorTokens.neutral[0] : ColorTokens.neutral[900] }}
                     >
                       NathIA
@@ -750,20 +749,14 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                       color={ColorTokens.success[500]}
                       fill={ColorTokens.success[500]}
                     />
-                  </View>
+                  </Box>
                   {/* Badge Online */}
-                  <View
+                  <Box
+                    className="flex-row items-center mt-0.5 self-start px-2 py-0.5 rounded-full"
                     style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginTop: 2,
-                      alignSelf: 'flex-start',
                       backgroundColor: isDark
                         ? ColorTokens.overlay.light
                         : `${ColorTokens.primary[500]}1A`,
-                      paddingHorizontal: Spacing['2'],
-                      paddingVertical: 2,
-                      borderRadius: Radius.full,
                     }}
                   >
                     <Zap
@@ -771,17 +764,15 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                       color={isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600]}
                     />
                     <Text
-                      size="xs"
-                      weight="semibold"
+                      className="text-xs font-semibold ml-1"
                       style={{
                         color: isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600],
-                        marginLeft: 4,
                       }}
                     >
                       Online
                     </Text>
-                  </View>
-                </View>
+                  </Box>
+                </Box>
 
                 <IconButton
                   icon={
@@ -800,22 +791,13 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
               </View>
 
               {/* Badges Rápido e 24/7 */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: Spacing['2'],
-                }}
-              >
-                <View
+              <Box className="flex-row gap-2">
+                <Box
+                  className="flex-row items-center px-2.5 py-1 rounded-full"
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     backgroundColor: isDark
                       ? ColorTokens.overlay.light
                       : `${ColorTokens.primary[500]}1A`,
-                    paddingHorizontal: Spacing['2.5'],
-                    paddingVertical: Spacing['1'],
-                    borderRadius: Radius.full,
                   }}
                 >
                   <Zap
@@ -823,26 +805,20 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                     color={isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600]}
                   />
                   <Text
-                    size="xs"
-                    weight="semibold"
+                    className="text-xs font-semibold ml-1"
                     style={{
                       color: isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600],
-                      marginLeft: 4,
                     }}
                   >
                     Rápido
                   </Text>
-                </View>
-                <View
+                </Box>
+                <Box
+                  className="flex-row items-center px-2.5 py-1 rounded-full"
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
                     backgroundColor: isDark
                       ? ColorTokens.overlay.light
                       : `${ColorTokens.primary[500]}1A`,
-                    paddingHorizontal: Spacing['2.5'],
-                    paddingVertical: Spacing['1'],
-                    borderRadius: Radius.full,
                   }}
                 >
                   <MessageCircle
@@ -850,17 +826,15 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                     color={isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600]}
                   />
                   <Text
-                    size="xs"
-                    weight="semibold"
+                    className="text-xs font-semibold ml-1"
                     style={{
                       color: isDark ? ColorTokens.neutral[0] : ColorTokens.primary[600],
-                      marginLeft: 4,
                     }}
                   >
                     24/7
                   </Text>
-                </View>
-              </View>
+                </Box>
+              </Box>
             </SafeAreaView>
           </LinearGradient>
         </Animated.View>
@@ -877,19 +851,16 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                 borderWidth={0}
                 useGradientFallback={true}
               />
-              <View style={{ flex: 1, gap: Spacing['2'] }}>
+              <Box className="flex-1 gap-2">
                 <Box
-                  bg="card"
-                  p="4"
-                  rounded="3xl"
+                  className="bg-card p-4 rounded-3xl border"
                   style={{
                     borderTopLeftRadius: Radius.lg,
-                    borderWidth: 1,
                     borderColor: colors.border.light,
                     ...Tokens.shadows.card,
                   }}
                 >
-                  <Text size="sm" style={{ lineHeight: 20 }}>
+                  <Text className="text-sm" style={{ lineHeight: 20 }}>
                     Oi, mãe. Tô aqui com você. Como você está se sentindo agora?
                   </Text>
                 </Box>
@@ -915,16 +886,16 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
                       accessibilityRole="button"
                       accessibilityLabel={`Sugestão: ${chip.text}`}
                     >
-                      <Text size="xs" color="secondary" style={{ marginRight: 4 }}>
+                      <Text className="text-xs text-text-secondary mr-1">
                         {chip.emoji}
                       </Text>
-                      <Text size="xs" color="secondary">
+                      <Text className="text-xs text-text-secondary">
                         {chip.text}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
-              </View>
+              </Box>
             </View>
           </View>
         ) : (
@@ -977,83 +948,51 @@ Você não está sozinha. Há pessoas prontas para te ajudar.`,
         ) : (
           /* Banner de recursos de emergência em modo de crise - SEM botão de escape */
           <Box
-            p="4"
+            className="p-4 border-t-2"
             style={{
               backgroundColor: isDark
                 ? `${ColorTokens.error[900]}33`
                 : `${ColorTokens.error[100]}CC`,
-              borderTopWidth: 2,
               borderTopColor: ColorTokens.error[500],
             }}
           >
             <Text
-              size="sm"
-              weight="semibold"
-              style={{ marginBottom: Spacing['2'], textAlign: 'center' }}
+              className="text-sm font-semibold mb-2 text-center"
             >
               💙 Você não está sozinha
             </Text>
             <Text
-              size="xs"
-              color="secondary"
-              style={{ textAlign: 'center', marginBottom: Spacing['3'] }}
+              className="text-xs text-text-secondary text-center mb-3"
             >
               Ligue agora para conversar com alguém que pode ajudar
             </Text>
-            <Box gap="2">
-              <TouchableOpacity
+            <Box className="gap-2">
+              <Button
+                title="📞 Ligar CVV (188)"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  // Abrir discador com CVV
-                  import('react-native').then(({ Linking }) => {
-                    Linking.openURL('tel:188');
-                  });
+                  Linking.openURL('tel:188');
                 }}
-                style={{
-                  backgroundColor: ColorTokens.success[600],
-                  paddingVertical: Spacing['3'],
-                  paddingHorizontal: Spacing['4'],
-                  borderRadius: Radius.xl,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: Spacing['2'],
-                }}
-                accessibilityRole="button"
+                className="bg-success-600 rounded-xl px-4 py-3 flex-row items-center justify-center gap-2"
+                textClassName="text-sm font-bold text-white"
                 accessibilityLabel="Ligar para o CVV"
-              >
-                <Text size="sm" weight="bold" style={{ color: ColorTokens.neutral[0] }}>
-                  📞 Ligar CVV (188)
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+              />
+              <Button
+                title="🏥 SAMU (192)"
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  import('react-native').then(({ Linking }) => {
-                    Linking.openURL('tel:192');
-                  });
+                  Linking.openURL('tel:192');
                 }}
+                className="rounded-lg px-4 py-2.5 flex-row items-center justify-center"
+                textClassName="text-xs font-semibold"
                 style={{
                   backgroundColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[200],
-                  paddingVertical: Spacing['2.5'],
-                  paddingHorizontal: Spacing['4'],
-                  borderRadius: Radius.lg,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
-                accessibilityRole="button"
                 accessibilityLabel="Ligar para o SAMU"
-              >
-                <Text size="xs" weight="semibold">
-                  🏥 SAMU (192)
-                </Text>
-              </TouchableOpacity>
+              />
             </Box>
             <Text
-              size="xs"
-              color="tertiary"
-              style={{ textAlign: 'center', marginTop: Spacing['3'] }}
+              className="text-xs text-text-tertiary text-center mt-3"
             >
               Atendimento 24h, gratuito e sigiloso
             </Text>

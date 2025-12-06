@@ -1,469 +1,72 @@
 /**
  * SOS Mãe Screen
  * Suporte emergencial para mães em momentos difíceis
- * Migrado de app-redesign-studio
+ * Migrado de app-redesign-studio-ab40635e/src/pages/SOSMae.tsx
+ * Refatorado para usar componentes separados de src/components/sos/
  */
 
 import * as Haptics from 'expo-haptics';
-import * as Linking from 'expo-linking';
 import {
   ArrowLeft,
   Share2,
   CheckCircle2,
-  Phone,
-  Heart,
   MessageCircle,
-  Users,
 } from 'lucide-react-native';
 import React, { useState, useCallback } from 'react';
 import {
-  View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   Share,
   Platform,
-  Alert,
+  SafeAreaView,
 } from 'react-native';
-import Animated, {
-  FadeIn,
-  SlideInRight,
-  SlideOutLeft,
-  SlideInUp,
-} from 'react-native-reanimated';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Box } from '@/components/atoms/Box';
 import { Button } from '@/components/atoms/Button';
 import { Text } from '@/components/atoms/Text';
+import {
+  SentimentAnalyzer,
+  EmpathyAudioPlayer,
+  CommunityTestimonial,
+} from '@/components/sos';
 import { useTheme } from '@/theme';
-import { Tokens } from '@/theme/tokens';
+import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/types';
 import {
   SentimentType,
-  CommunityTestimonial,
-  SENTIMENT_OPTIONS,
-  EMERGENCY_CONTACTS,
+  CommunityTestimonial as TestimonialType,
 } from '@/types/sos';
 
-type SOSPhase = 'analyzing' | 'support' | 'testimonial' | 'complete';
+type SOSPhase = 'analyzing' | 'audio' | 'testimonial' | 'complete';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-// ============================================
-// SENTIMENT ANALYZER COMPONENT
-// ============================================
-interface SentimentAnalyzerProps {
-  onSentimentSelected: (sentiment: SentimentType, text?: string) => void;
-}
-
-const SentimentAnalyzer: React.FC<SentimentAnalyzerProps> = ({
-  onSentimentSelected,
-}) => {
-  const { colors } = useTheme();
-  const [selectedSentiment, setSelectedSentiment] = useState<SentimentType | null>(null);
-  const [customText, setCustomText] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
-
-  const handleSelect = useCallback(
-    (sentiment: SentimentType) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setSelectedSentiment(sentiment);
-      setShowCustomInput(true);
-    },
-    []
-  );
-
-  const handleContinue = useCallback(() => {
-    if (selectedSentiment) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      onSentimentSelected(selectedSentiment, customText);
-    }
-  }, [selectedSentiment, customText, onSentimentSelected]);
-
-  return (
-    <Animated.View entering={FadeIn.duration(300)}>
-      <Box p="4" gap="5">
-        {/* Header */}
-        <Box gap="2" align="center">
-          <Text style={{ fontSize: 48 }}>💖</Text>
-          <Text
-            variant="body"
-            size="xl"
-            weight="bold"
-            align="center"
-            style={{ color: colors.text.primary }}
-          >
-            Como você está se sentindo agora?
-          </Text>
-          <Text
-            variant="body"
-            size="sm"
-            align="center"
-            style={{ color: colors.text.secondary }}
-          >
-            Estamos aqui com você. Escolha o que mais representa seu momento.
-          </Text>
-        </Box>
-
-        {/* Sentiment Options */}
-        <Box gap="2">
-          {SENTIMENT_OPTIONS.map((option) => {
-            const isSelected = selectedSentiment === option.type;
-            return (
-              <TouchableOpacity
-                key={option.type}
-                onPress={() => handleSelect(option.type)}
-                accessibilityRole="button"
-                accessibilityLabel={option.label}
-                accessibilityState={{ selected: isSelected }}
-                style={{
-                  backgroundColor: isSelected
-                    ? option.color
-                    : colors.background.card,
-                  borderRadius: Tokens.radius['2xl'],
-                  padding: Tokens.spacing['4'],
-                  borderWidth: 2,
-                  borderColor: isSelected ? option.color : colors.border.light,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: Tokens.spacing['3'],
-                }}
-              >
-                <Text style={{ fontSize: 28 }}>{option.emoji}</Text>
-                <Text
-                  variant="body"
-                  size="md"
-                  weight="semibold"
-                  style={{
-                    color: isSelected ? '#FFFFFF' : colors.text.primary,
-                  }}
-                >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </Box>
-
-        {/* Custom Input */}
-        {showCustomInput && (
-          <Animated.View entering={SlideInUp.duration(200)}>
-            <Box gap="3">
-              <Text
-                variant="body"
-                size="sm"
-                weight="semibold"
-                style={{ color: colors.text.secondary }}
-              >
-                Quer contar mais? (opcional)
-              </Text>
-              <TextInput
-                placeholder="Escreva o que você está sentindo..."
-                placeholderTextColor={colors.text.placeholder}
-                value={customText}
-                onChangeText={setCustomText}
-                multiline
-                numberOfLines={3}
-                style={{
-                  backgroundColor: colors.background.input,
-                  borderRadius: Tokens.radius.xl,
-                  padding: Tokens.spacing['4'],
-                  color: colors.text.primary,
-                  fontSize: Tokens.typography.sizes.md,
-                  minHeight: 100,
-                  textAlignVertical: 'top',
-                }}
-              />
-              <Button
-                title="Continuar"
-                onPress={handleContinue}
-                style={{
-                  backgroundColor: Tokens.colors.coral[500],
-                }}
-              />
-            </Box>
-          </Animated.View>
-        )}
-      </Box>
-    </Animated.View>
-  );
-};
-
-// ============================================
-// SUPPORT CARDS COMPONENT
-// ============================================
-interface SupportCardsProps {
-  sentiment: SentimentType;
-  onContinue: () => void;
-}
-
-const SupportCards: React.FC<SupportCardsProps> = ({ sentiment, onContinue }) => {
-  const { colors } = useTheme();
-
-  const handleCallEmergency = useCallback(async (phone: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-
-    const url = `tel:${phone}`;
-    const canOpen = await Linking.canOpenURL(url);
-
-    if (canOpen) {
-      await Linking.openURL(url);
-      logger.info('Emergency call initiated', { phone });
-    } else {
-      Alert.alert(
-        'Não foi possível abrir',
-        `Por favor, ligue para ${phone}`,
-        [{ text: 'OK' }]
-      );
-    }
-  }, []);
-
-  const supportMessages: Record<SentimentType, string> = {
-    sobrecarregada:
-      'É muito difícil carregar tanto peso. Você não precisa fazer tudo sozinha.',
-    ansiosa:
-      'A ansiedade pode ser paralisante, mas ela passa. Respire fundo, estamos aqui.',
-    triste:
-      'É ok não estar bem. Seus sentimentos são válidos e merecem atenção.',
-    irritada:
-      'A raiva é um sinal de que algo precisa mudar. Vamos cuidar de você.',
-    sozinha:
-      'Você não está sozinha, mesmo quando parece. Milhares de mães sentem o mesmo.',
-    desesperada:
-      'Este momento vai passar. Você é mais forte do que pensa. Busque ajuda.',
-    culpada:
-      'A culpa materna é real, mas não te define. Você está fazendo o seu melhor.',
-    cansada:
-      'O cansaço extremo é real. Você precisa e merece descansar.',
-  };
-
-  return (
-    <Animated.View
-      entering={SlideInRight.duration(300)}
-      exiting={SlideOutLeft.duration(200)}
-    >
-      <Box gap="4" p="4">
-        {/* Empathy Message */}
-        <Box
-          p="5"
-          gap="3"
-          align="center"
-          style={{
-            backgroundColor: `${Tokens.colors.coral[500]}15`,
-            borderRadius: Tokens.radius['3xl'],
-            borderWidth: 2,
-            borderColor: `${Tokens.colors.coral[500]}30`,
-          }}
-        >
-          <Text style={{ fontSize: 48 }}>💖</Text>
-          <Text
-            variant="body"
-            size="lg"
-            align="center"
-            weight="medium"
-            style={{ color: colors.text.primary }}
-          >
-            {supportMessages[sentiment]}
-          </Text>
-        </Box>
-
-        {/* Emergency Contacts */}
-        <Box gap="2">
-          <Text
-            variant="body"
-            size="sm"
-            weight="bold"
-            style={{ color: colors.text.secondary }}
-          >
-            Se precisar de ajuda profissional:
-          </Text>
-
-          {EMERGENCY_CONTACTS.map((contact) => (
-            <TouchableOpacity
-              key={contact.phone}
-              onPress={() => handleCallEmergency(contact.phone)}
-              accessibilityRole="button"
-              accessibilityLabel={`Ligar para ${contact.name}`}
-              style={{
-                backgroundColor: colors.background.card,
-                borderRadius: Tokens.radius['2xl'],
-                padding: Tokens.spacing['4'],
-                borderWidth: 1,
-                borderColor: colors.border.light,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: Tokens.spacing['3'],
-              }}
-            >
-              <Box
-                align="center"
-                justify="center"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
-                  backgroundColor: `${Tokens.colors.success[500]}20`,
-                }}
-              >
-                <Phone size={24} color={Tokens.colors.success[600]} />
-              </Box>
-              <Box flex={1}>
-                <Text
-                  variant="body"
-                  size="md"
-                  weight="semibold"
-                  style={{ color: colors.text.primary }}
-                >
-                  {contact.name}
-                </Text>
-                <Text
-                  variant="caption"
-                  size="xs"
-                  style={{ color: colors.text.tertiary }}
-                >
-                  {contact.description}
-                </Text>
-              </Box>
-              <Box
-                px="3"
-                py="2"
-                style={{
-                  backgroundColor: Tokens.colors.success[500],
-                  borderRadius: Tokens.radius.full,
-                }}
-              >
-                <Text
-                  variant="caption"
-                  size="sm"
-                  weight="bold"
-                  style={{ color: '#FFFFFF' }}
-                >
-                  {contact.phone}
-                </Text>
-              </Box>
-            </TouchableOpacity>
-          ))}
-        </Box>
-
-        {/* Continue Button */}
-        <Button
-          title="Ver histórias de outras mães"
-          onPress={onContinue}
-          variant="outline"
-          leftIcon={<Users size={20} color={colors.text.primary} />}
-        />
-      </Box>
-    </Animated.View>
-  );
-};
-
-// ============================================
-// COMMUNITY TESTIMONIAL COMPONENT
-// ============================================
-interface TestimonialCardProps {
-  testimonial: CommunityTestimonial;
-  sentiment: SentimentType;
-}
-
-const TestimonialCard: React.FC<TestimonialCardProps> = ({
-  testimonial,
-  sentiment,
-}) => {
-  const { colors } = useTheme();
-  const sentimentOption = SENTIMENT_OPTIONS.find((s) => s.type === sentiment);
-
-  return (
-    <Box
-      p="5"
-      gap="4"
-      style={{
-        backgroundColor: colors.background.card,
-        borderRadius: Tokens.radius['3xl'],
-        borderWidth: 2,
-        borderColor: colors.border.light,
-      }}
-    >
-      {/* Header */}
-      <Box direction="row" align="center" gap="3">
-        <Box
-          align="center"
-          justify="center"
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: `${sentimentOption?.color || colors.primary.main}20`,
-          }}
-        >
-          <Text style={{ fontSize: 24 }}>
-            {testimonial.isAnonymous ? '💙' : testimonial.authorInitials}
-          </Text>
-        </Box>
-        <Box flex={1}>
-          <Text
-            variant="body"
-            size="md"
-            weight="semibold"
-            style={{ color: colors.text.primary }}
-          >
-            {testimonial.isAnonymous ? 'Mãe Anônima' : testimonial.authorName}
-          </Text>
-          <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
-            Também se sentiu {sentimentOption?.label.toLowerCase()}
-          </Text>
-        </Box>
-      </Box>
-
-      {/* Message */}
-      <Text
-        variant="body"
-        size="md"
-        style={{ color: colors.text.primary, lineHeight: 24 }}
-      >
-        &quot;{testimonial.message}&quot;
-      </Text>
-
-      {/* Stats */}
-      <Box
-        direction="row"
-        align="center"
-        gap="2"
-        pt="3"
-        style={{ borderTopWidth: 1, borderTopColor: colors.border.light }}
-      >
-        <Heart size={16} color={Tokens.colors.coral[500]} fill={Tokens.colors.coral[500]} />
-        <Text variant="caption" size="sm" style={{ color: colors.text.tertiary }}>
-          {testimonial.helpedCount} mães se sentiram acolhidas
-        </Text>
-      </Box>
-    </Box>
-  );
-};
 
 // ============================================
 // MAIN SCREEN COMPONENT
 // ============================================
 export default function SOSMaeScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
 
   const [phase, setPhase] = useState<SOSPhase>('analyzing');
   const [sentiment, setSentiment] = useState<SentimentType | null>(null);
-  const [_inputText, setInputText] = useState<string>('');
-  const [testimonial, setTestimonial] = useState<CommunityTestimonial | null>(null);
+  const [inputText, setInputText] = useState<string>('');
+  const [testimonial, setTestimonial] = useState<TestimonialType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Mock testimonial data
+  // TODO: Integrar com serviço real de depoimentos (Supabase)
   const getTestimonial = useCallback(
-    async (selectedSentiment: SentimentType): Promise<CommunityTestimonial> => {
+    async (selectedSentiment: SentimentType): Promise<TestimonialType> => {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      const testimonials: Record<SentimentType, CommunityTestimonial> = {
+      const testimonials: Record<SentimentType, TestimonialType> = {
         sobrecarregada: {
           id: '1',
           authorName: 'Maria',
@@ -568,7 +171,7 @@ export default function SOSMaeScreen() {
       try {
         const testimonialData = await getTestimonial(selectedSentiment);
         setTestimonial(testimonialData);
-        setPhase('support');
+        setPhase('audio');
       } catch (error) {
         logger.error('Error getting testimonial', error);
       } finally {
@@ -577,6 +180,10 @@ export default function SOSMaeScreen() {
     },
     [getTestimonial]
   );
+
+  const handleAudioComplete = useCallback(() => {
+    setPhase('testimonial');
+  }, []);
 
   const handleComplete = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -613,11 +220,10 @@ export default function SOSMaeScreen() {
   // ============================================
   if (phase === 'complete') {
     return (
-      <View
+      <SafeAreaView
         style={{
           flex: 1,
           backgroundColor: colors.background.canvas,
-          paddingTop: insets.top,
         }}
       >
         {/* Header */}
@@ -625,7 +231,11 @@ export default function SOSMaeScreen() {
           direction="row"
           align="center"
           p="4"
-          style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border.light,
+            paddingTop: insets.top + Tokens.spacing['4'],
+          }}
         >
           <TouchableOpacity
             onPress={handleGoBack}
@@ -658,29 +268,23 @@ export default function SOSMaeScreen() {
                   width: 80,
                   height: 80,
                   borderRadius: 40,
-                  backgroundColor: Tokens.colors.coral[500],
+                  backgroundColor: ColorTokens.secondary[500],
                 }}
               >
-                <CheckCircle2 size={40} color="#FFFFFF" />
+                <CheckCircle2 size={40} color={ColorTokens.neutral[0]} />
               </Box>
 
               {/* Success Message */}
               <Box gap="2" align="center">
                 <Text
-                  variant="body"
                   size="2xl"
                   weight="bold"
                   align="center"
-                  style={{ color: Tokens.colors.coral[500] }}
+                  style={{ color: ColorTokens.secondary[500] }}
                 >
                   Você está segura 💖
                 </Text>
-                <Text
-                  variant="body"
-                  size="lg"
-                  align="center"
-                  style={{ color: colors.text.secondary }}
-                >
+                <Text size="lg" align="center" color="secondary">
                   Você dedicou este momento para cuidar de si mesma. Isso é importante.
                 </Text>
               </Box>
@@ -690,25 +294,43 @@ export default function SOSMaeScreen() {
                 <Button
                   title="Conversar com NathIA"
                   onPress={handleGoToChat}
-                  leftIcon={<MessageCircle size={20} color="#FFFFFF" />}
-                  style={{ backgroundColor: colors.primary.main }}
+                  leftIcon={<MessageCircle size={20} color={ColorTokens.neutral[0]} />}
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  style={{
+                    backgroundColor: isDark ? ColorTokens.primary[600] : ColorTokens.primary[500],
+                    borderRadius: Tokens.radius.xl,
+                  }}
                 />
                 <Button
                   title="Compartilhar"
                   onPress={handleShare}
                   variant="outline"
+                  size="lg"
+                  fullWidth
                   leftIcon={<Share2 size={20} color={colors.text.primary} />}
+                  style={{
+                    borderRadius: Tokens.radius.xl,
+                    borderWidth: 2,
+                    borderColor: colors.primary.main,
+                  }}
                 />
                 <Button
                   title="Voltar para Home"
                   onPress={handleGoBack}
-                  variant="ghost"
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  style={{
+                    borderRadius: Tokens.radius.xl,
+                  }}
                 />
               </Box>
             </Box>
           </Animated.View>
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -716,11 +338,10 @@ export default function SOSMaeScreen() {
   // RENDER: MAIN FLOW
   // ============================================
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: colors.background.canvas,
-        paddingTop: insets.top,
       }}
     >
       {/* Header */}
@@ -729,7 +350,11 @@ export default function SOSMaeScreen() {
         align="center"
         p="4"
         gap="3"
-        style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border.light,
+          paddingTop: insets.top + Tokens.spacing['4'],
+        }}
       >
         <TouchableOpacity
           onPress={handleGoBack}
@@ -745,15 +370,10 @@ export default function SOSMaeScreen() {
           <ArrowLeft size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Box flex={1}>
-          <Text
-            variant="body"
-            size="lg"
-            weight="bold"
-            style={{ color: Tokens.colors.coral[500] }}
-          >
+          <Text size="lg" weight="bold" style={{ color: ColorTokens.secondary[500] }}>
             🆘 SOS Mãe
           </Text>
-          <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
+          <Text size="xs" color="tertiary">
             Estamos aqui com você
           </Text>
         </Box>
@@ -764,11 +384,12 @@ export default function SOSMaeScreen() {
         contentContainerStyle={{
           paddingBottom: insets.bottom + Tokens.spacing['8'],
         }}
+        showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
-          <Box flex={1} align="center" justify="center" py="16">
-            <ActivityIndicator size="large" color={Tokens.colors.coral[500]} />
-            <Text style={{ color: colors.text.secondary, marginTop: Tokens.spacing['4'] }}>
+          <Box align="center" justify="center" py="16">
+            <ActivityIndicator size="large" color={ColorTokens.secondary[500]} />
+            <Text size="sm" color="secondary" style={{ marginTop: Tokens.spacing['4'] }}>
               Preparando seu acolhimento...
             </Text>
           </Box>
@@ -778,51 +399,50 @@ export default function SOSMaeScreen() {
               <SentimentAnalyzer onSentimentSelected={handleSentimentSelected} />
             )}
 
-            {phase === 'support' && sentiment && (
-              <SupportCards
-                sentiment={sentiment}
-                onContinue={() => setPhase('testimonial')}
-              />
+            {phase === 'audio' && sentiment && (
+              <Box p="4" gap="4">
+                <EmpathyAudioPlayer
+                  sentiment={sentiment}
+                  text={inputText}
+                  onComplete={handleAudioComplete}
+                />
+                <Button
+                  title="Continuar"
+                  onPress={handleAudioComplete}
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  style={{
+                    borderRadius: Tokens.radius['2xl'],
+                  }}
+                />
+              </Box>
             )}
 
             {phase === 'testimonial' && sentiment && testimonial && (
               <Box p="4" gap="4">
-                <Box gap="2" align="center">
-                  <Text
-                    variant="body"
-                    size="lg"
-                    weight="bold"
-                    align="center"
-                    style={{ color: colors.text.primary }}
-                  >
-                    Você não está sozinha
-                  </Text>
-                  <Text
-                    variant="body"
-                    size="sm"
-                    align="center"
-                    style={{ color: colors.text.secondary }}
-                  >
-                    Outra mãe que também se sentiu assim:
-                  </Text>
-                </Box>
-
-                <TestimonialCard testimonial={testimonial} sentiment={sentiment} />
+                <CommunityTestimonial
+                  testimonial={testimonial}
+                  sentiment={sentiment}
+                />
 
                 <Box direction="row" gap="3">
                   <Button
                     title="Compartilhar"
                     onPress={handleShare}
                     variant="outline"
-                    style={{ flex: 1 }}
+                    size="lg"
                     leftIcon={<Share2 size={18} color={colors.text.primary} />}
+                    style={{ flex: 1 }}
                   />
                   <Button
                     title="Finalizar"
                     onPress={handleComplete}
+                    variant="primary"
+                    size="lg"
                     style={{
                       flex: 1,
-                      backgroundColor: Tokens.colors.coral[500],
+                      backgroundColor: ColorTokens.secondary[500],
                     }}
                   />
                 </Box>
@@ -831,7 +451,6 @@ export default function SOSMaeScreen() {
           </>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
-

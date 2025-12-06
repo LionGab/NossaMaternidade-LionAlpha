@@ -5,8 +5,6 @@
  * Conforme Plano de Correção de Qualidade - Fase 3.1
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-
 /**
  * Mock factory para criar instâncias mockadas do Supabase
  * Permite customizar comportamentos por teste

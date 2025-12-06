@@ -384,7 +384,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
         >
           <Animated.View style={animatedStyle}>
             {/* Top Navigation */}
-            <Box direction="row" justify="space-between" align="center" mb="8">
+            <Box className="flex-row justify-between items-center mb-8">
               <HapticButton
                 variant="ghost"
                 size="sm"
@@ -433,7 +433,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
             </Box>
 
             {/* Header */}
-            <Box align="center" mb="10">
+            <Box className="items-center mb-10">
               <View
                 style={{
                   width: 100,
@@ -458,13 +458,13 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                 />
               </View>
 
-              <Box mb="1" align="center">
+              <Box className="mb-1 items-center">
                 <Heading level="h3" weight="bold" align="center">
                   Bem-vinda de volta
                 </Heading>
               </Box>
 
-              <Text size="sm" align="center" color="secondary" style={{ maxWidth: '80%' }}>
+              <Text className="text-sm text-center text-text-secondary" style={{ maxWidth: '80%' }}>
                 Entre para acessar seu espaço seguro.
               </Text>
             </Box>
@@ -539,7 +539,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
             </Animated.View>
 
             {/* Forgot Password Link */}
-            <Box align="flex-end" mb="6">
+            <Box className="items-end mb-6">
               <HapticButton
                 variant="ghost"
                 size="sm"
@@ -548,10 +548,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                 accessibilityHint="Abre diálogo para recuperar senha"
               >
                 <Text
-                  size="xs"
-                  weight="semibold"
-                  color="link"
-                  style={{ textDecorationLine: 'underline' }}
+                  className="text-xs font-semibold text-link underline"
                 >
                   Esqueceu a senha?
                 </Text>
@@ -562,18 +559,16 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
             <Button
               title={isLoading ? 'Entrando...' : 'Entrar'}
               onPress={handleLogin}
-              variant="primary"
-              size="lg"
               loading={isLoading}
               disabled={isLoading}
-              fullWidth
-              style={{ marginBottom: Spacing['6'] }}
+              className="bg-primary rounded-xl px-6 py-4 w-full mb-6"
+              textClassName="text-white font-semibold text-lg"
               accessibilityLabel="Entrar"
               accessibilityHint="Faz login com e-mail e senha"
             />
 
             {/* Divider */}
-            <Box direction="row" align="center" mb="6">
+            <Box className="flex-row items-center mb-6">
               <View
                 style={{
                   height: 1,
@@ -582,11 +577,8 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                 }}
               />
               <Text
-                size="xs"
-                weight="semibold"
-                color="tertiary"
+                className="text-xs font-semibold text-text-tertiary uppercase"
                 style={{
-                  textTransform: 'uppercase',
                   letterSpacing: 2,
                   marginHorizontal: Spacing['4'],
                 }}
@@ -603,7 +595,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
             </Box>
 
             {/* Social Login */}
-            <Box mb="6">
+            <Box className="mb-6">
               <HapticButton
                 variant="outline"
                 size="lg"
@@ -635,7 +627,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                   color={colors.text.primary}
                   style={{ marginRight: Spacing['2'] }}
                 />
-                <Text size="md" weight="semibold" color="primary">
+                <Text className="text-base font-semibold text-primary">
                   {SOCIAL_LOGIN_ENABLED ? 'Continuar com Apple' : 'Apple (em breve)'}
                 </Text>
               </HapticButton>
@@ -674,7 +666,7 @@ export default function LoginScreen({ onLogin, onBack }: LoginScreenProps) {
                     marginRight: Spacing['2'],
                   }}
                 />
-                <Text size="md" weight="semibold" color="primary">
+                <Text className="text-base font-semibold text-primary">
                   {SOCIAL_LOGIN_ENABLED ? 'Continuar com Google' : 'Google (em breve)'}
                 </Text>
               </HapticButton>

@@ -150,6 +150,11 @@ export class ContentRecommendationAgent extends BaseAgent {
   ): ContentItem[] {
     if (!filters) return content;
 
+    // Normalizar tags: remover strings vazias e espaços
+    const normalizedTags = filters.tags
+      ? filters.tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
+      : undefined;
+
     return content.filter((item) => {
       // Filtro de tipos - só aplica se array não estiver vazio
       if (filters.types && filters.types.length > 0 && !filters.types.includes(item.type)) {
@@ -165,9 +170,9 @@ export class ContentRecommendationAgent extends BaseAgent {
         return false;
       }
 
-      // Filtro de tags (pelo menos uma tag deve corresponder) - só aplica se array não estiver vazio
-      if (filters.tags && filters.tags.length > 0) {
-        const hasMatchingTag = item.tags.some((tag) => filters.tags?.includes(tag));
+      // Filtro de tags (pelo menos uma tag deve corresponder) - só aplica se array normalizado não estiver vazio
+      if (normalizedTags && normalizedTags.length > 0) {
+        const hasMatchingTag = item.tags.some((tag) => normalizedTags.includes(tag));
         if (!hasMatchingTag) return false;
       }
 

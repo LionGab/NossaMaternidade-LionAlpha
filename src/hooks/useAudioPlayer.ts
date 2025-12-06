@@ -80,12 +80,16 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
 
   // Cleanup ao desmontar
   useEffect(() => {
+    // Capturar valores dos refs para uso no cleanup
+    const updateInterval = updateIntervalRef.current;
+    const sound = soundRef.current;
+
     return () => {
-      if (updateIntervalRef.current) {
-        clearInterval(updateIntervalRef.current);
+      if (updateInterval) {
+        clearInterval(updateInterval);
       }
-      if (soundRef.current) {
-        soundRef.current.unloadAsync().catch(() => {});
+      if (sound) {
+        sound.unloadAsync().catch(() => {});
       }
     };
   }, []);

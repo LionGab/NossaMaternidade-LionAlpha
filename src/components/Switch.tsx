@@ -51,6 +51,8 @@ export const Switch: React.FC<SwitchProps> = ({
       damping: 15,
       stiffness: 150,
     });
+    // translateX é useSharedValue (estável), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checked]);
 
   const handlePress = () => {

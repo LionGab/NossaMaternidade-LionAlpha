@@ -295,10 +295,16 @@ export const Button: React.FC<ButtonProps> = React.memo(
           accessibilityRole="button"
           accessibilityLabel={accessibilityLabel || title}
           {...(accessibilityHint ? a11yProps : {})}
-          accessibilityState={{
-            disabled: isDisabled,
-            busy: loading,
-          }}
+        accessibilityState={{
+          disabled: isDisabled,
+          busy: loading,
+        }}
+        // Passar props para testes (usando data-* para evitar conflitos de tipo)
+        {...({
+          'data-variant': variant,
+          'data-size': size,
+          'data-fullwidth': fullWidth,
+        } as Record<string, unknown>)}
         >
           {loading ? (
             <ActivityIndicator size="small" color={colors.text.inverse} />
@@ -334,28 +340,34 @@ export const Button: React.FC<ButtonProps> = React.memo(
     // MODO 2: Props semânticas (legado, theme-aware)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // Usa variantStyles, sizeStyles, containerStyle já computados acima
-    return (
-      <Pressable
-        testID={testID}
-        onPress={handlePress}
-        disabled={isDisabled}
-        onFocus={isWeb ? handleFocus : undefined}
-        onBlur={isWeb ? handleBlur : undefined}
-        style={({ pressed }) => [
-          containerStyle,
-          pressed && {
-            opacity: isIOS ? 0.7 : 0.8,
-          },
-        ]}
-        android_ripple={androidRipple}
-        accessible={true}
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel || title}
-        {...(accessibilityHint ? a11yProps : {})}
-        accessibilityState={{
-          disabled: isDisabled,
-          busy: loading,
-        }}
+      return (
+        <Pressable
+          testID={testID}
+          onPress={handlePress}
+          disabled={isDisabled}
+          onFocus={isWeb ? handleFocus : undefined}
+          onBlur={isWeb ? handleBlur : undefined}
+          style={({ pressed }) => [
+            containerStyle,
+            pressed && {
+              opacity: isIOS ? 0.7 : 0.8,
+            },
+          ]}
+          android_ripple={androidRipple}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel || title}
+          {...(accessibilityHint ? a11yProps : {})}
+          accessibilityState={{
+            disabled: isDisabled,
+            busy: loading,
+          }}
+          // Passar props para testes (usando data-* para evitar conflitos de tipo)
+          {...({
+            'data-variant': variant,
+            'data-size': size,
+            'data-fullwidth': fullWidth,
+          } as Record<string, unknown>)}
       >
         {loading ? (
           <ActivityIndicator

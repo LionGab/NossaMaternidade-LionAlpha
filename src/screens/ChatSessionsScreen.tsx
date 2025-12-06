@@ -284,7 +284,7 @@ export default function ChatSessionsScreen() {
   };
 
   // Abrir conversa existente
-  const handleOpenConversation = (conversationId: string) => {
+  const handleOpenConversation = useCallback((conversationId: string) => {
     logger.info('[ChatSessionsScreen] Abrindo conversa', { conversationId });
     navigation.goBack();
     setTimeout(() => {
@@ -293,10 +293,10 @@ export default function ChatSessionsScreen() {
         params: { sessionId: conversationId },
       });
     }, 100);
-  };
+  }, [navigation]);
 
   // Deletar conversa
-  const handleDeleteConversation = async (conversationId: string) => {
+  const handleDeleteConversation = useCallback(async (conversationId: string) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     logger.info('[ChatSessionsScreen] Deletando conversa', { conversationId });
 
@@ -312,7 +312,7 @@ export default function ChatSessionsScreen() {
       logger.error('[ChatSessionsScreen] Erro ao deletar conversa', error);
       Alert.alert('Erro', 'Não foi possível deletar a conversa.');
     }
-  };
+  }, []);
 
   // Fechar modal
   const handleClose = () => {
@@ -330,7 +330,7 @@ export default function ChatSessionsScreen() {
         colors={colors}
       />
     ),
-    [colors]
+    [colors, handleOpenConversation, handleDeleteConversation]
   );
 
   const keyExtractor = useCallback((item: ChatConversation) => item.id, []);

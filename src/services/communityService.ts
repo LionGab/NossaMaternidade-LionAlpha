@@ -51,6 +51,9 @@ export interface CreatePostData {
   content: string;
   image_uri?: string;
   tags?: string[];
+  title?: string; // TODO: Adicionar coluna title na tabela community_posts se não existir
+  category?: string; // TODO: Adicionar coluna category na tabela community_posts se não existir
+  is_anonymous?: boolean; // TODO: Adicionar coluna is_anonymous na tabela community_posts se não existir
 }
 
 export interface CreateCommentData {
@@ -184,7 +187,11 @@ class CommunityService {
           user_id: userId,
           content: postData.content,
           image_url: imageUrl,
-          tags: postData.tags || [],
+          tags: postData.tags || (postData.category ? [postData.category] : []), // Usar tags como fallback para category
+          // TODO: Adicionar quando colunas existirem no banco:
+          // title: postData.title,
+          // category: postData.category,
+          // is_anonymous: postData.is_anonymous,
           is_approved: true, // Auto-aprovar por enquanto
         })
         .select(

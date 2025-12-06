@@ -14,31 +14,33 @@ import {
   Play,
   Pause,
   SkipForward,
-  Volume2,
-  VolumeX,
 } from 'lucide-react-native';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import Animated, {
   FadeIn,
   SlideInRight,
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  Easing,
-  cancelAnimation,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Box } from '@/components/atoms/Box';
 import { Button } from '@/components/atoms/Button';
 import { Text } from '@/components/atoms/Text';
+import {
+  EmotionCheckIn,
+  BreathingGuide,
+  AudioGuide,
+  AmbientSound,
+  RitualProgress,
+  RitualAnimations,
+} from '@/components/ritual';
 import { useTheme } from '@/theme';
-import { Tokens } from '@/theme/tokens';
+import { Tokens, ColorTokens } from '@/theme/tokens';
 import { logger } from '@/utils/logger';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -46,374 +48,13 @@ import type { RootStackParamList } from '@/navigation/types';
 import {
   RitualStep,
   EmotionState,
-  EmotionValue,
-  AmbientSoundType,
-  BreathingConfig,
   EMOTION_OPTIONS,
-  AMBIENT_SOUNDS,
   DEFAULT_BREATHING_CONFIG,
 } from '@/types/ritual';
+import type { AmbientSoundConfig } from '@/types/ritual';
 
 type RitualPhase = 'preparation' | 'running' | 'completion';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-// ============================================
-// EMOTION CHECK-IN COMPONENT
-// ============================================
-interface EmotionCheckInProps {
-  onComplete: (emotion: EmotionState) => void;
-  context: 'before' | 'after';
-  title: string;
-  description: string;
-}
-
-const EmotionCheckIn: React.FC<EmotionCheckInProps> = ({
-  onComplete,
-  context,
-  title,
-  description,
-}) => {
-  const { colors } = useTheme();
-  const [selectedEmotion, setSelectedEmotion] = useState<EmotionValue | null>(null);
-
-  const handleSelect = useCallback(
-    (emotion: EmotionValue) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      setSelectedEmotion(emotion);
-    },
-    []
-  );
-
-  const handleContinue = useCallback(() => {
-    if (selectedEmotion) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      onComplete({
-        emotion: selectedEmotion,
-        intensity: 7,
-      });
-    }
-  }, [selectedEmotion, onComplete]);
-
-  return (
-    <Animated.View entering={FadeIn.duration(400)}>
-      <Box p="4" gap="6">
-        {/* Header */}
-        <Box gap="2" align="center">
-          <Text
-            variant="body"
-            size="xl"
-            weight="bold"
-            align="center"
-            style={{ color: colors.text.primary }}
-          >
-            {title}
-          </Text>
-          <Text
-            variant="body"
-            size="sm"
-            align="center"
-            style={{ color: colors.text.secondary }}
-          >
-            {description}
-          </Text>
-        </Box>
-
-        {/* Emotion Options */}
-        <Box direction="row" justify="center" gap="3" style={{ flexWrap: 'wrap' }}>
-          {EMOTION_OPTIONS.map((option) => {
-            const isSelected = selectedEmotion === option.value;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                onPress={() => handleSelect(option.value)}
-                accessibilityRole="button"
-                accessibilityLabel={option.label}
-                accessibilityState={{ selected: isSelected }}
-                style={{
-                  alignItems: 'center',
-                  padding: Tokens.spacing['3'],
-                  borderRadius: Tokens.radius.xl,
-                  backgroundColor: isSelected
-                    ? `${colors.primary.main}20`
-                    : 'transparent',
-                  borderWidth: 2,
-                  borderColor: isSelected ? colors.primary.main : 'transparent',
-                  minWidth: 70,
-                }}
-              >
-                <Text style={{ fontSize: 40 }}>{option.value}</Text>
-                <Text
-                  variant="caption"
-                  size="xs"
-                  weight={isSelected ? 'semibold' : 'regular'}
-                  style={{
-                    color: isSelected ? colors.primary.main : colors.text.tertiary,
-                    marginTop: Tokens.spacing['1'],
-                  }}
-                >
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </Box>
-
-        {/* Continue Button */}
-        <Button
-          title={context === 'before' ? 'Começar Ritual' : 'Finalizar'}
-          onPress={handleContinue}
-          disabled={!selectedEmotion}
-          style={{
-            backgroundColor: colors.primary.main,
-          }}
-        />
-      </Box>
-    </Animated.View>
-  );
-};
-
-// ============================================
-// BREATHING GUIDE COMPONENT
-// ============================================
-interface BreathingGuideProps {
-  config: BreathingConfig;
-  onComplete: () => void;
-  isPaused: boolean;
-}
-
-const BreathingGuide: React.FC<BreathingGuideProps> = ({
-  config,
-  onComplete,
-  isPaused,
-}) => {
-  const { colors } = useTheme();
-  const [currentPhase, setCurrentPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
-  const [cyclesCompleted, setCyclesCompleted] = useState(0);
-  const [countdown, setCountdown] = useState(config.inhaleDuration);
-
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.6);
-
-  // Animation based on phase
-  useEffect(() => {
-    if (isPaused) {
-      cancelAnimation(scale);
-      return;
-    }
-
-    if (currentPhase === 'inhale') {
-      scale.value = withTiming(1.5, {
-        duration: config.inhaleDuration * 1000,
-        easing: Easing.inOut(Easing.ease),
-      });
-      opacity.value = withTiming(1, { duration: config.inhaleDuration * 1000 });
-    } else if (currentPhase === 'hold') {
-      // Keep scale steady during hold
-    } else if (currentPhase === 'exhale') {
-      scale.value = withTiming(1, {
-        duration: config.exhaleDuration * 1000,
-        easing: Easing.inOut(Easing.ease),
-      });
-      opacity.value = withTiming(0.6, { duration: config.exhaleDuration * 1000 });
-    }
-  }, [currentPhase, isPaused, config, scale, opacity]);
-
-  // Timer logic
-  useEffect(() => {
-    if (isPaused) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          // Transition to next phase
-          if (currentPhase === 'inhale') {
-            setCurrentPhase('hold');
-            return config.holdDuration;
-          } else if (currentPhase === 'hold') {
-            setCurrentPhase('exhale');
-            return config.exhaleDuration;
-          } else {
-            // Exhale complete - new cycle
-            const newCycles = cyclesCompleted + 1;
-            setCyclesCompleted(newCycles);
-
-            if (newCycles >= config.cycles) {
-              onComplete();
-              return 0;
-            }
-
-            setCurrentPhase('inhale');
-            return config.inhaleDuration;
-          }
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [currentPhase, cyclesCompleted, isPaused, config, onComplete]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
-
-  const phaseLabels = {
-    inhale: 'Inspire...',
-    hold: 'Segure...',
-    exhale: 'Expire...',
-  };
-
-  return (
-    <Box align="center" gap="6" py="4">
-      {/* Breathing Circle */}
-      <Animated.View style={animatedStyle}>
-        <View
-          style={{
-            width: 180,
-            height: 180,
-            borderRadius: 90,
-            backgroundColor: `${colors.primary.main}30`,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 4,
-            borderColor: colors.primary.main,
-          }}
-        >
-      <Text
-        variant="body"
-        size="3xl"
-        weight="bold"
-        style={{ color: colors.primary.main }}
-      >
-        {countdown}
-      </Text>
-        </View>
-      </Animated.View>
-
-      {/* Phase Label */}
-      <Text
-        variant="body"
-        size="xl"
-        weight="semibold"
-        style={{ color: colors.text.primary }}
-      >
-        {phaseLabels[currentPhase]}
-      </Text>
-
-      {/* Progress */}
-      <Box direction="row" gap="2" align="center">
-        {Array.from({ length: config.cycles }).map((_, i) => (
-          <View
-            key={i}
-            style={{
-              width: 12,
-              height: 12,
-              borderRadius: 6,
-              backgroundColor:
-                i < cyclesCompleted
-                  ? colors.primary.main
-                  : i === cyclesCompleted
-                  ? `${colors.primary.main}60`
-                  : colors.border.light,
-            }}
-          />
-        ))}
-      </Box>
-      <Text variant="caption" size="sm" style={{ color: colors.text.tertiary }}>
-        Ciclo {cyclesCompleted + 1} de {config.cycles}
-      </Text>
-    </Box>
-  );
-};
-
-// ============================================
-// AMBIENT SOUND SELECTOR
-// ============================================
-interface AmbientSoundSelectorProps {
-  selectedSound: AmbientSoundType | null;
-  enabled: boolean;
-  onToggle: () => void;
-  onSelectSound: (sound: AmbientSoundType) => void;
-}
-
-const AmbientSoundSelector: React.FC<AmbientSoundSelectorProps> = ({
-  selectedSound,
-  enabled,
-  onToggle,
-  onSelectSound,
-}) => {
-  const { colors } = useTheme();
-
-  return (
-    <Box
-      p="4"
-      gap="3"
-      style={{
-        backgroundColor: colors.background.card,
-        borderRadius: Tokens.radius['2xl'],
-        borderWidth: 1,
-        borderColor: colors.border.light,
-      }}
-    >
-      <Box direction="row" justify="space-between" align="center">
-        <Text variant="body" size="sm" weight="semibold" style={{ color: colors.text.primary }}>
-          Som ambiente
-        </Text>
-        <TouchableOpacity onPress={onToggle} accessibilityLabel="Alternar som ambiente">
-          {enabled ? (
-            <Volume2 size={24} color={colors.primary.main} />
-          ) : (
-            <VolumeX size={24} color={colors.text.tertiary} />
-          )}
-        </TouchableOpacity>
-      </Box>
-
-      {enabled && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <Box direction="row" gap="2">
-            {AMBIENT_SOUNDS.map((sound) => (
-              <TouchableOpacity
-                key={sound.type}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  onSelectSound(sound.type);
-                }}
-                style={{
-                  paddingHorizontal: Tokens.spacing['3'],
-                  paddingVertical: Tokens.spacing['2'],
-                  borderRadius: Tokens.radius.full,
-                  backgroundColor:
-                    selectedSound === sound.type
-                      ? colors.primary.main
-                      : colors.background.input,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: Tokens.spacing['1'],
-                }}
-              >
-                <Text>{sound.icon}</Text>
-                <Text
-                  variant="caption"
-                  size="xs"
-                  style={{
-                    color: selectedSound === sound.type ? '#FFFFFF' : colors.text.secondary,
-                  }}
-                >
-                  {sound.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </Box>
-        </ScrollView>
-      )}
-    </Box>
-  );
-};
-
-// ============================================
-// MAIN SCREEN COMPONENT
-// ============================================
 export default function RitualScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -425,8 +66,11 @@ export default function RitualScreen() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [ambientSound, setAmbientSound] = useState<AmbientSoundType | null>('rain');
-  const [ambientEnabled, setAmbientEnabled] = useState(true);
+  const [ambientSoundConfig, setAmbientSoundConfig] = useState<AmbientSoundConfig>({
+    type: 'rain',
+    volume: 0.3,
+    enabled: true,
+  });
   const startTimeRef = useRef<number>(0);
 
   // Ritual Steps
@@ -569,19 +213,23 @@ export default function RitualScreen() {
   // ============================================
   if (phase === 'preparation') {
     return (
-      <View
+      <SafeAreaView
         style={{
           flex: 1,
           backgroundColor: colors.background.canvas,
-          paddingTop: insets.top,
         }}
       >
+        <RitualAnimations animationType="gradient" progress={0} />
         {/* Header */}
         <Box
           direction="row"
           align="center"
           p="4"
-          style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border.light,
+            paddingTop: insets.top + Tokens.spacing['4'],
+          }}
         >
           <TouchableOpacity
             onPress={handleGoBack}
@@ -597,33 +245,22 @@ export default function RitualScreen() {
             <ArrowLeft size={24} color={colors.text.primary} />
           </TouchableOpacity>
           <Box flex={1} ml="3">
-          <Text
-            variant="body"
-            size="lg"
-            weight="bold"
-            style={{ color: colors.primary.main }}
-          >
-            ✨ Ritual de Reconexão
-          </Text>
-            <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
+            <Text size="lg" weight="bold" style={{ color: colors.primary.main }}>
+              ✨ Ritual de Reconexão
+            </Text>
+            <Text size="xs" color="tertiary">
               ~{Math.ceil(totalDuration / 60)} minutos
             </Text>
           </Box>
         </Box>
 
-        <ScrollView
-          contentContainerStyle={{
-            paddingBottom: insets.bottom + Tokens.spacing['8'],
-          }}
-        >
-          <EmotionCheckIn
-            onComplete={handleStartRitual}
-            context="before"
-            title="Como você está se sentindo agora?"
-            description="Vamos começar reconhecendo como você está neste momento."
-          />
-        </ScrollView>
-      </View>
+        <EmotionCheckIn
+          onComplete={handleStartRitual}
+          context="before"
+          title="Como você está se sentindo agora?"
+          description="Vamos começar reconhecendo como você está neste momento."
+        />
+      </SafeAreaView>
     );
   }
 
@@ -637,20 +274,26 @@ export default function RitualScreen() {
       EMOTION_OPTIONS.findIndex((e) => e.value === emotionAfter.emotion) >
         EMOTION_OPTIONS.findIndex((e) => e.value === emotionBefore.emotion);
 
+    const totalDuration = Math.floor((Date.now() - startTimeRef.current) / 60);
+
     return (
-      <View
+      <SafeAreaView
         style={{
           flex: 1,
           backgroundColor: colors.background.canvas,
-          paddingTop: insets.top,
         }}
       >
+        <RitualAnimations animationType="particles" progress={100} />
         {/* Header */}
         <Box
           direction="row"
           align="center"
           p="4"
-          style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+          style={{
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border.light,
+            paddingTop: insets.top + Tokens.spacing['4'],
+          }}
         >
           <TouchableOpacity
             onPress={handleGoBack}
@@ -672,6 +315,7 @@ export default function RitualScreen() {
             padding: Tokens.spacing['4'],
             paddingBottom: insets.bottom + Tokens.spacing['8'],
           }}
+          showsVerticalScrollIndicator={false}
         >
           {!emotionAfter ? (
             <EmotionCheckIn
@@ -691,32 +335,29 @@ export default function RitualScreen() {
                     width: 80,
                     height: 80,
                     borderRadius: 40,
-                    backgroundColor: colors.primary.main,
+                    backgroundColor: ColorTokens.success[500],
+                    ...Tokens.shadows.xl,
                   }}
                 >
-                  <CheckCircle2 size={40} color="#FFFFFF" />
+                  <CheckCircle2 size={40} color={ColorTokens.neutral[0]} fill={ColorTokens.neutral[0]} />
                 </Box>
 
-              {/* Success Message */}
-              <Box gap="2" align="center">
-                <Text
-                  variant="body"
-                  size="2xl"
-                  weight="bold"
-                  align="center"
-                  style={{ color: colors.primary.main }}
-                >
-                  Ritual Concluído! ✨
-                </Text>
-                <Text
-                  variant="body"
-                  size="lg"
-                  align="center"
-                  style={{ color: colors.text.secondary }}
-                >
-                  Você completou seu ritual de reconexão.
-                </Text>
-              </Box>
+                {/* Success Message */}
+                <Box gap="2" align="center">
+                  <Text
+                    size="2xl"
+                    weight="bold"
+                    align="center"
+                    style={{
+                      color: isDark ? ColorTokens.primary[300] : ColorTokens.primary[600],
+                    }}
+                  >
+                    Pausa Concluída! ✨
+                  </Text>
+                  <Text size="lg" align="center" color="secondary">
+                    Você dedicou {totalDuration} minutos para você mesma. Isso faz toda a diferença.
+                  </Text>
+                </Box>
 
                 {/* Emotion Journey */}
                 {emotionBefore && emotionAfter && (
@@ -725,29 +366,20 @@ export default function RitualScreen() {
                     gap="4"
                     style={{
                       backgroundColor: colors.background.card,
-                      borderRadius: Tokens.radius['2xl'],
+                      borderRadius: Tokens.radius['3xl'],
                       borderWidth: 2,
                       borderColor: colors.border.light,
                       width: '100%',
+                      ...Tokens.shadows.xl,
                     }}
                   >
-                <Text
-                  variant="label"
-                  size="md"
-                  weight="bold"
-                  align="center"
-                  style={{ color: colors.text.primary }}
-                >
-                  Sua Jornada
-                </Text>
+                    <Text size="lg" weight="bold" align="center">
+                      Sua Jornada
+                    </Text>
                     <Box direction="row" align="center" justify="space-between">
                       <Box align="center">
-                        <Text style={{ fontSize: 40 }}>{emotionBefore.emotion}</Text>
-                        <Text
-                          variant="caption"
-                          size="xs"
-                          style={{ color: colors.text.tertiary }}
-                        >
+                        <Text size="4xl">{emotionBefore.emotion}</Text>
+                        <Text size="xs" color="tertiary">
                           Antes
                         </Text>
                       </Box>
@@ -761,23 +393,18 @@ export default function RitualScreen() {
                         }}
                       />
                       <Box align="center">
-                        <Text style={{ fontSize: 40 }}>{emotionAfter.emotion}</Text>
-                        <Text
-                          variant="caption"
-                          size="xs"
-                          style={{ color: colors.text.tertiary }}
-                        >
+                        <Text size="4xl">{emotionAfter.emotion}</Text>
+                        <Text size="xs" color="tertiary">
                           Depois
                         </Text>
                       </Box>
                     </Box>
                     {emotionImproved && (
                       <Text
-                        variant="body"
                         size="sm"
                         weight="semibold"
                         align="center"
-                        style={{ color: Tokens.colors.success[600] }}
+                        style={{ color: ColorTokens.success[600] }}
                       >
                         Você se sente melhor! 🎉
                       </Text>
@@ -790,43 +417,70 @@ export default function RitualScreen() {
                   <Button
                     title="Conversar com NathIA"
                     onPress={() => navigation.navigate('Main', { screen: 'Chat' })}
-                    leftIcon={<Heart size={20} color="#FFFFFF" />}
+                    leftIcon={<Heart size={20} color={ColorTokens.neutral[0]} />}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    style={{
+                      borderRadius: Tokens.radius['2xl'],
+                      backgroundColor: isDark ? ColorTokens.primary[600] : ColorTokens.primary[500],
+                      ...Tokens.shadows.lg,
+                    }}
                   />
                   <Button
                     title="Voltar para Home"
                     onPress={handleGoBack}
                     variant="outline"
+                    size="lg"
+                    fullWidth
+                    style={{
+                      borderRadius: Tokens.radius['2xl'],
+                      borderWidth: 2,
+                      borderColor: colors.primary.main,
+                    }}
                   />
                 </Box>
               </Box>
             </Animated.View>
           )}
         </ScrollView>
-      </View>
+      </SafeAreaView>
     );
   }
 
   // ============================================
   // RENDER: RUNNING PHASE
   // ============================================
+  const { isDark } = useTheme();
+
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: colors.background.canvas,
-        paddingTop: insets.top,
       }}
     >
+      <RitualAnimations
+        animationType={currentStep?.animationType}
+        stepType={currentStep?.type}
+        progress={progress}
+      />
+
       {/* Header */}
       <Box
         direction="row"
         align="center"
         p="4"
         gap="3"
-        style={{ borderBottomWidth: 1, borderBottomColor: colors.border.light }}
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border.light,
+          paddingTop: insets.top + Tokens.spacing['4'],
+        }}
       >
         <TouchableOpacity
           onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             if (currentStepIndex > 0) {
               navigation.goBack();
             } else {
@@ -845,15 +499,10 @@ export default function RitualScreen() {
           <ArrowLeft size={24} color={colors.text.primary} />
         </TouchableOpacity>
         <Box flex={1}>
-          <Text
-            variant="body"
-            size="md"
-            weight="bold"
-            style={{ color: colors.primary.main }}
-          >
-            Ritual de Reconexão
+          <Text size="base" weight="bold" style={{ color: colors.primary.main }}>
+            Momento de Autocuidado
           </Text>
-          <Text variant="caption" size="xs" style={{ color: colors.text.tertiary }}>
+          <Text size="xs" color="tertiary">
             Passo {currentStepIndex + 1} de {steps.length}
           </Text>
         </Box>
@@ -863,19 +512,14 @@ export default function RitualScreen() {
             align="center"
             gap="1"
             px="3"
-            py="1"
+            py="1.5"
             style={{
-              backgroundColor: colors.background.input,
+              backgroundColor: isDark ? ColorTokens.neutral[800] : ColorTokens.neutral[100],
               borderRadius: Tokens.radius.full,
             }}
           >
             <Clock size={16} color={colors.text.tertiary} />
-            <Text
-              variant="caption"
-              size="sm"
-              weight="semibold"
-              style={{ color: colors.text.secondary }}
-            >
+            <Text size="sm" weight="semibold" color="secondary">
               {formatTime(timeRemaining)}
             </Text>
           </Box>
@@ -887,26 +531,15 @@ export default function RitualScreen() {
           padding: Tokens.spacing['4'],
           paddingBottom: insets.bottom + Tokens.spacing['8'],
         }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Progress Bar */}
-        <Box mb="4">
-          <View
-            style={{
-              height: 6,
-              backgroundColor: colors.border.light,
-              borderRadius: 3,
-            }}
-          >
-            <View
-              style={{
-                width: `${progress}%`,
-                height: '100%',
-                backgroundColor: colors.primary.main,
-                borderRadius: 3,
-              }}
-            />
-          </View>
-        </Box>
+        {/* Progress */}
+        <RitualProgress
+          steps={steps}
+          currentStepIndex={currentStepIndex}
+          progress={progress}
+          timeRemaining={timeRemaining}
+        />
 
         {/* Step Card */}
         <Animated.View
@@ -921,6 +554,7 @@ export default function RitualScreen() {
               borderRadius: Tokens.radius['3xl'],
               borderWidth: 2,
               borderColor: colors.border.light,
+              ...Tokens.shadows.xl,
             }}
           >
             {/* Step Header */}
@@ -932,10 +566,11 @@ export default function RitualScreen() {
                   width: 64,
                   height: 64,
                   borderRadius: 32,
-                  backgroundColor: colors.primary.main,
+                  backgroundColor: isDark ? ColorTokens.primary[600] : ColorTokens.primary[500],
+                  ...Tokens.shadows.lg,
                 }}
               >
-                <Sparkles size={32} color="#FFFFFF" />
+                <Sparkles size={32} color={ColorTokens.neutral[0]} />
               </Box>
               <Box
                 px="3"
@@ -945,30 +580,21 @@ export default function RitualScreen() {
                   borderRadius: Tokens.radius.full,
                 }}
               >
-                <Text
-                  variant="caption"
-                  size="xs"
-                  weight="semibold"
-                  style={{ color: colors.primary.main }}
-                >
+                <Text size="xs" weight="semibold" style={{ color: colors.primary.main }}>
                   Passo {currentStepIndex + 1}
                 </Text>
               </Box>
               <Text
-                variant="body"
-                size="xl"
+                size="2xl"
                 weight="bold"
                 align="center"
-                style={{ color: colors.text.primary }}
+                style={{
+                  color: isDark ? ColorTokens.primary[300] : ColorTokens.primary[600],
+                }}
               >
                 {currentStep?.title}
               </Text>
-              <Text
-                variant="body"
-                size="md"
-                align="center"
-                style={{ color: colors.text.secondary }}
-              >
+              <Text size="lg" align="center" color="secondary" style={{ lineHeight: Tokens.typography.lineHeights.relaxed }}>
                 {currentStep?.description}
               </Text>
             </Box>
@@ -978,42 +604,91 @@ export default function RitualScreen() {
               <BreathingGuide
                 config={currentStep.breathingConfig}
                 onComplete={handleStepComplete}
-                isPaused={isPaused}
+                autoStart={!isPaused}
               />
             )}
 
-            {currentStep?.type !== 'breathing' && (
+            {/* Áudio guiado (se disponível) */}
+            {currentStep?.audioTrack && (
+              <AudioGuide
+                trackUrl={currentStep.audioTrack}
+                autoPlay={!isPaused}
+                fallbackText={currentStep.content}
+                onEnded={handleStepComplete}
+              />
+            )}
+
+            {/* Conteúdo padrão */}
+            {!currentStep?.breathingConfig && !currentStep?.audioTrack && (
               <Box
-                p="4"
+                p="5"
                 style={{
-                  backgroundColor: `${colors.primary.main}10`,
-                  borderRadius: Tokens.radius.xl,
+                  backgroundColor: isDark ? `${ColorTokens.neutral[800]}80` : `${ColorTokens.neutral[100]}80`,
+                  borderRadius: Tokens.radius['2xl'],
                 }}
               >
                 <Text
-                  variant="body"
                   size="md"
                   align="center"
-                  style={{ color: colors.text.primary, fontStyle: 'italic' }}
+                  style={{
+                    color: colors.text.primary,
+                    lineHeight: Tokens.typography.lineHeights.relaxed,
+                  }}
                 >
                   {currentStep?.content}
                 </Text>
               </Box>
             )}
+
+            {/* Timer visual (apenas se não for respiração) */}
+            {currentStep?.type !== 'breathing' && (
+              <Box align="center">
+                <View
+                  style={{
+                    width: 128,
+                    height: 128,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                  }}
+                >
+                  <View
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: 64,
+                      borderWidth: 4,
+                      borderColor: isDark ? ColorTokens.neutral[700] : ColorTokens.neutral[200],
+                    }}
+                  />
+                  <View
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: 64,
+                      borderWidth: 4,
+                      borderColor: colors.primary.main,
+                      clipPath: `inset(0 ${((currentStep.duration - timeRemaining) / currentStep.duration) * 100}% 0 0)`,
+                    }}
+                  />
+                  <Text size="3xl" weight="bold" style={{ color: colors.text.primary }}>
+                    {formatTime(timeRemaining)}
+                  </Text>
+                </View>
+              </Box>
+            )}
           </Box>
         </Animated.View>
 
-        {/* Ambient Sound */}
+        {/* Ambiente sonoro */}
         <Box mt="4">
-          <AmbientSoundSelector
-            selectedSound={ambientSound}
-            enabled={ambientEnabled}
-            onToggle={() => setAmbientEnabled(!ambientEnabled)}
-            onSelectSound={setAmbientSound}
+          <AmbientSound
+            config={ambientSoundConfig}
+            onConfigChange={setAmbientSoundConfig}
           />
         </Box>
 
-        {/* Action Buttons */}
+        {/* Botões de Ação */}
         <Box direction="row" gap="3" mt="4">
           <Button
             title={isPaused ? 'Retomar' : 'Pausar'}
@@ -1022,7 +697,7 @@ export default function RitualScreen() {
               setIsPaused(!isPaused);
             }}
             variant="outline"
-            style={{ flex: 1 }}
+            size="lg"
             leftIcon={
               isPaused ? (
                 <Play size={18} color={colors.text.primary} />
@@ -1030,23 +705,32 @@ export default function RitualScreen() {
                 <Pause size={18} color={colors.text.primary} />
               )
             }
+            style={{ flex: 1 }}
           />
           {currentStepIndex < steps.length - 1 && (
             <Button
-              title="Pular"
+              title="Pular Passo"
               onPress={handleSkipStep}
               variant="outline"
-              style={{ flex: 1 }}
+              size="lg"
               leftIcon={<SkipForward size={18} color={colors.text.primary} />}
+              style={{ flex: 1 }}
             />
           )}
           <Button
             title={currentStepIndex < steps.length - 1 ? 'Próximo' : 'Finalizar'}
             onPress={handleStepComplete}
-            style={{ flex: 1 }}
+            variant="primary"
+            size="lg"
+            style={{
+              flex: 1,
+              backgroundColor: isDark ? ColorTokens.primary[600] : ColorTokens.primary[500],
+              borderRadius: Tokens.radius['2xl'],
+              ...Tokens.shadows.lg,
+            }}
           />
         </Box>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

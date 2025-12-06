@@ -15,24 +15,6 @@ jest.mock('@sentry/react-native', () => ({
   Scope: jest.fn(),
 }));
 
-// Mock react-native modules
-jest.mock('react-native', () => ({
-  Platform: {
-    OS: 'ios',
-    select: jest.fn((obj) => obj.ios || obj.default),
-  },
-  Dimensions: {
-    get: jest.fn(() => ({ width: 375, height: 812 })),
-  },
-  StyleSheet: {
-    create: jest.fn((styles) => styles),
-  },
-  View: 'View',
-  Text: 'Text',
-  Pressable: 'Pressable',
-  ActivityIndicator: 'ActivityIndicator',
-}));
-
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => {
   const storage = {};
@@ -61,6 +43,23 @@ jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(() => Promise.resolve(null)),
   setItemAsync: jest.fn(() => Promise.resolve()),
   deleteItemAsync: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock expo-haptics
+jest.mock('expo-haptics', () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  selectionAsync: jest.fn(),
+  ImpactFeedbackStyle: {
+    Light: 'light',
+    Medium: 'medium',
+    Heavy: 'heavy',
+  },
+  NotificationFeedbackType: {
+    Success: 'success',
+    Warning: 'warning',
+    Error: 'error',
+  },
 }));
 
 // Mock expo-constants
@@ -126,3 +125,16 @@ global.console = {
 
 // Mock __DEV__
 global.__DEV__ = true;
+
+// Polyfill para setImmediate (necessário para alguns testes)
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (callback, ...args) => {
+    return setTimeout(() => {
+      callback(...args);
+    }, 0);
+  };
+  
+  global.clearImmediate = (id) => {
+    clearTimeout(id);
+  };
+}

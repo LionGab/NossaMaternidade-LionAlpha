@@ -236,32 +236,116 @@ export class HabitsAnalysisAgent extends BaseAgent {
 
   /**
    * Calcula streaks (sequências)
+   * Agrupa entries por data e considera um dia como completado se pelo menos uma entry for completed
    */
   private calculateStreaks(entries: HabitEntry[]): {
     currentStreak: number;
     bestStreak: number;
   } {
-    let currentStreak = 0;
-    let bestStreak = 0;
-    let tempStreak = 0;
-
-    // Ordenar por data decrescente para pegar streak atual
-    const sorted = [...entries].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    // Calcular current streak (a partir do dia mais recente)
-    for (let i = 0; i < sorted.length; i++) {
-      if (sorted[i].completed) {
-        currentStreak++;
-      } else {
-        break;
+    // Agrupar entries por data (ignorar duplicados no mesmo dia)
+    const daysMap = new Map<string, boolean>();
+    
+    // Validar e processar entries
+    for (const entry of entries) {
+      try {
+        const date = new Date(entry.date);
+        if (isNaN(date.getTime())) {
+          // Data inválida, ignorar
+          continue;
+        }
+        
+        const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        
+        // Se o dia já existe no mapa, considerar como completado se pelo menos uma entry for completed
+        if (daysMap.has(dateKey)) {
+          // Se já está marcado como completado, manter; caso contrário, atualizar se esta entry for completed
+          if (!daysMap.get(dateKey) && entry.completed) {
+            daysMap.set(dateKey, true);
+          }
+        } else {
+          daysMap.set(dateKey, entry.completed);
+        }
+      } catch {
+        // Data inválida, ignorar
+        continue;
       }
     }
 
-    // Calcular best streak
-    for (const entry of entries) {
-      if (entry.completed) {
+    // Converter para array de dias ordenados
+    const days = Array.from(daysMap.entries())
+      .map(([date, completed]) => ({ date, completed }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Calcular current streak (a partir do dia mais recente)
+    let currentStreak = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Verificar se hoje ou ontem foram completados para começar o streak
+    let lastCompletedDate: Date | null = null;
+    for (const day of days) {
+      const dayDate = new Date(day.date);
+      dayDate.setHours(0, 0, 0, 0);
+      
+      // Ignorar datas futuras
+      if (dayDate > today) {
+        continue;
+      }
+
+      if (day.completed) {
+        if (lastCompletedDate === null) {
+          // Primeiro dia completado encontrado
+          lastCompletedDate = dayDate;
+          currentStreak = 1;
+        } else {
+          // Verificar se é consecutivo (diferença de 1 dia)
+          const daysDiff = Math.floor(
+            (lastCompletedDate.getTime() - dayDate.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          
+          if (daysDiff === 1) {
+            // Consecutivo, continuar streak
+            currentStreak++;
+            lastCompletedDate = dayDate;
+          } else if (daysDiff > 1) {
+            // Gap maior que 1 dia, quebrar streak
+            break;
+          }
+          // Se daysDiff === 0, é o mesmo dia (já processado), ignorar
+        }
+      } else {
+        // Dia não completado, quebrar streak se já começou
+        if (lastCompletedDate !== null) {
+          const daysDiff = Math.floor(
+            (lastCompletedDate.getTime() - dayDate.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          if (daysDiff > 1) {
+            // Gap maior que 1 dia, quebrar streak
+            break;
+          }
+        }
+      }
+    }
+
+    // Calcular best streak (melhor sequência de qualquer período)
+    let bestStreak = 0;
+    let tempStreak = 0;
+
+    // Ordenar por data crescente para calcular best streak
+    const sortedDays = [...days].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    for (const day of sortedDays) {
+      const dayDate = new Date(day.date);
+      dayDate.setHours(0, 0, 0, 0);
+      
+      // Ignorar datas futuras
+      if (dayDate > today) {
+        continue;
+      }
+
+      if (day.completed) {
         tempStreak++;
         bestStreak = Math.max(bestStreak, tempStreak);
       } else {

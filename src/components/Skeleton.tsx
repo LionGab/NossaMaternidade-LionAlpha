@@ -43,6 +43,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     if (animated) {
       shimmerTranslate.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
     }
+    // shimmerTranslate é useSharedValue (estável), não precisa estar nas dependências
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -64,12 +66,14 @@ export const Skeleton: React.FC<SkeletonProps> = ({
           borderRadius: borderRadius ? Radius[borderRadius] : Radius.sm,
         };
       case 'circular':
-        const size = typeof width === 'number' ? width : 40;
-        return {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-        };
+        {
+          const size = typeof width === 'number' ? width : 40;
+          return {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+          };
+        }
       case 'rectangular':
       default:
         return {

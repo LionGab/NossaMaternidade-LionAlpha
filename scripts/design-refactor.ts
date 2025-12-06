@@ -274,8 +274,8 @@ class DesignRefactorEngine {
    */
   async refactorFile(filePath: string, dryRun = false): Promise<RefactorResult> {
     const violations = this.analyzeFile(filePath);
-    let content = fs.readFileSync(filePath, 'utf-8');
-    let changes = 0;
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const changes = 0;
 
     if (violations.length === 0) {
       return {
